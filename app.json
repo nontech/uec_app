@@ -10,7 +10,10 @@
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.urbaneatsclub.uecapp"
+      "bundleIdentifier": "com.urbaneatsclub.uecapp",
+      "localhost": {
+        "url": "http://192.168.X.X:54321"
+      }
     },
     "android": {
       "adaptiveIcon": {
