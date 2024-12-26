@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "uec_app",
-    "slug": "uec_app",
+    "name": "uec-app",
+    "slug": "uec-app",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
@@ -10,13 +10,14 @@
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.anonymous.uec-app"
+      "bundleIdentifier": "com.urbaneatsclub.uecapp"
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "package": "com.urbaneatsclub.uecapp"
     },
     "web": {
       "bundler": "metro",
