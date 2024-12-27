@@ -1,21 +1,34 @@
 import { createContext, useContext, useEffect, useState } from 'react';
 import { Session } from '@supabase/supabase-js';
 import { supabase } from './supabase';
-import { View, ActivityIndicator, Platform } from 'react-native';
+import { View, ActivityIndicator } from 'react-native';
+import * as SplashScreen from 'expo-splash-screen';
+import { router } from 'expo-router';
 
 type AuthContextType = {
   session: Session | null;
   loading: boolean;
+  signOut: () => Promise<void>;
 };
 
 const AuthContext = createContext<AuthContextType>({
   session: null,
   loading: true,
+  signOut: async () => {},
 });
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
+
+  const handleSignOut = async () => {
+    try {
+      await supabase.auth.signOut();
+      setSession(null);
+    } catch (error) {
+      console.error('Error signing out:', error);
+    }
+  };
 
   useEffect(() => {
     // Handle initial session
@@ -27,6 +40,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setSession(session);
       } catch (error) {
         console.error('Error getting session:', error);
+        setSession(null);
       } finally {
         setLoading(false);
       }
@@ -37,21 +51,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     // Handle auth state changes
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session);
+    } = supabase.auth.onAuthStateChange(async (event, session) => {
+      console.log(
+        'Auth state changed:',
+        event,
+        session ? 'session exists' : 'no session'
+      );
+      if (event === 'SIGNED_OUT') {
+        setSession(null);
+      } else {
+        setSession(session);
+      }
     });
-
-    // Handle URL changes for web platform
-    if (Platform.OS === 'web') {
-      supabase.auth.onAuthStateChange((event, session) => {
-        if (event === 'SIGNED_IN') {
-          // Update URL without redirecting for a clean UX
-          const newUrl = new URL(window.location.href);
-          newUrl.searchParams.delete('code');
-          window.history.replaceState({}, '', newUrl.toString());
-        }
-      });
-    }
 
     return () => {
       subscription.unsubscribe();
@@ -67,7 +78,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <AuthContext.Provider value={{ session, loading }}>
+    <AuthContext.Provider value={{ session, loading, signOut: handleSignOut }}>
       {children}
     </AuthContext.Provider>
   );
@@ -76,3 +87,5 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 export function useAuth() {
   return useContext(AuthContext);
 }
+
+export { supabase };
