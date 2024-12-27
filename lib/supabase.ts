@@ -45,11 +45,39 @@ const customStorage = {
 
 let supabaseInstance: SupabaseClient | null = null;
 
+const extractIPv4FromIPv6 = (ipv6: string): string | null => {
+  // Common IPv6 formats that contain IPv4:
+  // ::ffff:192.168.1.1
+  // ::ffff:c0a8:101 (hex format)
+
+  // Check for ::ffff: prefix with decimal format
+  const match = ipv6.match(/:(?:ffff:)?(\d+\.\d+\.\d+\.\d+)$/i);
+  if (match) {
+    return match[1];
+  }
+
+  // Check for hex format
+  const hexMatch = ipv6.match(/:(?:ffff:)?([0-9a-f]{4}):([0-9a-f]{4})$/i);
+  if (hexMatch) {
+    // Convert from hex to decimal
+    const hex1 = parseInt(hexMatch[1], 16);
+    const hex2 = parseInt(hexMatch[2], 16);
+    const part1 = (hex1 >> 8) & 0xff;
+    const part2 = hex1 & 0xff;
+    const part3 = (hex2 >> 8) & 0xff;
+    const part4 = hex2 & 0xff;
+    return `${part1}.${part2}.${part3}.${part4}`;
+  }
+
+  return null;
+};
+
 const initSupabase = async () => {
+  const deviceInfo = extractIPv4FromIPv6(await DeviceInfo.getIpAddress());
   const url =
     Platform.OS === 'web'
       ? 'http://localhost:54321'
-      : `http://${await DeviceInfo.getIpAddress()}:54321`;
+      : `http://${deviceInfo}:54321`;
 
   const client = createClient(url, supabaseAnonKey, {
     auth: {
