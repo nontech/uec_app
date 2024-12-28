@@ -6,6 +6,7 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { DrawerContentScrollView, DrawerItem } from '@react-navigation/drawer';
 import React from 'react';
 import signOut from './sign-out';
+import '../global.css';
 
 const AuthCheck = () => {
   const { session, loading } = useAuth();

@@ -7,5 +7,6 @@ module.exports = {
   theme: {
     extend: {},
   },
-  plugins: [],
-}
+  plugins: [require("nativewind/tailwind/css")],
+  important: 'html',
+};
