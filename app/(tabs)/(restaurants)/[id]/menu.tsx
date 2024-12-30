@@ -1,9 +1,17 @@
-import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
+import {
+  View,
+  Text,
+  ScrollView,
+  TouchableOpacity,
+  Modal,
+  Pressable,
+} from 'react-native';
 import { useLocalSearchParams } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { supabase } from '../../../../lib/supabase';
 import { Database } from '../../../../supabase/types';
 import { Ionicons } from '@expo/vector-icons';
+import { Image } from 'expo-image';
 
 type MenuItem = Database['public']['Tables']['menu_items']['Row'];
 
@@ -39,6 +47,8 @@ export default function Menu() {
   const restaurantId = params.id as string;
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const [selectedItem, setSelectedItem] = useState<MenuItem | null>(null);
+  const [showCheckout, setShowCheckout] = useState(false);
   const currentDay = getCurrentDay();
 
   useEffect(() => {
@@ -56,10 +66,7 @@ export default function Menu() {
         .eq('day', currentDay)
         .order('category');
 
-      if (error) {
-        throw error;
-      }
-
+      if (error) throw error;
       if (data) {
         setMenuItems(data);
       }
@@ -69,6 +76,72 @@ export default function Menu() {
       setLoading(false);
     }
   }
+
+  const handleItemPress = (item: MenuItem) => {
+    setSelectedItem(item);
+    setShowCheckout(true);
+  };
+
+  const CheckoutModal = () => (
+    <Modal
+      animationType="slide"
+      transparent={true}
+      visible={showCheckout}
+      onRequestClose={() => setShowCheckout(false)}
+    >
+      <View className="flex-1 bg-white">
+        {/* Header with close button */}
+        <View className="flex-row justify-between items-center p-4 border-b border-gray-200">
+          <TouchableOpacity
+            onPress={() => setShowCheckout(false)}
+            className="p-2"
+          >
+            <Ionicons name="close" size={24} color="black" />
+          </TouchableOpacity>
+          <Text className="text-xl font-semibold">Checkout</Text>
+          <View style={{ width: 40 }}>
+            <Text> </Text>
+          </View>
+        </View>
+
+        {/* Content */}
+        <View className="p-6 flex-1">
+          <Text className="text-xl mb-2">Confirm Payment for</Text>
+          <View className="bg-[#FDF7FF] p-4 rounded-lg mb-8">
+            <Text className="text-lg font-medium">
+              {selectedItem?.name || ''}
+            </Text>
+            <Text className="text-gray-600">
+              {selectedItem?.description || ''}
+            </Text>
+          </View>
+
+          {/* Virtual Card Payment Section */}
+          <View className="flex-1 max-h-[500px] justify-center items-center">
+            <View className="w-full max-w-[300px] aspect-square relative">
+              <View className="absolute inset-0 bg-[#4CAF50] rounded-full justify-center items-center">
+                <Text className="text-white text-xl mb-8">
+                  <Text>TAP NOW TO PAY</Text>
+                </Text>
+                <View className="border-2 border-white rounded-full p-6">
+                  <Ionicons name="wifi" size={48} color="white" />
+                </View>
+              </View>
+            </View>
+
+            {/* Payment Methods */}
+            <View className="mt-8">
+              <Image
+                source="https://res.cloudinary.com/dc0tfxkph/image/upload/v1703963191/uec_app/payment-methods.png"
+                style={{ width: 200, height: 30 }}
+                contentFit="contain"
+              />
+            </View>
+          </View>
+        </View>
+      </View>
+    </Modal>
+  );
 
   if (loading) {
     return (
@@ -104,6 +177,7 @@ export default function Menu() {
           <TouchableOpacity
             key={item.id}
             className="mb-6 bg-[#FDF7FF] rounded-lg p-4"
+            onPress={() => handleItemPress(item)}
           >
             <View className="flex-row justify-between items-start">
               <View className="flex-1 pr-4">
@@ -117,6 +191,8 @@ export default function Menu() {
           </TouchableOpacity>
         ))}
       </View>
+
+      <CheckoutModal />
     </ScrollView>
   );
 }
