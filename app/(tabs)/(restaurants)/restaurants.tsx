@@ -4,16 +4,9 @@ import { useEffect, useState } from 'react';
 import { supabase } from '../../../lib/supabase';
 import { Image } from 'expo-image';
 import { Ionicons } from '@expo/vector-icons';
+import { Database } from '../../../supabase/types';
 
-type Restaurant = {
-  id: string;
-  name: string;
-  description: string;
-  cuisine_type: string;
-  image_url: string;
-  opening_hours: string;
-  created_at: string;
-};
+type Restaurant = Database['public']['Tables']['restaurants']['Row'];
 
 // Placeholder image URL
 const PLACEHOLDER_IMAGE =
@@ -68,7 +61,12 @@ export default function RestaurantsHome() {
   const renderRestaurant = ({ item }: { item: Restaurant }) => (
     <TouchableOpacity
       className="mb-10"
-      onPress={() => router.push(`/(tabs)/(restaurants)/${item.id}/menu`)}
+      onPress={() =>
+        router.push({
+          pathname: '/(tabs)/(restaurants)/[id]/menu',
+          params: { id: item.id },
+        })
+      }
     >
       <Image
         source={item.image_url || PLACEHOLDER_IMAGE}
@@ -88,7 +86,7 @@ export default function RestaurantsHome() {
             <View className="flex-row items-center">
               <Ionicons name="time-outline" size={16} color="#666" />
               <Text className="text-gray-600 ml-1">
-                {formatOpeningHours(item.opening_hours)}
+                {formatOpeningHours(item.opening_hours || '')}
               </Text>
             </View>
             <View className="flex-row items-center ml-6">
