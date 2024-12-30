@@ -12,11 +12,32 @@ const supabaseUrl = Platform.select({
   default: 'http://127.0.0.1:54321',
 });
 
-const customStorage = {
+// Check if we're in a web environment with localStorage available
+const isWebWithStorage = () => {
+  try {
+    return typeof window !== 'undefined' && window.localStorage !== undefined;
+  } catch (e) {
+    return false;
+  }
+};
+
+// Cross-platform storage implementation
+const storage = {
+  setItem: async (key: string, value: string) => {
+    try {
+      if (isWebWithStorage()) {
+        window.localStorage.setItem(key, value);
+        return;
+      }
+      await AsyncStorage.setItem(key, value);
+    } catch (error) {
+      console.error('Error setting storage:', error);
+    }
+  },
   getItem: async (key: string) => {
     try {
-      if (Platform.OS === 'web') {
-        return localStorage.getItem(key);
+      if (isWebWithStorage()) {
+        return window.localStorage.getItem(key);
       }
       return await AsyncStorage.getItem(key);
     } catch (error) {
@@ -24,24 +45,13 @@ const customStorage = {
       return null;
     }
   },
-  setItem: async (key: string, value: string) => {
-    try {
-      if (Platform.OS === 'web') {
-        localStorage.setItem(key, value);
-      } else {
-        await AsyncStorage.setItem(key, value);
-      }
-    } catch (error) {
-      console.error('Error setting storage:', error);
-    }
-  },
   removeItem: async (key: string) => {
     try {
-      if (Platform.OS === 'web') {
-        localStorage.removeItem(key);
-      } else {
-        await AsyncStorage.removeItem(key);
+      if (isWebWithStorage()) {
+        window.localStorage.removeItem(key);
+        return;
       }
+      await AsyncStorage.removeItem(key);
     } catch (error) {
       console.error('Error removing from storage:', error);
     }
@@ -53,7 +63,7 @@ let supabaseInstance: SupabaseClient | null = null;
 const initSupabase = async () => {
   const client = createClient(supabaseUrl, supabaseAnonKey, {
     auth: {
-      storage: customStorage,
+      storage: storage,
       autoRefreshToken: true,
       persistSession: true,
       detectSessionInUrl: false,
