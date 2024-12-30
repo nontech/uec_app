@@ -37,14 +37,35 @@ export default function Auth() {
 
     setLoading(true);
     try {
-      const { data, error } = await supabase.auth.signUp({
+      const { data: authData, error: authError } = await supabase.auth.signUp({
         email,
         password,
       });
 
-      if (error) {
-        Alert.alert('Error', error.message);
-      } else if (!data.session) {
+      if (authError) {
+        Alert.alert('Error', authError.message);
+        return;
+      }
+
+      if (authData.user) {
+        // Add user to app_users table
+        const { error: dbError } = await supabase.from('app_users').insert([
+          {
+            id: authData.user.id,
+            type: 'employee',
+            company_email: email,
+            first_name: email.split('@')[0], // Using email prefix as first name temporarily
+            company_id: '56b8d075-4dcb-46a4-b1f1-95c372db3601', // You might want to handle this differently
+          },
+        ]);
+
+        if (dbError) {
+          console.error('Error adding user to app_users:', dbError);
+          // Optionally handle the error, maybe delete the auth user if this fails
+        }
+      }
+
+      if (!authData.session) {
         Alert.alert(
           'Success',
           'Please check your inbox for email verification!'
