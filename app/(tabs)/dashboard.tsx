@@ -2,7 +2,6 @@ import { View, Text } from 'react-native';
 import { useEffect, useState } from 'react';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../lib/AuthContext';
-import { Image } from 'expo-image';
 import { Database } from '../../supabase/types';
 import { Svg, Circle } from 'react-native-svg';
 
@@ -28,7 +27,8 @@ export default function Dashboard() {
   const calculateWeeklyMeals = (
     startDate: string,
     endDate: string,
-    remainingMeals: number
+    remainingMeals: number,
+    mealsPerWeek: number
   ) => {
     const start = new Date(startDate);
     const end = new Date(endDate);
@@ -61,8 +61,8 @@ export default function Dashboard() {
       (end.getTime() - today.getTime()) / (7 * 24 * 60 * 60 * 1000)
     );
 
-    // Return the minimum of 4 and the calculated weekly meals
-    return Math.min(4, Math.floor(remainingMeals / remainingWeeks));
+    // Return the minimum of mealsPerWeek and the calculated weekly meals
+    return Math.min(mealsPerWeek, Math.floor(remainingMeals / remainingWeeks));
   };
 
   const calculateMonthlyMeals = (remainingMeals: number) => {
@@ -86,12 +86,13 @@ export default function Dashboard() {
         // Fetch membership for the company
         const { data: membershipData, error: membershipError } = await supabase
           .from('memberships')
-          .select('*')
+          .select('*, meals_per_week')
           .eq('company_id', userData.company_id)
           .eq('status', 'active')
           .single();
 
         if (membershipError) throw membershipError;
+        // @ts-ignore - meals_per_week exists in the database but not in types yet
         setMembership(membershipData);
       }
 
@@ -193,7 +194,9 @@ export default function Dashboard() {
       ? calculateWeeklyMeals(
           mealBalance.start_date,
           mealBalance.end_date,
-          mealBalance.remaining_meals
+          mealBalance.remaining_meals,
+          // @ts-ignore - meals_per_week exists in the database but not in types yet
+          membership?.meals_per_week || 2
         )
       : 0;
 
@@ -235,12 +238,12 @@ export default function Dashboard() {
           <View className="flex-row justify-around">
             <CircularProgress
               value={weeklyMeals}
-              maxValue={4}
+              maxValue={membership?.meals_per_week || 2}
               text="This week"
             />
             <CircularProgress
               value={monthlyMeals}
-              maxValue={16}
+              maxValue={(membership?.meals_per_week || 2) * 4}
               text="In December"
             />
           </View>

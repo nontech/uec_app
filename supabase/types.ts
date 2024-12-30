@@ -199,13 +199,6 @@ export type Database = {
             isOneToOne: false;
             referencedRelation: 'companies';
             referencedColumns: ['id'];
-          },
-          {
-            foreignKeyName: 'invoices_company_id_fkey1';
-            columns: ['company_id'];
-            isOneToOne: false;
-            referencedRelation: 'companies';
-            referencedColumns: ['id'];
           }
         ];
       };
@@ -249,35 +242,7 @@ export type Database = {
             referencedColumns: ['id'];
           },
           {
-            foreignKeyName: 'meal_balances_employee_id_fkey1';
-            columns: ['employee_id'];
-            isOneToOne: true;
-            referencedRelation: 'app_users';
-            referencedColumns: ['id'];
-          },
-          {
-            foreignKeyName: 'meal_balances_employee_id_fkey2';
-            columns: ['employee_id'];
-            isOneToOne: true;
-            referencedRelation: 'app_users';
-            referencedColumns: ['id'];
-          },
-          {
             foreignKeyName: 'meal_balances_membership_id_fkey';
-            columns: ['membership_id'];
-            isOneToOne: false;
-            referencedRelation: 'memberships';
-            referencedColumns: ['id'];
-          },
-          {
-            foreignKeyName: 'meal_balances_membership_id_fkey1';
-            columns: ['membership_id'];
-            isOneToOne: false;
-            referencedRelation: 'meal_balances';
-            referencedColumns: ['id'];
-          },
-          {
-            foreignKeyName: 'meal_balances_membership_id_fkey2';
             columns: ['membership_id'];
             isOneToOne: false;
             referencedRelation: 'memberships';
@@ -291,6 +256,7 @@ export type Database = {
           created_at: string | null;
           end_date: string | null;
           id: string;
+          meals_per_week: number | null;
           monthly_price_per_employee: number | null;
           plan_type: string | null;
           start_date: string | null;
@@ -302,6 +268,7 @@ export type Database = {
           created_at?: string | null;
           end_date?: string | null;
           id?: string;
+          meals_per_week?: number | null;
           monthly_price_per_employee?: number | null;
           plan_type?: string | null;
           start_date?: string | null;
@@ -313,6 +280,7 @@ export type Database = {
           created_at?: string | null;
           end_date?: string | null;
           id?: string;
+          meals_per_week?: number | null;
           monthly_price_per_employee?: number | null;
           plan_type?: string | null;
           start_date?: string | null;
