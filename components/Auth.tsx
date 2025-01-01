@@ -3,113 +3,65 @@ import { Alert, StyleSheet, View, Text } from 'react-native';
 import { supabase } from '../lib/supabase';
 import { Button, Input } from '@rneui/themed';
 
-interface AuthFormData {
-  email: string;
-  password: string;
-}
-
-interface AuthInputProps {
-  label: string;
-  value: string;
-  onChangeText: (text: string) => void;
-  placeholder: string;
-  secureTextEntry?: boolean;
-  iconName: string;
-}
-
-const AuthInput: React.FC<AuthInputProps> = ({
-  label,
-  value,
-  onChangeText,
-  placeholder,
-  secureTextEntry = false,
-  iconName,
-}) => (
-  <View style={styles.verticallySpaced}>
-    <Input
-      label={label}
-      labelStyle={styles.inputLabel}
-      inputStyle={styles.input}
-      leftIcon={{ type: 'font-awesome', name: iconName, color: '#666' }}
-      onChangeText={onChangeText}
-      value={value}
-      placeholder={placeholder}
-      placeholderTextColor="#666"
-      autoCapitalize="none"
-      secureTextEntry={secureTextEntry}
-      containerStyle={styles.inputContainer}
-    />
-  </View>
-);
-
-const AuthHeader: React.FC = () => (
-  <View style={styles.header}>
-    <Text style={styles.title}>Welcome to Urban Eats Club</Text>
-    <Text style={styles.subtitle}>Sign in or create an account</Text>
-  </View>
-);
-
 export default function Auth() {
-  const [formData, setFormData] = useState<AuthFormData>({
-    email: '',
-    password: '',
-  });
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const handleInputChange = (field: keyof AuthFormData) => (text: string) => {
-    setFormData((prev) => ({ ...prev, [field]: text }));
-  };
-
-  const validateForm = (): boolean => {
-    if (!formData.email || !formData.password) {
-      Alert.alert('Please enter both email and password');
-      return false;
-    }
-    return true;
-  };
-
-  const handleAuthError = (error: any, customMessage?: string) => {
-    Alert.alert(
-      'Error',
-      error?.message || customMessage || 'An unexpected error occurred'
-    );
-  };
-
   async function signInWithEmail() {
-    if (!validateForm()) return;
+    if (!email || !password) {
+      Alert.alert('Please enter both email and password');
+      return;
+    }
 
     setLoading(true);
     try {
       const { error } = await supabase.auth.signInWithPassword({
-        email: formData.email,
-        password: formData.password,
+        email,
+        password,
       });
 
-      if (error) handleAuthError(error);
+      if (error) Alert.alert('Error', error.message);
     } catch (error) {
-      handleAuthError(error);
+      Alert.alert('Error', 'An unexpected error occurred');
     } finally {
       setLoading(false);
     }
   }
 
   async function signUpWithEmail() {
-    if (!validateForm()) return;
+    if (!email || !password) {
+      Alert.alert('Please enter both email and password');
+      return;
+    }
 
     setLoading(true);
     try {
       const { data: authData, error: authError } = await supabase.auth.signUp({
-        email: formData.email,
-        password: formData.password,
+        email,
+        password,
       });
 
       if (authError) {
-        handleAuthError(authError);
+        Alert.alert('Error', authError.message);
         return;
       }
 
       if (authData.user) {
-        await createUserProfile(authData.user.id);
+        // Add user to app_users table
+        const { error: dbError } = await supabase.from('app_users').insert([
+          {
+            id: authData.user.id,
+            type: 'employee',
+            company_email: email,
+            first_name: email.split('@')[0], // Using email prefix as first name temporarily
+            company_id: '56b8d075-4dcb-46a4-b1f1-95c372db3601', // You might want to handle this differently
+          },
+        ]);
+
+        if (dbError) {
+          console.error('Error adding user to app_users:', dbError);
+        }
       }
 
       if (!authData.session) {
@@ -119,64 +71,62 @@ export default function Auth() {
         );
       }
     } catch (error) {
-      handleAuthError(error);
+      Alert.alert('Error', 'An unexpected error occurred');
     } finally {
       setLoading(false);
     }
   }
 
-  async function createUserProfile(userId: string) {
-    const { error: dbError } = await supabase.from('app_users').insert([
-      {
-        id: userId,
-        type: 'employee',
-        company_email: formData.email,
-        first_name: formData.email.split('@')[0],
-        company_id: '56b8d075-4dcb-46a4-b1f1-95c372db3601',
-      },
-    ]);
-
-    if (dbError) {
-      console.error('Error adding user to app_users:', dbError);
-    }
-  }
-
   return (
     <View style={styles.container}>
-      <AuthHeader />
+      <View style={styles.header}>
+        <Text style={styles.title}>Welcome to Urban Eats Club</Text>
+        <Text style={styles.subtitle}>Sign in or create an account</Text>
+      </View>
 
-      <AuthInput
-        label="Email"
-        value={formData.email}
-        onChangeText={handleInputChange('email')}
-        placeholder="email@address.com"
-        iconName="envelope"
-      />
-
-      <AuthInput
-        label="Password"
-        value={formData.password}
-        onChangeText={handleInputChange('password')}
-        placeholder="Password"
-        secureTextEntry
-        iconName="lock"
-      />
-
+      <View style={[styles.verticallySpaced, styles.mt20]}>
+        <Input
+          label="Email"
+          labelStyle={styles.inputLabel}
+          inputStyle={styles.input}
+          leftIcon={{ type: 'font-awesome', name: 'envelope', color: '#666' }}
+          onChangeText={(text) => setEmail(text)}
+          value={email}
+          placeholder="email@address.com"
+          placeholderTextColor="#666"
+          autoCapitalize={'none'}
+          containerStyle={styles.inputContainer}
+        />
+      </View>
+      <View style={styles.verticallySpaced}>
+        <Input
+          label="Password"
+          labelStyle={styles.inputLabel}
+          inputStyle={styles.input}
+          leftIcon={{ type: 'font-awesome', name: 'lock', color: '#666' }}
+          onChangeText={(text) => setPassword(text)}
+          value={password}
+          secureTextEntry={true}
+          placeholder="Password"
+          placeholderTextColor="#666"
+          autoCapitalize={'none'}
+          containerStyle={styles.inputContainer}
+        />
+      </View>
       <View style={[styles.verticallySpaced, styles.mt20]}>
         <Button
           title="Sign in"
           disabled={loading}
-          onPress={signInWithEmail}
+          onPress={() => signInWithEmail()}
           buttonStyle={styles.primaryButton}
           titleStyle={styles.buttonText}
         />
       </View>
-
       <View style={styles.verticallySpaced}>
         <Button
           title="Sign up"
           disabled={loading}
-          onPress={signUpWithEmail}
+          onPress={() => signUpWithEmail()}
           buttonStyle={styles.secondaryButton}
           titleStyle={styles.secondaryButtonText}
         />
