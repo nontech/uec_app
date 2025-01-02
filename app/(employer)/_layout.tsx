@@ -21,7 +21,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="manage_employees"
         options={{
-          title: 'Manage Employees',
+          title: 'Employees',
           tabBarIcon: ({ color, size }) => (
             <MaterialIcons name="people" size={size} color={color} />
           ),
