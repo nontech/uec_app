@@ -141,7 +141,6 @@ export default function Auth() {
     items: { label: string; value: string }[],
     onSelect: (value: string, label: string) => void
   ) => {
-    console.log('Rendering dropdown with items:', items);
     return (
       <Modal visible={visible} transparent animationType="fade">
         <TouchableOpacity
@@ -163,7 +162,6 @@ export default function Auth() {
                     key={index}
                     style={styles.dropdownItem}
                     onPress={() => {
-                      console.log('Selected item:', item);
                       onSelect(item.value, item.label);
                       onClose();
                     }}
