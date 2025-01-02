@@ -91,51 +91,62 @@ export default function ManageEmployees() {
 
   return (
     <View className="flex-1 bg-white">
-      <View className="p-6">
-        <Text className="text-2xl font-semibold mb-6">Employees</Text>
+      <View className="p-6 flex-1">
+        <Text className="text-2xl font-semibold mb-6 text-gray-900">
+          Employees
+        </Text>
 
         {/* Search Bar */}
         <View className="flex-row items-center bg-[#F3F0FF] rounded-full px-4 py-3 mb-8">
           <MaterialIcons name="search" size={24} color="#666" />
           <TextInput
             placeholder="Search Employee"
-            className="flex-1 ml-2 text-base"
+            className="flex-1 ml-2 text-base text-gray-900"
+            placeholderTextColor="#666"
             value={searchQuery}
             onChangeText={setSearchQuery}
           />
         </View>
 
         {/* Header */}
-        <View className="flex-row justify-between mb-4">
-          <Text className="text-gray-600">Name</Text>
-          <Text className="text-gray-600">Total: {employees.length}</Text>
+        <View className="flex-row justify-between items-center mb-4 px-2">
+          <Text className="text-sm font-medium text-gray-600">Name</Text>
+          <Text className="text-sm font-medium text-gray-600">
+            Total: {employees.length}
+          </Text>
         </View>
 
         {/* Employee List */}
-        <ScrollView className="flex-1">
+        <ScrollView
+          className="flex-1"
+          contentContainerStyle={{ paddingBottom: 100 }}
+          showsVerticalScrollIndicator={false}
+        >
           {filteredEmployees.map((employee) => (
             <TouchableOpacity
               key={employee.id}
-              className="flex-row items-center justify-between py-4 border-b border-gray-100"
+              className="flex-row items-center justify-between py-4 px-2 border-b border-gray-100"
               onPress={() => {
                 // Handle employee selection
               }}
             >
-              <View className="flex-row items-center">
-                <MaterialIcons
-                  name="person"
-                  size={24}
-                  color="#666"
-                  className="mr-3"
-                />
-                <Text className="text-base">
-                  {employee.first_name} {employee.last_name}
-                </Text>
+              <View className="flex-row items-center flex-1">
+                <View className="w-10 h-10 rounded-full bg-gray-100 items-center justify-center mr-3">
+                  <MaterialIcons name="person" size={24} color="#666" />
+                </View>
+                <View className="flex-1">
+                  <Text className="text-base font-medium text-gray-900">
+                    {employee.first_name} {employee.last_name}
+                  </Text>
+                  <Text className="text-sm text-gray-500">
+                    {employee.company_email}
+                  </Text>
+                </View>
               </View>
               <View className="flex-row items-center">
                 {employee.status === 'invited' && (
                   <View className="bg-gray-100 px-3 py-1 rounded-full mr-2">
-                    <Text className="text-gray-600">Invited</Text>
+                    <Text className="text-sm text-gray-600">Invited</Text>
                   </View>
                 )}
                 <MaterialIcons name="chevron-right" size={24} color="#666" />
@@ -147,9 +158,16 @@ export default function ManageEmployees() {
 
       {/* Add Button */}
       <TouchableOpacity
-        className="absolute bottom-8 right-8 bg-[#6B4EFF] w-[120px] rounded-full flex-row items-center justify-center py-3 px-4"
+        className="absolute bottom-8 right-8 bg-[#6B4EFF] h-12 px-4 rounded-full flex-row items-center justify-center shadow-sm"
         onPress={() => {
-          // Handle add employee
+          //router.push('/add_employee' as any);
+        }}
+        style={{
+          shadowColor: '#6B4EFF',
+          shadowOffset: { width: 0, height: 4 },
+          shadowOpacity: 0.2,
+          shadowRadius: 8,
+          elevation: 5,
         }}
       >
         <MaterialIcons name="add" size={24} color="white" />
