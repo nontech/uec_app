@@ -63,7 +63,7 @@ export default function RestaurantsHome() {
       className="mb-10"
       onPress={() =>
         router.push({
-          pathname: '/(tabs)/(restaurants)/[id]/menu',
+          pathname: '/[id]/menu',
           params: { id: item.id },
         })
       }

@@ -52,7 +52,7 @@ export default function Auth() {
         const { error: dbError } = await supabase.from('app_users').insert([
           {
             id: authData.user.id,
-            type: 'employee',
+            type: 'admin',
             company_email: email,
             first_name: email.split('@')[0], // Using email prefix as first name temporarily
             company_id: '56b8d075-4dcb-46a4-b1f1-95c372db3601', // You might want to handle this differently

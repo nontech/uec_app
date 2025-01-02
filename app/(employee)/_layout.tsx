@@ -6,13 +6,11 @@ export default function TabLayout() {
   return (
     <Tabs
       screenOptions={{
-        headerShown: true,
-        headerLeft: () => <DrawerToggleButton />,
-        tabBarActiveTintColor: '#f4511e',
+        headerShown: false,
       }}
     >
       <Tabs.Screen
-        name="dashboard"
+        name="index"
         options={{
           title: 'Dashboard',
           tabBarIcon: ({ color, size }) => (
