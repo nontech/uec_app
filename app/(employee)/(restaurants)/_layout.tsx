@@ -1,28 +1,25 @@
 import { Stack } from 'expo-router';
+import { DrawerToggleButton } from '@react-navigation/drawer';
 
 export default function RestaurantsLayout() {
   return (
     <Stack
       screenOptions={{
-        headerStyle: {
-          backgroundColor: '#f4511e',
-        },
-        headerTintColor: '#fff',
-        headerTitleStyle: {
-          fontWeight: 'bold',
-        },
+        headerShown: true,
+        headerTitleAlign: 'center',
       }}
     >
       <Stack.Screen
-        name="restaurants"
+        name="index"
         options={{
-          title: 'All Restaurants',
+          headerShown: false,
         }}
       />
       <Stack.Screen
         name="[id]/menu"
         options={{
           title: 'Menu',
+          headerBackTitle: 'Restaurants',
         }}
       />
     </Stack>

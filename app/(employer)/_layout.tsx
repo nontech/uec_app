@@ -6,17 +6,24 @@ export default function TabLayout() {
   return (
     <Tabs
       screenOptions={{
-        headerShown: true,
-        headerLeft: () => <DrawerToggleButton />,
-        tabBarActiveTintColor: '#f4511e',
+        headerShown: false,
       }}
     >
       <Tabs.Screen
-        name="dashboard"
+        name="index"
         options={{
           title: 'Dashboard',
           tabBarIcon: ({ color, size }) => (
             <MaterialIcons name="dashboard" size={size} color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="manage_employees"
+        options={{
+          title: 'Employees',
+          tabBarIcon: ({ color, size }) => (
+            <MaterialIcons name="people" size={size} color={color} />
           ),
         }}
       />

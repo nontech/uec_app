@@ -1,12 +1,65 @@
-import React, { useState } from 'react';
-import { Alert, StyleSheet, View, Text } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import {
+  Alert,
+  StyleSheet,
+  View,
+  Text,
+  TouchableOpacity,
+  Modal,
+  ScrollView,
+} from 'react-native';
 import { supabase } from '../lib/supabase';
 import { Button, Input } from '@rneui/themed';
+import { Database } from '../supabase/types';
+import { MaterialIcons } from '@expo/vector-icons';
+
+type Company = Database['public']['Tables']['companies']['Row'];
 
 export default function Auth() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  const [isSignUp, setIsSignUp] = useState(false);
+  const [companies, setCompanies] = useState<Company[]>([]);
+  const [selectedCompany, setSelectedCompany] = useState<string>('');
+  const [selectedCompanyName, setSelectedCompanyName] = useState<string>('');
+  const [userType, setUserType] = useState<'employee' | 'company_admin'>(
+    'employee'
+  );
+  const [showTypeDropdown, setShowTypeDropdown] = useState(false);
+  const [showCompanyDropdown, setShowCompanyDropdown] = useState(false);
+  const [companiesLoading, setCompaniesLoading] = useState(false);
+
+  const userTypes = [
+    { label: 'Employee', value: 'employee' },
+    { label: 'Employer', value: 'company_admin' },
+  ];
+
+  useEffect(() => {
+    fetchCompanies();
+  }, []);
+
+  async function fetchCompanies() {
+    setCompaniesLoading(true);
+    try {
+      const { data, error } = await supabase
+        .from('companies')
+        .select('*')
+        .order('name');
+
+      if (error) {
+        throw error;
+      }
+
+      if (data) {
+        setCompanies(data);
+      }
+    } catch (error) {
+      console.error('Error fetching companies:', error);
+    } finally {
+      setCompaniesLoading(false);
+    }
+  }
 
   async function signInWithEmail() {
     if (!email || !password) {
@@ -35,6 +88,11 @@ export default function Auth() {
       return;
     }
 
+    if (!selectedCompany) {
+      Alert.alert('Please select a company');
+      return;
+    }
+
     setLoading(true);
     try {
       const { data: authData, error: authError } = await supabase.auth.signUp({
@@ -52,15 +110,17 @@ export default function Auth() {
         const { error: dbError } = await supabase.from('app_users').insert([
           {
             id: authData.user.id,
-            type: 'employee',
+            type: userType,
             company_email: email,
-            first_name: email.split('@')[0], // Using email prefix as first name temporarily
-            company_id: '56b8d075-4dcb-46a4-b1f1-95c372db3601', // You might want to handle this differently
+            first_name: email.split('@')[0],
+            company_id: selectedCompany,
+            status: 'active',
           },
         ]);
 
         if (dbError) {
           console.error('Error adding user to app_users:', dbError);
+          Alert.alert('Error', 'Failed to create user profile');
         }
       }
 
@@ -77,11 +137,55 @@ export default function Auth() {
     }
   }
 
+  const renderDropdown = (
+    visible: boolean,
+    onClose: () => void,
+    items: { label: string; value: string }[],
+    onSelect: (value: string, label: string) => void
+  ) => {
+    return (
+      <Modal visible={visible} transparent animationType="fade">
+        <TouchableOpacity
+          style={styles.modalOverlay}
+          activeOpacity={1}
+          onPress={onClose}
+        >
+          <View style={styles.dropdownModal}>
+            <ScrollView>
+              {items.length === 0 ? (
+                <View style={styles.dropdownItem}>
+                  <Text style={styles.dropdownItemText}>
+                    No items available
+                  </Text>
+                </View>
+              ) : (
+                items.map((item, index) => (
+                  <TouchableOpacity
+                    key={index}
+                    style={styles.dropdownItem}
+                    onPress={() => {
+                      onSelect(item.value, item.label);
+                      onClose();
+                    }}
+                  >
+                    <Text style={styles.dropdownItemText}>{item.label}</Text>
+                  </TouchableOpacity>
+                ))
+              )}
+            </ScrollView>
+          </View>
+        </TouchableOpacity>
+      </Modal>
+    );
+  };
+
   return (
     <View style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.title}>Welcome to Urban Eats Club</Text>
-        <Text style={styles.subtitle}>Sign in or create an account</Text>
+        <Text style={styles.subtitle}>
+          {isSignUp ? 'Create an account' : 'Sign in to your account'}
+        </Text>
       </View>
 
       <View style={[styles.verticallySpaced, styles.mt20]}>
@@ -90,51 +194,102 @@ export default function Auth() {
           labelStyle={styles.inputLabel}
           inputStyle={styles.input}
           leftIcon={{ type: 'font-awesome', name: 'envelope', color: '#666' }}
-          onChangeText={(text) => setEmail(text)}
+          onChangeText={setEmail}
           value={email}
           placeholder="email@address.com"
           placeholderTextColor="#666"
-          autoCapitalize={'none'}
+          autoCapitalize="none"
           containerStyle={styles.inputContainer}
         />
       </View>
+
       <View style={styles.verticallySpaced}>
         <Input
           label="Password"
           labelStyle={styles.inputLabel}
           inputStyle={styles.input}
           leftIcon={{ type: 'font-awesome', name: 'lock', color: '#666' }}
-          onChangeText={(text) => setPassword(text)}
+          onChangeText={setPassword}
           value={password}
           secureTextEntry={true}
           placeholder="Password"
           placeholderTextColor="#666"
-          autoCapitalize={'none'}
+          autoCapitalize="none"
           containerStyle={styles.inputContainer}
         />
       </View>
+
+      {isSignUp && (
+        <>
+          <View style={[styles.verticallySpaced, styles.pickerContainer]}>
+            <Text style={styles.inputLabel}>User Type</Text>
+            <TouchableOpacity
+              style={styles.dropdownButton}
+              onPress={() => setShowTypeDropdown(true)}
+            >
+              <Text style={styles.dropdownButtonText}>
+                {userTypes.find((t) => t.value === userType)?.label ||
+                  'Select Type'}
+              </Text>
+              <MaterialIcons name="arrow-drop-down" size={24} color="#666" />
+            </TouchableOpacity>
+          </View>
+
+          <View style={[styles.verticallySpaced, styles.pickerContainer]}>
+            <Text style={styles.inputLabel}>Company</Text>
+            <TouchableOpacity
+              style={styles.dropdownButton}
+              onPress={() => setShowCompanyDropdown(true)}
+            >
+              <Text style={styles.dropdownButtonText}>
+                {selectedCompanyName || 'Select a company'}
+              </Text>
+              <MaterialIcons name="arrow-drop-down" size={24} color="#666" />
+            </TouchableOpacity>
+          </View>
+
+          {renderDropdown(
+            showTypeDropdown,
+            () => setShowTypeDropdown(false),
+            userTypes,
+            (value) => setUserType(value as 'employee' | 'company_admin')
+          )}
+
+          {renderDropdown(
+            showCompanyDropdown,
+            () => setShowCompanyDropdown(false),
+            companies.map((c) => ({ label: c.name, value: c.id })),
+            (value, label) => {
+              setSelectedCompany(value);
+              setSelectedCompanyName(label);
+            }
+          )}
+        </>
+      )}
+
       <View style={[styles.verticallySpaced, styles.mt20]}>
         <Button
-          title="Sign in"
+          title={isSignUp ? 'Sign up' : 'Sign in'}
           disabled={loading}
-          onPress={() => signInWithEmail()}
+          onPress={() => (isSignUp ? signUpWithEmail() : signInWithEmail())}
           buttonStyle={styles.primaryButton}
           titleStyle={styles.buttonText}
         />
       </View>
-      <View style={styles.verticallySpaced}>
-        <Button
-          title="Sign up"
-          disabled={loading}
-          onPress={() => signUpWithEmail()}
-          buttonStyle={styles.secondaryButton}
-          titleStyle={styles.secondaryButtonText}
-        />
-      </View>
+
+      <TouchableOpacity
+        style={styles.switchButton}
+        onPress={() => setIsSignUp(!isSignUp)}
+      >
+        <Text style={styles.switchButtonText}>
+          {isSignUp
+            ? 'Already have an account? Sign in'
+            : "Don't have an account? Sign up"}
+        </Text>
+      </TouchableOpacity>
     </View>
   );
 }
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -169,30 +324,73 @@ const styles = StyleSheet.create({
   inputLabel: {
     color: '#333',
     fontSize: 16,
+    marginBottom: 8,
   },
   input: {
     color: '#333',
     fontSize: 16,
+  },
+  pickerContainer: {
+    marginBottom: 16,
+  },
+  picker: {
+    borderWidth: 1,
+    borderColor: '#ddd',
+    borderRadius: 8,
+    backgroundColor: '#fff',
+    marginTop: 4,
   },
   primaryButton: {
     backgroundColor: '#f4511e',
     borderRadius: 8,
     paddingVertical: 12,
   },
-  secondaryButton: {
-    backgroundColor: '#fff',
-    borderRadius: 8,
-    paddingVertical: 12,
-    borderWidth: 1,
-    borderColor: '#f4511e',
-  },
   buttonText: {
     fontSize: 16,
     fontWeight: '600',
   },
-  secondaryButtonText: {
-    fontSize: 16,
-    fontWeight: '600',
+  switchButton: {
+    marginTop: 16,
+    alignItems: 'center',
+  },
+  switchButtonText: {
     color: '#f4511e',
+    fontSize: 16,
+  },
+  dropdownButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    borderWidth: 1,
+    borderColor: '#ddd',
+    borderRadius: 8,
+    padding: 12,
+    backgroundColor: '#fff',
+  },
+  dropdownButtonText: {
+    fontSize: 16,
+    color: '#333',
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  dropdownModal: {
+    backgroundColor: '#fff',
+    borderRadius: 8,
+    padding: 8,
+    width: '80%',
+    maxHeight: '50%',
+  },
+  dropdownItem: {
+    padding: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: '#eee',
+  },
+  dropdownItemText: {
+    fontSize: 16,
+    color: '#333',
   },
 });
