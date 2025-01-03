@@ -78,7 +78,9 @@ export default function EmployerDashboard() {
             <Text className="text-3xl text-black font-semibold">
               Each Employee
             </Text>
-            <Text className="text-xl text-white">Plan M</Text>
+            <Text className="text-xl text-white">
+              Plan {membership?.plan_type}
+            </Text>
           </View>
 
           <View className="flex-row justify-between">
