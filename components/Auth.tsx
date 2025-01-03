@@ -23,14 +23,16 @@ export default function Auth() {
   const [companies, setCompanies] = useState<Company[]>([]);
   const [selectedCompany, setSelectedCompany] = useState<string>('');
   const [selectedCompanyName, setSelectedCompanyName] = useState<string>('');
-  const [userType, setUserType] = useState<'employee' | 'admin'>('employee');
+  const [userType, setUserType] = useState<'employee' | 'company_admin'>(
+    'employee'
+  );
   const [showTypeDropdown, setShowTypeDropdown] = useState(false);
   const [showCompanyDropdown, setShowCompanyDropdown] = useState(false);
   const [companiesLoading, setCompaniesLoading] = useState(false);
 
   const userTypes = [
     { label: 'Employee', value: 'employee' },
-    { label: 'Employer', value: 'admin' },
+    { label: 'Employer', value: 'company_admin' },
   ];
 
   useEffect(() => {
@@ -250,7 +252,7 @@ export default function Auth() {
             showTypeDropdown,
             () => setShowTypeDropdown(false),
             userTypes,
-            (value) => setUserType(value as 'employee' | 'admin')
+            (value) => setUserType(value as 'employee' | 'company_admin')
           )}
 
           {renderDropdown(

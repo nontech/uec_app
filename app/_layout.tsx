@@ -44,7 +44,8 @@ const AuthCheck = () => {
   // Handle navigation after layout is mounted and user type is known
   useEffect(() => {
     if (!loading && !userLoading && session?.user && userType) {
-      const route = userType === 'admin' ? '/(employer)' : '/(employee)';
+      const route =
+        userType === 'company_admin' ? '/(employer)' : '/(employee)';
       router.replace(route);
     }
   }, [loading, userLoading, userType, session?.user]);
@@ -114,7 +115,7 @@ const DrawerLayout = ({
         />
       )}
     >
-      {userType === 'admin' ? (
+      {userType === 'company_admin' ? (
         <Drawer.Screen
           name="(employer)"
           options={{
