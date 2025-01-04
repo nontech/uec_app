@@ -69,6 +69,10 @@ export default function Dashboard() {
     return remainingMeals;
   };
 
+  const getCurrentMonthName = () => {
+    return new Date().toLocaleString('default', { month: 'long' });
+  };
+
   async function fetchUserData() {
     try {
       // Fetch user details with company
@@ -209,7 +213,11 @@ export default function Dashboard() {
       {/* User Info Section */}
       <View className="p-6">
         <View className="flex-row items-center mb-6">
-          <View className="w-16 h-16 bg-gray-200 rounded-full mr-4" />
+          <View className="w-16 h-16 bg-[#6B4EFF] rounded-full mr-4 items-center justify-center">
+            <Text className="text-white text-2xl font-semibold">
+              {userDetails?.first_name?.[0]?.toUpperCase() || ''}
+            </Text>
+          </View>
           <View>
             <Text className="text-xl font-semibold">
               {userDetails?.first_name} {userDetails?.last_name}
@@ -244,7 +252,7 @@ export default function Dashboard() {
             <CircularProgress
               value={monthlyMeals}
               maxValue={(membership?.meals_per_week || 2) * 4}
-              text="In December"
+              text={`In ${getCurrentMonthName()}`}
             />
           </View>
         </View>
