@@ -119,7 +119,7 @@ export default function UsersManagement() {
       if (dbError) throw dbError;
 
       // Then send the magic link
-      const { error: authError } = await supabase.auth.({
+      const { error: authError } = await supabase.auth.signInWithOtp({
         email: formData.email,
         options: {
           emailRedirectTo: 'exp://192.168.1.2:8081',
