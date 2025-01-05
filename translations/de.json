@@ -1,0 +1,67 @@
+{
+  "common": {
+    "signOut": "Abmelden",
+    "loading": "Wird geladen...",
+    "restaurants": "Restaurants",
+    "companies": "Unternehmen",
+    "memberships": "Mitgliedschaften",
+    "adminPanel": "Admin-Panel",
+    "employer": "Arbeitgeber",
+    "employee": "Mitarbeiter",
+    "language": "Sprache",
+    "english": "Englisch",
+    "german": "Deutsch",
+    "dashboard": "Dashboard",
+    "menu": "Speisekarte",
+    "cancel": "Abbrechen",
+    "delete": "Löschen",
+    "edit": "Bearbeiten",
+    "save": "Änderungen speichern",
+    "create": "Erstellen",
+    "confirm": "Bestätigen",
+    "actions": "Aktionen",
+    "employees": "Mitarbeiter"
+  },
+  "menu": {
+    "lunchSpecial": "MITTAGSANGEBOT",
+    "selectToOrder": "Zur Bestellung auswählen",
+    "loading": "Speisekarte wird geladen...",
+    "checkout": "Zur Kasse",
+    "confirmPayment": "Zahlung bestätigen für",
+    "tapToPay": "JETZT TIPPEN ZUM BEZAHLEN"
+  },
+  "restaurants": {
+    "title": "Restaurants-Verwaltung",
+    "addRestaurant": "Restaurant hinzufügen",
+    "editRestaurant": "Restaurant bearbeiten",
+    "createRestaurant": "Restaurant erstellen",
+    "confirmDelete": "Restaurant-Löschung bestätigen",
+    "deleteWarning": "Dadurch werden auch alle Menüpunkte dieses Restaurants gelöscht. Diese Aktion kann nicht rückgängig gemacht werden.",
+    "deleteConfirm": "Sind Sie sicher, dass Sie das Restaurant löschen möchten"
+  },
+  "days": {
+    "monday": "MONTAG",
+    "tuesday": "DIENSTAG",
+    "wednesday": "MITTWOCH",
+    "thursday": "DONNERSTAG",
+    "friday": "FREITAG",
+    "saturday": "SAMSTAG",
+    "sunday": "SONNTAG"
+  },
+  "auth": {
+    "welcome": "Willkommen",
+    "signIn": "Anmelden",
+    "email": "E-Mail",
+    "password": "Passwort",
+    "enterEmail": "E-Mail-Adresse eingeben",
+    "enterPassword": "Passwort eingeben",
+    "invalidEmail": "Ungültige E-Mail-Adresse",
+    "requiredField": "Dieses Feld ist erforderlich",
+    "error": "Fehler bei der Anmeldung"
+  },
+  "dashboard": {
+    "mealsRemaining": "Verbleibende Mahlzeiten",
+    "thisWeek": "Diese Woche",
+    "inMonth": "Im {{month}}"
+  }
+}
