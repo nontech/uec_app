@@ -4,6 +4,7 @@ import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../lib/AuthContext';
 import { Database } from '../../supabase/types';
 import { Svg, Circle } from 'react-native-svg';
+import { useTranslation } from 'react-i18next';
 
 type MealBalance = Database['public']['Tables']['meal_balances']['Row'];
 type AppUser = Database['public']['Tables']['app_users']['Row'];
@@ -11,6 +12,7 @@ type Company = Database['public']['Tables']['companies']['Row'];
 type Membership = Database['public']['Tables']['memberships']['Row'];
 
 export default function Dashboard() {
+  const { t } = useTranslation();
   const { session } = useAuth();
   const [loading, setLoading] = useState(true);
   const [mealBalance, setMealBalance] = useState<MealBalance | null>(null);
@@ -144,21 +146,21 @@ export default function Dashboard() {
               cx={size / 2}
               cy={size / 2}
               r={radius}
-              stroke="#F3F0FF"
+              stroke='#F3F0FF'
               strokeWidth={strokeWidth}
-              fill="transparent"
+              fill='transparent'
             />
             {/* Progress circle */}
             <Circle
               cx={size / 2}
               cy={size / 2}
               r={radius}
-              stroke="#6B4EFF"
+              stroke='#6B4EFF'
               strokeWidth={strokeWidth}
-              fill="transparent"
+              fill='transparent'
               strokeDasharray={`${circumference} ${circumference}`}
               strokeDashoffset={progressOffset}
-              strokeLinecap="round"
+              strokeLinecap='round'
               transform={`rotate(-90 ${size / 2} ${size / 2})`}
             />
           </Svg>
@@ -185,8 +187,8 @@ export default function Dashboard() {
 
   if (loading) {
     return (
-      <View className="flex-1 items-center justify-center">
-        <Text>Loading...</Text>
+      <View className='flex-1 items-center justify-center'>
+        <Text>{t('common.loading')}</Text>
       </View>
     );
   }
@@ -209,50 +211,52 @@ export default function Dashboard() {
     : 0;
 
   return (
-    <View className="flex-1 bg-white">
+    <View className='flex-1 bg-white'>
       {/* User Info Section */}
-      <View className="p-6">
-        <View className="flex-row items-center mb-6">
-          <View className="w-16 h-16 bg-[#6B4EFF] rounded-full mr-4 items-center justify-center">
-            <Text className="text-white text-2xl font-semibold">
+      <View className='p-6'>
+        <View className='flex-row items-center mb-6'>
+          <View className='w-16 h-16 bg-[#6B4EFF] rounded-full mr-4 items-center justify-center'>
+            <Text className='text-white text-2xl font-semibold'>
               {userDetails?.first_name?.[0]?.toUpperCase() || ''}
             </Text>
           </View>
           <View>
-            <Text className="text-xl font-semibold">
+            <Text className='text-xl font-semibold'>
               {userDetails?.first_name} {userDetails?.last_name}
             </Text>
-            <Text className="text-gray-600">{userDetails?.company_email}</Text>
+            <Text className='text-gray-600'>{userDetails?.company_email}</Text>
           </View>
         </View>
 
         {/* Company Info */}
-        <View className="flex-row justify-between items-center mb-8">
-          <Text className="text-gray-600">Company</Text>
-          <Text className="text-lg">{company?.name}</Text>
+        <View className='flex-row justify-between items-center mb-8'>
+          <Text className='text-gray-600'>{t('common.companies')}</Text>
+          <Text className='text-lg'>{company?.name}</Text>
         </View>
 
         {/* Membership Info */}
         {membership && (
-          <View className="flex-row justify-between items-center mb-8">
-            <Text className="text-gray-600">Membership</Text>
-            <Text className="text-lg">Plan {membership.plan_type}</Text>
+          <View className='flex-row justify-between items-center mb-8'>
+            <Text className='text-gray-600'>{t('common.memberships')}</Text>
+            <Text className='text-lg'>Plan {membership.plan_type}</Text>
           </View>
         )}
 
         {/* Meals Section */}
-        <View className="mt-8">
-          <Text className="text-xl font-semibold mb-6">Meals Remaining</Text>
-          <View className="flex-row justify-around">
+        <View className='mt-8'>
+          <Text className='text-xl font-semibold mb-6'>
+            {t('dashboard.mealsRemaining')}
+          </Text>
+          <View className='flex-row justify-around'>
             <CircularProgress
               value={weeklyMeals}
               maxValue={membership?.meals_per_week || 2}
-              text="This week"
+              text={t('dashboard.thisWeek')}
             />
             <CircularProgress
               value={monthlyMeals}
               maxValue={(membership?.meals_per_week || 2) * 4}
-              text={`In ${getCurrentMonthName()}`}
+              text={t('dashboard.inMonth', { month: getCurrentMonthName() })}
             />
           </View>
         </View>
