@@ -11,6 +11,7 @@ const PLAN_COLORS = {
   M: 'bg-[#2563EB]',
   L: 'bg-[#059669]',
 };
+import { useTranslation } from 'react-i18next';
 
 type AppUser = Database['public']['Tables']['app_users']['Row'];
 type Company = Database['public']['Tables']['companies']['Row'];
@@ -22,6 +23,7 @@ type UserWithDetails = AppUser & {
 };
 
 export default function Dashboard() {
+  const { t } = useTranslation();
   const { session } = useAuth();
   const [loading, setLoading] = useState(true);
   const [userDetails, setUserDetails] = useState<UserWithDetails | null>(null);
@@ -129,21 +131,25 @@ export default function Dashboard() {
               cx={size / 2}
               cy={size / 2}
               r={radius}
+<<<<<<< HEAD
               stroke="#EDE9FE"
+=======
+              stroke='#F3F0FF'
+>>>>>>> 60ccffe (Add translation in employee dashboard)
               strokeWidth={strokeWidth}
-              fill="transparent"
+              fill='transparent'
             />
             {/* Progress circle */}
             <Circle
               cx={size / 2}
               cy={size / 2}
               r={radius}
-              stroke="#6B4EFF"
+              stroke='#6B4EFF'
               strokeWidth={strokeWidth}
-              fill="transparent"
+              fill='transparent'
               strokeDasharray={`${circumference} ${circumference}`}
               strokeDashoffset={progressOffset}
-              strokeLinecap="round"
+              strokeLinecap='round'
               transform={`rotate(-90 ${size / 2} ${size / 2})`}
             />
           </Svg>
@@ -182,8 +188,8 @@ export default function Dashboard() {
 
   if (loading) {
     return (
-      <View className="flex-1 items-center justify-center bg-white">
-        <Text className="text-gray-500">Loading...</Text>
+      <View className='flex-1 items-center justify-center'>
+        <Text>{t('common.loading')}</Text>
       </View>
     );
   }
