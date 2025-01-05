@@ -14,6 +14,7 @@ import { Database } from '../../../../supabase/types';
 import { Ionicons, MaterialIcons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
 import Colors from '../../../../constants/Colors';
+import { useTranslation } from 'react-i18next';
 
 type MenuItem = Database['public']['Tables']['menu_items']['Row'];
 type HoursRange = {
@@ -98,6 +99,7 @@ const formatTime = (time: string | null) => {
 };
 
 export default function Menu() {
+  const { t, i18n } = useTranslation();
   const params = useLocalSearchParams();
   const restaurantId = params.id as string;
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
@@ -105,7 +107,6 @@ export default function Menu() {
   const [loading, setLoading] = useState(true);
   const [selectedItem, setSelectedItem] = useState<MenuItem | null>(null);
   const [showCheckout, setShowCheckout] = useState(false);
-  const currentDay = getCurrentDay();
 
   useEffect(() => {
     if (restaurantId) {
@@ -199,57 +200,57 @@ export default function Menu() {
 
   const CheckoutModal = () => (
     <Modal
-      animationType="slide"
+      animationType='slide'
       transparent={true}
       visible={showCheckout}
       onRequestClose={() => setShowCheckout(false)}
     >
-      <View className="flex-1 bg-[#1C1C1E]">
+      <View className='flex-1 bg-[#1C1C1E]'>
         {/* Header with close button */}
-        <View className="flex-row justify-between items-center p-4 border-b border-[#3C3C3E]">
+        <View className='flex-row justify-between items-center p-4 border-b border-[#3C3C3E]'>
           <TouchableOpacity
             onPress={() => setShowCheckout(false)}
-            className="p-2"
+            className='p-2'
           >
-            <Ionicons name="close" size={24} color={Colors.text.primary} />
+            <Ionicons name='close' size={24} color={Colors.text.primary} />
           </TouchableOpacity>
-          <Text className="text-xl font-semibold text-white">Checkout</Text>
+          <Text className='text-xl font-semibold text-white'>Checkout</Text>
           <View style={{ width: 40 }}>
             <Text> </Text>
           </View>
         </View>
 
         {/* Content */}
-        <View className="p-6 flex-1">
-          <Text className="text-xl mb-2 text-white">Confirm Payment for</Text>
-          <View className="bg-[#2C2C2E] p-4 rounded-lg mb-8">
-            <Text className="text-lg font-medium text-white">
+        <View className='p-6 flex-1'>
+          <Text className='text-xl mb-2 text-white'>Confirm Payment for</Text>
+          <View className='bg-[#2C2C2E] p-4 rounded-lg mb-8'>
+            <Text className='text-lg font-medium text-white'>
               {selectedItem?.name || ''}
             </Text>
-            <Text className="text-[#999999]">
+            <Text className='text-[#999999]'>
               {selectedItem?.description || ''}
             </Text>
           </View>
 
           {/* Virtual Card Payment Section */}
-          <View className="flex-1 max-h-[500px] justify-center items-center">
-            <View className="w-full max-w-[300px] aspect-square relative">
-              <View className="absolute inset-0 bg-[#6B4EFF] rounded-full justify-center items-center">
-                <Text className="text-white text-xl mb-8">
+          <View className='flex-1 max-h-[500px] justify-center items-center'>
+            <View className='w-full max-w-[300px] aspect-square relative'>
+              <View className='absolute inset-0 bg-[#6B4EFF] rounded-full justify-center items-center'>
+                <Text className='text-white text-xl mb-8'>
                   <Text>TAP NOW TO PAY</Text>
                 </Text>
-                <View className="border-2 border-white rounded-full p-6">
-                  <Ionicons name="wifi" size={48} color="white" />
+                <View className='border-2 border-white rounded-full p-6'>
+                  <Ionicons name='wifi' size={48} color='white' />
                 </View>
               </View>
             </View>
 
             {/* Payment Methods */}
-            <View className="mt-8">
+            <View className='mt-8'>
               <Image
-                source="https://res.cloudinary.com/dc0tfxkph/image/upload/v1703963191/uec_app/payment-methods.png"
+                source='https://res.cloudinary.com/dc0tfxkph/image/upload/v1703963191/uec_app/payment-methods.png'
                 style={{ width: 200, height: 30 }}
-                contentFit="contain"
+                contentFit='contain'
               />
             </View>
           </View>
@@ -258,10 +259,29 @@ export default function Menu() {
     </Modal>
   );
 
+  const getCurrentDay = () => {
+    const days = [
+      'sunday',
+      'monday',
+      'tuesday',
+      'wednesday',
+      'thursday',
+      'friday',
+      'saturday',
+    ];
+    return days[new Date().getDay()];
+  };
+
+  const currentDay = getCurrentDay();
+
+  const getTranslatedDay = () => {
+    return t(`days.${currentDay}`);
+  };
+
   if (loading) {
     return (
-      <View className="flex-1 items-center justify-center bg-white">
-        <Text className="text-gray-500">Loading menu...</Text>
+      <View className='flex-1 items-center justify-center bg-white'>
+        <Text className='text-gray-500'>Loading menu...</Text>
       </View>
     );
   }
@@ -271,17 +291,17 @@ export default function Menu() {
     : false;
 
   return (
-    <ScrollView className="flex-1 bg-white">
-      <View className="px-4 pt-6 pb-2">
-        <Text className="text-2xl text-center text-gray-900 font-semibold">
+    <ScrollView className='flex-1 bg-white'>
+      <View className='px-4 pt-6 pb-2'>
+        <Text className='text-2xl text-center text-gray-900 font-semibold'>
           {restaurant?.name}
         </Text>
       </View>
 
-      <View className="px-4 pb-2">
-        <View className="flex-row items-center justify-center">
+      <View className='px-4 pb-2'>
+        <View className='flex-row items-center justify-center'>
           <MaterialIcons
-            name="access-time"
+            name='access-time'
             size={16}
             color={isOpen ? '#22C55E' : '#EF4444'}
           />
@@ -301,18 +321,18 @@ export default function Menu() {
       </View>
 
       {!isWeekend() && (
-        <View className="px-4 pb-4">
-          <Text className="text-xl text-center text-[#6B4EFF] font-medium mt-4">
+        <View className='px-4 pb-4'>
+          <Text className='text-xl text-center text-[#6B4EFF] font-medium mt-4'>
             LUNCH SPECIAL
           </Text>
-          <Text className="text-lg text-center text-gray-900 mt-1">
+          <Text className='text-lg text-center text-gray-900 mt-1'>
             {getDayInGerman()}
           </Text>
-          <View className="h-[1px] bg-gray-200 my-4" />
+          <View className='h-[1px] bg-gray-200 my-4' />
         </View>
       )}
 
-      <View className="px-4 pb-6">
+      <View className='px-4 pb-6'>
         <View
           className={`rounded-lg p-4 flex-row items-center justify-center ${
             isOpen
@@ -352,7 +372,7 @@ export default function Menu() {
         </View>
       </View>
 
-      <View className="px-4">
+      <View className='px-4'>
         {menuItems.map((item) => (
           <TouchableOpacity
             key={item.id}
@@ -362,8 +382,8 @@ export default function Menu() {
             onPress={() => handleItemPress(item)}
             disabled={!isOpen}
           >
-            <View className="flex-row justify-between items-start">
-              <View className="flex-1 pr-4">
+            <View className='flex-row justify-between items-start'>
+              <View className='flex-1 pr-4'>
                 <Text
                   className={`text-lg font-medium mb-1 ${
                     !isOpen ? 'text-gray-400' : 'text-gray-900'
@@ -380,7 +400,7 @@ export default function Menu() {
                 </Text>
               </View>
               <Ionicons
-                name="chevron-forward"
+                name='chevron-forward'
                 size={20}
                 color={isOpen ? Colors.text.secondary : '#9CA3AF'}
               />
@@ -391,21 +411,21 @@ export default function Menu() {
 
       {showCheckout && (
         <Modal
-          animationType="slide"
+          animationType='slide'
           transparent={true}
           visible={showCheckout}
           onRequestClose={() => setShowCheckout(false)}
         >
-          <View className="flex-1 bg-white">
+          <View className='flex-1 bg-white'>
             {/* Header with close button */}
-            <View className="flex-row justify-between items-center p-4 border-b border-gray-200">
+            <View className='flex-row justify-between items-center p-4 border-b border-gray-200'>
               <TouchableOpacity
                 onPress={() => setShowCheckout(false)}
-                className="p-2"
+                className='p-2'
               >
-                <Ionicons name="close" size={24} color={Colors.text.primary} />
+                <Ionicons name='close' size={24} color={Colors.text.primary} />
               </TouchableOpacity>
-              <Text className="text-xl font-semibold text-gray-900">
+              <Text className='text-xl font-semibold text-gray-900'>
                 Checkout
               </Text>
               <View style={{ width: 40 }}>
@@ -414,38 +434,38 @@ export default function Menu() {
             </View>
 
             {/* Content */}
-            <View className="p-6 flex-1">
-              <Text className="text-xl mb-2 text-gray-900">
+            <View className='p-6 flex-1'>
+              <Text className='text-xl mb-2 text-gray-900'>
                 Confirm Payment for
               </Text>
-              <View className="bg-gray-50 p-4 rounded-lg mb-8">
-                <Text className="text-lg font-medium text-gray-900">
+              <View className='bg-gray-50 p-4 rounded-lg mb-8'>
+                <Text className='text-lg font-medium text-gray-900'>
                   {selectedItem?.name || ''}
                 </Text>
-                <Text className="text-gray-600">
+                <Text className='text-gray-600'>
                   {selectedItem?.description || ''}
                 </Text>
               </View>
 
               {/* Virtual Card Payment Section */}
-              <View className="flex-1 max-h-[500px] justify-center items-center">
-                <View className="w-full max-w-[300px] aspect-square relative">
-                  <View className="absolute inset-0 bg-[#6B4EFF] rounded-full justify-center items-center">
-                    <Text className="text-white text-xl mb-8">
+              <View className='flex-1 max-h-[500px] justify-center items-center'>
+                <View className='w-full max-w-[300px] aspect-square relative'>
+                  <View className='absolute inset-0 bg-[#6B4EFF] rounded-full justify-center items-center'>
+                    <Text className='text-white text-xl mb-8'>
                       <Text>TAP NOW TO PAY</Text>
                     </Text>
-                    <View className="border-2 border-white rounded-full p-6">
-                      <Ionicons name="wifi" size={48} color="white" />
+                    <View className='border-2 border-white rounded-full p-6'>
+                      <Ionicons name='wifi' size={48} color='white' />
                     </View>
                   </View>
                 </View>
 
                 {/* Payment Methods */}
-                <View className="mt-8">
+                <View className='mt-8'>
                   <Image
-                    source="https://res.cloudinary.com/dc0tfxkph/image/upload/v1703963191/uec_app/payment-methods.png"
+                    source='https://res.cloudinary.com/dc0tfxkph/image/upload/v1703963191/uec_app/payment-methods.png'
                     style={{ width: 200, height: 30 }}
-                    contentFit="contain"
+                    contentFit='contain'
                   />
                 </View>
               </View>
