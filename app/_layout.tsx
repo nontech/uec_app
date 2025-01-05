@@ -10,6 +10,8 @@ import { supabase } from '../lib/supabase';
 import { PaperProvider } from 'react-native-paper';
 import Colors from '../constants/Colors';
 import '../global.css';
+import { initI18n } from '../lib/i18n';
+import { LanguageSwitcher } from '../components/LanguageSwitcher';
 
 const AuthCheck = () => {
   const { session, loading } = useAuth();
@@ -61,7 +63,7 @@ const AuthCheck = () => {
   }, [loading, userLoading, userType, session?.user]);
 
   if (loading || userLoading) {
-    return <View className="flex-1 items-center justify-center bg-[#1C1C1E]" />;
+    return <View className='flex-1 items-center justify-center bg-[#1C1C1E]' />;
   }
 
   if (!session) {
@@ -87,43 +89,40 @@ const CustomDrawerContent = ({
   };
 
   return (
-    <DrawerContentScrollView {...props} className="bg-[#1C1C1E]">
+    <DrawerContentScrollView {...props} className='bg-[#1C1C1E]'>
       {userType === 'super_admin' && (
         <>
           <DrawerItem
-            label="Restaurants"
-            labelStyle={{ color: 'white' }}
-            icon={({ size }) => (
-              <MaterialIcons name="restaurant" size={size} color="white" />
+            label='Restaurants'
+            icon={({ size, color }) => (
+              <MaterialIcons name='restaurant' size={size} color={color} />
             )}
             onPress={() => router.push('/(super-admin)/restaurants' as any)}
             style={{ backgroundColor: '#1C1C1E' }}
           />
           <DrawerItem
-            label="Companies"
-            labelStyle={{ color: 'white' }}
-            icon={({ size }) => (
-              <MaterialIcons name="business" size={size} color="white" />
+            label='Companies'
+            icon={({ size, color }) => (
+              <MaterialIcons name='business' size={size} color={color} />
             )}
             onPress={() => router.push('/(super-admin)/companies' as any)}
             style={{ backgroundColor: '#1C1C1E' }}
           />
           <DrawerItem
-            label="Memberships"
-            labelStyle={{ color: 'white' }}
-            icon={({ size }) => (
-              <MaterialIcons name="card-membership" size={size} color="white" />
+            label='Memberships'
+            icon={({ size, color }) => (
+              <MaterialIcons name='card-membership' size={size} color={color} />
             )}
             onPress={() => router.push('/(super-admin)/memberships' as any)}
             style={{ backgroundColor: '#1C1C1E' }}
           />
         </>
       )}
+      <LanguageSwitcher />
       <DrawerItem
-        label="Sign Out"
-        labelStyle={{ color: 'white' }}
-        icon={({ size }) => (
-          <MaterialIcons name="logout" size={size} color="white" />
+        label='Sign Out'
+        icon={({ size, color }) => (
+          <MaterialIcons name='logout' size={size} color={color} />
         )}
         onPress={handleSignOut}
         style={{ backgroundColor: '#1C1C1E' }}
@@ -166,7 +165,7 @@ const DrawerLayout = ({
     >
       {userType === 'super_admin' ? (
         <Drawer.Screen
-          name="(super-admin)"
+          name='(super-admin)'
           options={{
             headerTitle: 'Admin Panel',
             headerShown: true,
@@ -174,7 +173,7 @@ const DrawerLayout = ({
         />
       ) : userType === 'company_admin' ? (
         <Drawer.Screen
-          name="(employer)"
+          name='(employer)'
           options={{
             headerTitle: `Bon Appetit! ${userName}` || 'Employer',
             headerShown: true,
@@ -182,7 +181,7 @@ const DrawerLayout = ({
         />
       ) : userType === 'restaurant_admin' ? (
         <Drawer.Screen
-          name="(restaurant-admin)"
+          name='(restaurant-admin)'
           options={{
             headerTitle: `Restaurant Admin`,
             headerShown: true,
@@ -190,7 +189,7 @@ const DrawerLayout = ({
         />
       ) : (
         <Drawer.Screen
-          name="(employee)"
+          name='(employee)'
           options={{
             headerTitle: `Bon Appetit! ${userName}` || 'Employee',
             headerShown: true,
@@ -202,6 +201,18 @@ const DrawerLayout = ({
 };
 
 export default function RootLayout() {
+  const [i18nInitialized, setI18nInitialized] = useState(false);
+
+  useEffect(() => {
+    initI18n().then(() => {
+      setI18nInitialized(true);
+    });
+  }, []);
+
+  if (!i18nInitialized) {
+    return null;
+  }
+
   return (
     <PaperProvider>
       <AuthProvider>
