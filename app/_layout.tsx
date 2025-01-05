@@ -9,6 +9,8 @@ import { router } from 'expo-router';
 import { supabase } from '../lib/supabase';
 import { PaperProvider } from 'react-native-paper';
 import '../global.css';
+import { initI18n } from '../lib/i18n';
+import { LanguageSwitcher } from '../components/LanguageSwitcher';
 
 const AuthCheck = () => {
   const { session, loading } = useAuth();
@@ -92,32 +94,33 @@ const CustomDrawerContent = ({
       {userType === 'super_admin' && (
         <>
           <DrawerItem
-            label="Restaurants"
+            label='Restaurants'
             icon={({ size, color }) => (
-              <MaterialIcons name="restaurant" size={size} color={color} />
+              <MaterialIcons name='restaurant' size={size} color={color} />
             )}
             onPress={() => router.push('/(super-admin)/restaurants' as any)}
           />
           <DrawerItem
-            label="Companies"
+            label='Companies'
             icon={({ size, color }) => (
-              <MaterialIcons name="business" size={size} color={color} />
+              <MaterialIcons name='business' size={size} color={color} />
             )}
             onPress={() => router.push('/(super-admin)/companies' as any)}
           />
           <DrawerItem
-            label="Memberships"
+            label='Memberships'
             icon={({ size, color }) => (
-              <MaterialIcons name="card-membership" size={size} color={color} />
+              <MaterialIcons name='card-membership' size={size} color={color} />
             )}
             onPress={() => router.push('/(super-admin)/memberships' as any)}
           />
         </>
       )}
+      <LanguageSwitcher />
       <DrawerItem
-        label="Sign Out"
+        label='Sign Out'
         icon={({ size, color }) => (
-          <MaterialIcons name="logout" size={size} color={color} />
+          <MaterialIcons name='logout' size={size} color={color} />
         )}
         onPress={handleSignOut}
       />
@@ -149,7 +152,7 @@ const DrawerLayout = ({
     >
       {userType === 'super_admin' ? (
         <Drawer.Screen
-          name="(super-admin)"
+          name='(super-admin)'
           options={{
             headerTitle: 'Admin Panel',
             headerShown: true,
@@ -157,7 +160,7 @@ const DrawerLayout = ({
         />
       ) : userType === 'company_admin' ? (
         <Drawer.Screen
-          name="(employer)"
+          name='(employer)'
           options={{
             headerTitle: userName || 'Employer',
             headerShown: true,
@@ -165,7 +168,7 @@ const DrawerLayout = ({
         />
       ) : (
         <Drawer.Screen
-          name="(employee)"
+          name='(employee)'
           options={{
             headerTitle: userName || 'Employee',
             headerShown: true,
@@ -177,6 +180,18 @@ const DrawerLayout = ({
 };
 
 export default function RootLayout() {
+  const [i18nInitialized, setI18nInitialized] = useState(false);
+
+  useEffect(() => {
+    initI18n().then(() => {
+      setI18nInitialized(true);
+    });
+  }, []);
+
+  if (!i18nInitialized) {
+    return null;
+  }
+
   return (
     <PaperProvider>
       <AuthProvider>
