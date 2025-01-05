@@ -1,8 +1,10 @@
 import { Tabs } from 'expo-router';
 import { MaterialIcons } from '@expo/vector-icons';
-import { DrawerToggleButton } from '@react-navigation/drawer';
+import { useTranslation } from 'react-i18next';
 
 export default function TabLayout() {
+  const { t } = useTranslation();
+
   return (
     <Tabs
       screenOptions={{
@@ -10,20 +12,20 @@ export default function TabLayout() {
       }}
     >
       <Tabs.Screen
-        name="index"
+        name='index'
         options={{
-          title: 'Dashboard',
+          title: t('common.dashboard'),
           tabBarIcon: ({ color, size }) => (
-            <MaterialIcons name="dashboard" size={size} color={color} />
+            <MaterialIcons name='dashboard' size={size} color={color} />
           ),
         }}
       />
       <Tabs.Screen
-        name="(restaurants)"
+        name='(restaurants)'
         options={{
-          title: 'Restaurants',
+          title: t('common.restaurants'),
           tabBarIcon: ({ color, size }) => (
-            <MaterialIcons name="restaurant" size={size} color={color} />
+            <MaterialIcons name='restaurant' size={size} color={color} />
           ),
         }}
       />
