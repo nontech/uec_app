@@ -13,7 +13,6 @@ import {
 import { Database } from '../../../supabase/types';
 
 type AppUser = Database['public']['Tables']['app_users']['Row'];
-type AppUserInput = Database['public']['Tables']['app_users']['Insert'];
 type Company = Database['public']['Tables']['companies']['Row'];
 type Membership = Database['public']['Tables']['memberships']['Row'];
 
@@ -209,9 +208,7 @@ export default function UsersManagement() {
               </Text>
             </DataTable.Cell>
             <DataTable.Cell>
-              <Text className="text-sm text-gray-800">
-                {user.company_email}
-              </Text>
+              <Text className="text-sm text-gray-800">{user.email}</Text>
             </DataTable.Cell>
             <DataTable.Cell>
               <Text className="text-sm text-gray-800">{user.type}</Text>

@@ -82,30 +82,6 @@ export default function EmployerDashboard() {
               Plan {membership?.plan_type}
             </Text>
           </View>
-
-          <View className="flex-row justify-between">
-            {/* Weekly Meals */}
-            <View className="bg-white rounded-2xl p-6 mr-4 w-[45%] shadow-xl">
-              <Text className="text-gray-600 mb-2">Weekly</Text>
-              <View className="flex-row items-baseline">
-                <Text className="text-4xl font-bold text-black mr-2">
-                  {membership?.meals_per_week || 3}
-                </Text>
-                <Text className="text-gray-500">Meals</Text>
-              </View>
-            </View>
-
-            {/* Monthly Meals */}
-            <View className="bg-white rounded-2xl p-6 w-[45%] shadow-xl">
-              <Text className="text-gray-600 mb-2">Monthly</Text>
-              <View className="flex-row items-baseline">
-                <Text className="text-4xl font-bold text-black mr-2">
-                  {(membership?.meals_per_week || 3) * 4}
-                </Text>
-                <Text className="text-gray-500">Meals</Text>
-              </View>
-            </View>
-          </View>
         </View>
       </View>
     </ScrollView>

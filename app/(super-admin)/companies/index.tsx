@@ -40,7 +40,7 @@ export default function CompaniesManagement() {
       billing_email: '',
       vat_id: '',
       tax_id: '',
-      address_id: '', // Will be set after address creation
+      address: '', // Will be set after address creation
     },
     address: {
       address: '',
@@ -110,7 +110,7 @@ export default function CompaniesManagement() {
       const { error: addressError } = await supabase
         .from('addresses')
         .update(formData.address)
-        .eq('id', selectedCompany.address_id);
+        .eq('id', selectedCompany.address);
 
       if (addressError) throw addressError;
 
@@ -154,7 +154,7 @@ export default function CompaniesManagement() {
         billing_email: '',
         vat_id: '',
         tax_id: '',
-        address_id: '',
+        address: '',
       },
       address: {
         address: '',
@@ -181,7 +181,7 @@ export default function CompaniesManagement() {
         billing_email: company.billing_email || '',
         vat_id: company.vat_id || '',
         tax_id: company.tax_id || '',
-        address_id: company.address_id,
+        address: company.address,
       },
       address: {
         address: company.addresses.address || '',

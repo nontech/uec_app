@@ -319,7 +319,7 @@ export default function ManageEmployees() {
                     {employee.first_name} {employee.last_name}
                   </Text>
                   <Text className="text-sm text-gray-500">
-                    {employee.company_email}
+                    {employee.email}
                   </Text>
                 </View>
               </TouchableOpacity>

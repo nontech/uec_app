@@ -22,11 +22,10 @@ type Membership = Database['public']['Tables']['memberships']['Row'] & {
 type MembershipInput = {
   company_id: string | null;
   plan_type: 'S' | 'M' | 'L' | 'XL';
-  monthly_price_per_employee: number | null;
+  price_per_meal: number | null;
   start_date: string | null;
   end_date: string | null;
   status: 'active' | 'inactive';
-  meals_per_week: number | null;
 };
 
 type CompanyBasic = {
@@ -48,11 +47,10 @@ export default function MembershipsManagement() {
   const [formData, setFormData] = useState<MembershipInput>({
     company_id: null,
     plan_type: 'S',
-    monthly_price_per_employee: null,
+    price_per_meal: 10,
     start_date: null,
     end_date: null,
     status: 'active',
-    meals_per_week: null,
   });
 
   useEffect(() => {
@@ -152,11 +150,10 @@ export default function MembershipsManagement() {
     setFormData({
       company_id: null,
       plan_type: 'S',
-      monthly_price_per_employee: null,
+      price_per_meal: 10,
       start_date: null,
       end_date: null,
       status: 'active',
-      meals_per_week: null,
     });
   };
 
@@ -170,11 +167,10 @@ export default function MembershipsManagement() {
     setFormData({
       company_id: membership.company_id,
       plan_type: (membership.plan_type || 'S') as 'S' | 'M' | 'L' | 'XL',
-      monthly_price_per_employee: membership.monthly_price_per_employee,
+      price_per_meal: membership.price_per_meal,
       start_date: membership.start_date,
       end_date: membership.end_date,
       status: (membership.status || 'active') as 'active' | 'inactive',
-      meals_per_week: membership.meals_per_week,
     });
     setVisible(true);
   };
@@ -256,7 +252,7 @@ export default function MembershipsManagement() {
             </DataTable.Cell>
             <DataTable.Cell numeric>
               <Text className="text-sm text-gray-800">
-                €{membership.monthly_price_per_employee}
+                €{membership.price_per_meal}
               </Text>
             </DataTable.Cell>
             <View className="w-4" />
@@ -367,11 +363,11 @@ export default function MembershipsManagement() {
 
             <TextInput
               label="Monthly Price per Employee (€)"
-              value={formData.monthly_price_per_employee?.toString() || ''}
+              value={formData.price_per_meal?.toString() || ''}
               onChangeText={(text: string) =>
                 setFormData({
                   ...formData,
-                  monthly_price_per_employee: text ? parseFloat(text) : null,
+                  price_per_meal: text ? parseFloat(text) : null,
                 })
               }
               keyboardType="decimal-pad"
@@ -420,20 +416,6 @@ export default function MembershipsManagement() {
                 style={{ marginBottom: 16 }}
               />
             </View>
-
-            <TextInput
-              label="Meals per Week"
-              value={formData.meals_per_week?.toString() || ''}
-              onChangeText={(text: string) =>
-                setFormData({
-                  ...formData,
-                  meals_per_week: text ? parseInt(text, 10) : null,
-                })
-              }
-              keyboardType="numeric"
-              className="mb-6"
-              mode="flat"
-            />
 
             <View className="flex-row justify-end items-center gap-3 mt-6">
               <Button

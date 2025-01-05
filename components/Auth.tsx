@@ -111,7 +111,7 @@ export default function Auth() {
           {
             id: authData.user.id,
             type: userType,
-            company_email: email,
+            email: email,
             first_name: email.split('@')[0],
             company_id: selectedCompany,
             status: 'active',
