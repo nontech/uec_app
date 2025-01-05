@@ -22,6 +22,12 @@ export default function AdminDashboard() {
       route: '/memberships',
       icon: '👥',
     },
+    {
+      title: 'Users',
+      description: 'Manage users, roles, and send invitations',
+      route: '/users',
+      icon: '👤',
+    },
   ];
 
   return (
