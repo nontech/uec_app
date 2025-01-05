@@ -8,12 +8,51 @@ import {
   Modal,
   Portal,
   TextInput,
+  SegmentedButtons,
 } from 'react-native-paper';
 import { Database } from '../../../supabase/types';
 import { useRouter } from 'expo-router';
 
-type Restaurant = Database['public']['Tables']['restaurants']['Row'];
-type RestaurantInput = Database['public']['Tables']['restaurants']['Insert'];
+type HoursRange = {
+  id: string;
+  from: string; // timez type
+  to: string; // timez type
+  created_at?: string;
+  updated_at?: string;
+};
+
+type Address = {
+  id: string;
+  address: string | null;
+  postal_code: number | null;
+  city: string | null;
+  state: string | null;
+  country: string;
+  created_at?: string;
+  updated_at?: string;
+};
+
+type Restaurant = Database['public']['Tables']['restaurants']['Row'] & {
+  hours_range_opening?: HoursRange;
+  hours_range_lunch?: HoursRange;
+  addresses?: Address;
+};
+
+type RestaurantInput = {
+  name: string;
+  description: string | null;
+  cuisine_type: string | null;
+  tier: string | null;
+  image_url: string | null;
+};
+
+type AddressInput = {
+  address: string | null;
+  postal_code: number | null;
+  city: string | null;
+  state: string | null;
+  country: string;
+};
 
 export default function RestaurantsManagement() {
   const [restaurants, setRestaurants] = useState<Restaurant[]>([]);
@@ -24,13 +63,28 @@ export default function RestaurantsManagement() {
     useState<Restaurant | null>(null);
   const [selectedRestaurant, setSelectedRestaurant] =
     useState<Restaurant | null>(null);
-  const [formData, setFormData] = useState<RestaurantInput>({
-    name: '',
-    description: '',
-    cuisine_type: '',
-    opening_hours: '',
-    tier: '',
-    image_url: '',
+  const [formData, setFormData] = useState<{
+    restaurant: RestaurantInput;
+    address: AddressInput;
+    opening_hours: { from: string; to: string };
+    lunch_hours: { from: string; to: string };
+  }>({
+    restaurant: {
+      name: '',
+      description: '',
+      cuisine_type: '',
+      tier: '',
+      image_url: '',
+    },
+    address: {
+      address: '',
+      postal_code: null,
+      city: '',
+      state: '',
+      country: 'Germany',
+    },
+    opening_hours: { from: '09:00', to: '17:00' },
+    lunch_hours: { from: '12:00', to: '14:00' },
   });
   const router = useRouter();
 
@@ -42,8 +96,15 @@ export default function RestaurantsManagement() {
     try {
       const { data, error } = await supabase
         .from('restaurants')
-        .select('*')
-        .order('created_at', { ascending: false });
+        .select(
+          `
+          *,
+          hours_range_opening:opening_hours(from, to),
+          hours_range_lunch:lunch_hours(from, to),
+          addresses(*)
+        `
+        )
+        .order('name');
 
       if (error) throw error;
       setRestaurants(data || []);
@@ -56,19 +117,60 @@ export default function RestaurantsManagement() {
 
   const handleCreate = async () => {
     try {
-      const { error } = await supabase.from('restaurants').insert([formData]);
+      // First create address
+      const { data: addressData, error: addressError } = await supabase
+        .from('addresses')
+        .insert(formData.address)
+        .select()
+        .single();
 
-      if (error) throw error;
+      if (addressError) throw addressError;
+
+      // Create opening hours range
+      const { data: openingHoursData, error: openingHoursError } =
+        await supabase
+          .from('hours_range')
+          .insert({
+            from: formData.opening_hours.from,
+            to: formData.opening_hours.to,
+          })
+          .select()
+          .single();
+
+      if (openingHoursError) throw openingHoursError;
+
+      // Create lunch hours range
+      const { data: lunchHoursData, error: lunchHoursError } = await supabase
+        .from('hours_range')
+        .insert({
+          from: formData.lunch_hours.from,
+          to: formData.lunch_hours.to,
+        })
+        .select()
+        .single();
+
+      if (lunchHoursError) throw lunchHoursError;
+
+      // Finally create the restaurant with all the IDs
+      const { error: restaurantError } = await supabase
+        .from('restaurants')
+        .insert([
+          {
+            name: formData.restaurant.name,
+            description: formData.restaurant.description,
+            cuisine_type: formData.restaurant.cuisine_type,
+            tier: formData.restaurant.tier,
+            image_url: formData.restaurant.image_url,
+            address: addressData.id,
+            opening_hours: openingHoursData.id,
+            lunch_hours: lunchHoursData.id,
+          },
+        ]);
+
+      if (restaurantError) throw restaurantError;
 
       setVisible(false);
-      setFormData({
-        name: '',
-        description: '',
-        cuisine_type: '',
-        opening_hours: '',
-        tier: '',
-        image_url: '',
-      });
+      resetForm();
       fetchRestaurants();
     } catch (error) {
       console.error('Error creating restaurant:', error);
@@ -79,23 +181,52 @@ export default function RestaurantsManagement() {
     if (!selectedRestaurant?.id) return;
 
     try {
-      const { error } = await supabase
+      // Update address
+      const { error: addressError } = await supabase
+        .from('addresses')
+        .update(formData.address)
+        .eq('id', selectedRestaurant.address);
+
+      if (addressError) throw addressError;
+
+      // Update opening hours range
+      const { error: openingHoursError } = await supabase
+        .from('hours_range')
+        .update({
+          from: formData.opening_hours.from,
+          to: formData.opening_hours.to,
+        })
+        .eq('id', selectedRestaurant.opening_hours);
+
+      if (openingHoursError) throw openingHoursError;
+
+      // Update lunch hours range
+      const { error: lunchHoursError } = await supabase
+        .from('hours_range')
+        .update({
+          from: formData.lunch_hours.from,
+          to: formData.lunch_hours.to,
+        })
+        .eq('id', selectedRestaurant.lunch_hours);
+
+      if (lunchHoursError) throw lunchHoursError;
+
+      // Update restaurant
+      const { error: restaurantError } = await supabase
         .from('restaurants')
-        .update(formData)
+        .update({
+          name: formData.restaurant.name,
+          description: formData.restaurant.description,
+          cuisine_type: formData.restaurant.cuisine_type,
+          tier: formData.restaurant.tier,
+          image_url: formData.restaurant.image_url,
+        })
         .eq('id', selectedRestaurant.id);
 
-      if (error) throw error;
+      if (restaurantError) throw restaurantError;
 
       setVisible(false);
-      setSelectedRestaurant(null);
-      setFormData({
-        name: '',
-        description: '',
-        cuisine_type: '',
-        opening_hours: '',
-        tier: '',
-        image_url: '',
-      });
+      resetForm();
       fetchRestaurants();
     } catch (error) {
       console.error('Error updating restaurant:', error);
@@ -118,28 +249,53 @@ export default function RestaurantsManagement() {
     }
   };
 
-  const openCreateModal = () => {
+  const resetForm = () => {
     setSelectedRestaurant(null);
     setFormData({
-      name: '',
-      description: '',
-      cuisine_type: '',
-      opening_hours: '',
-      tier: '',
-      image_url: '',
+      restaurant: {
+        name: '',
+        description: '',
+        cuisine_type: '',
+        tier: '',
+        image_url: '',
+      },
+      address: {
+        address: '',
+        postal_code: null,
+        city: '',
+        state: '',
+        country: 'Germany',
+      },
+      opening_hours: { from: '09:00', to: '17:00' },
+      lunch_hours: { from: '12:00', to: '14:00' },
     });
-    setVisible(true);
   };
 
   const openEditModal = (restaurant: Restaurant) => {
     setSelectedRestaurant(restaurant);
     setFormData({
-      name: restaurant.name || '',
-      description: restaurant.description || '',
-      cuisine_type: restaurant.cuisine_type || '',
-      opening_hours: restaurant.opening_hours || '',
-      tier: restaurant.tier || '',
-      image_url: restaurant.image_url || '',
+      restaurant: {
+        name: restaurant.name || '',
+        description: restaurant.description || '',
+        cuisine_type: restaurant.cuisine_type || '',
+        tier: restaurant.tier || '',
+        image_url: restaurant.image_url || '',
+      },
+      address: {
+        address: restaurant.addresses?.address || '',
+        postal_code: restaurant.addresses?.postal_code || null,
+        city: restaurant.addresses?.city || '',
+        state: restaurant.addresses?.state || '',
+        country: restaurant.addresses?.country || 'Germany',
+      },
+      opening_hours: {
+        from: restaurant.hours_range_opening?.from || '09:00',
+        to: restaurant.hours_range_opening?.to || '17:00',
+      },
+      lunch_hours: {
+        from: restaurant.hours_range_lunch?.from || '12:00',
+        to: restaurant.hours_range_lunch?.to || '14:00',
+      },
     });
     setVisible(true);
   };
@@ -165,7 +321,7 @@ export default function RestaurantsManagement() {
         </Text>
         <Button
           mode="contained"
-          onPress={openCreateModal}
+          onPress={() => setVisible(true)}
           className="bg-blue-500"
         >
           Add Restaurant
@@ -248,9 +404,12 @@ export default function RestaurantsManagement() {
 
             <TextInput
               label="Name"
-              value={formData.name || ''}
-              onChangeText={(text: string) =>
-                setFormData({ ...formData, name: text })
+              value={formData.restaurant.name}
+              onChangeText={(text) =>
+                setFormData({
+                  ...formData,
+                  restaurant: { ...formData.restaurant, name: text },
+                })
               }
               className="mb-4"
               mode="flat"
@@ -258,31 +417,25 @@ export default function RestaurantsManagement() {
 
             <TextInput
               label="Description"
-              value={formData.description || ''}
-              onChangeText={(text: string) =>
-                setFormData({ ...formData, description: text })
+              value={formData.restaurant.description || ''}
+              onChangeText={(text) =>
+                setFormData({
+                  ...formData,
+                  restaurant: { ...formData.restaurant, description: text },
+                })
               }
               className="mb-4"
               mode="flat"
-              multiline
-              numberOfLines={3}
             />
 
             <TextInput
               label="Cuisine Type"
-              value={formData.cuisine_type || ''}
-              onChangeText={(text: string) =>
-                setFormData({ ...formData, cuisine_type: text })
-              }
-              className="mb-4"
-              mode="flat"
-            />
-
-            <TextInput
-              label="Opening Hours"
-              value={formData.opening_hours || ''}
-              onChangeText={(text: string) =>
-                setFormData({ ...formData, opening_hours: text })
+              value={formData.restaurant.cuisine_type || ''}
+              onChangeText={(text) =>
+                setFormData({
+                  ...formData,
+                  restaurant: { ...formData.restaurant, cuisine_type: text },
+                })
               }
               className="mb-4"
               mode="flat"
@@ -290,9 +443,12 @@ export default function RestaurantsManagement() {
 
             <TextInput
               label="Tier"
-              value={formData.tier || ''}
-              onChangeText={(text: string) =>
-                setFormData({ ...formData, tier: text })
+              value={formData.restaurant.tier || ''}
+              onChangeText={(text) =>
+                setFormData({
+                  ...formData,
+                  restaurant: { ...formData.restaurant, tier: text },
+                })
               }
               className="mb-4"
               mode="flat"
@@ -300,13 +456,158 @@ export default function RestaurantsManagement() {
 
             <TextInput
               label="Image URL"
-              value={formData.image_url || ''}
-              onChangeText={(text: string) =>
-                setFormData({ ...formData, image_url: text })
+              value={formData.restaurant.image_url || ''}
+              onChangeText={(text) =>
+                setFormData({
+                  ...formData,
+                  restaurant: { ...formData.restaurant, image_url: text },
+                })
               }
               className="mb-4"
               mode="flat"
             />
+
+            <View className="mb-4">
+              <Text className="text-sm font-medium text-gray-600 mb-2">
+                Address Details
+              </Text>
+              <TextInput
+                label="Street Address"
+                value={formData.address.address || ''}
+                onChangeText={(text) =>
+                  setFormData({
+                    ...formData,
+                    address: { ...formData.address, address: text },
+                  })
+                }
+                className="mb-2"
+                mode="flat"
+              />
+              <View className="flex-row gap-4 mb-2">
+                <TextInput
+                  label="Postal Code"
+                  value={formData.address.postal_code?.toString() || ''}
+                  onChangeText={(text) =>
+                    setFormData({
+                      ...formData,
+                      address: {
+                        ...formData.address,
+                        postal_code: text ? parseInt(text) : null,
+                      },
+                    })
+                  }
+                  keyboardType="numeric"
+                  className="flex-1"
+                  mode="flat"
+                />
+                <TextInput
+                  label="City"
+                  value={formData.address.city || ''}
+                  onChangeText={(text) =>
+                    setFormData({
+                      ...formData,
+                      address: { ...formData.address, city: text },
+                    })
+                  }
+                  className="flex-1"
+                  mode="flat"
+                />
+              </View>
+              <View className="flex-row gap-4">
+                <TextInput
+                  label="State"
+                  value={formData.address.state || ''}
+                  onChangeText={(text) =>
+                    setFormData({
+                      ...formData,
+                      address: { ...formData.address, state: text },
+                    })
+                  }
+                  className="flex-1"
+                  mode="flat"
+                />
+                <TextInput
+                  label="Country"
+                  value={formData.address.country}
+                  onChangeText={(text) =>
+                    setFormData({
+                      ...formData,
+                      address: { ...formData.address, country: text },
+                    })
+                  }
+                  className="flex-1"
+                  mode="flat"
+                />
+              </View>
+            </View>
+
+            <View className="mb-4">
+              <Text className="text-sm font-medium text-gray-600 mb-2">
+                Opening Hours
+              </Text>
+              <View className="flex-row gap-4">
+                <TextInput
+                  label="From"
+                  value={formData.opening_hours.from}
+                  onChangeText={(text) =>
+                    setFormData({
+                      ...formData,
+                      opening_hours: { ...formData.opening_hours, from: text },
+                    })
+                  }
+                  placeholder="HH:MM"
+                  className="flex-1"
+                  mode="flat"
+                />
+                <TextInput
+                  label="To"
+                  value={formData.opening_hours.to}
+                  onChangeText={(text) =>
+                    setFormData({
+                      ...formData,
+                      opening_hours: { ...formData.opening_hours, to: text },
+                    })
+                  }
+                  placeholder="HH:MM"
+                  className="flex-1"
+                  mode="flat"
+                />
+              </View>
+            </View>
+
+            <View className="mb-4">
+              <Text className="text-sm font-medium text-gray-600 mb-2">
+                Lunch Hours
+              </Text>
+              <View className="flex-row gap-4">
+                <TextInput
+                  label="From"
+                  value={formData.lunch_hours.from}
+                  onChangeText={(text) =>
+                    setFormData({
+                      ...formData,
+                      lunch_hours: { ...formData.lunch_hours, from: text },
+                    })
+                  }
+                  placeholder="HH:MM"
+                  className="flex-1"
+                  mode="flat"
+                />
+                <TextInput
+                  label="To"
+                  value={formData.lunch_hours.to}
+                  onChangeText={(text) =>
+                    setFormData({
+                      ...formData,
+                      lunch_hours: { ...formData.lunch_hours, to: text },
+                    })
+                  }
+                  placeholder="HH:MM"
+                  className="flex-1"
+                  mode="flat"
+                />
+              </View>
+            </View>
 
             <View className="flex-row justify-end items-center gap-3 mt-6">
               <Button

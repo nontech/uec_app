@@ -218,7 +218,7 @@ export default function MembershipsManagement() {
           </DataTable.Title>
           <DataTable.Title numeric>
             <Text className="text-sm font-medium text-gray-600">
-              Price/Employee
+              Price per meal
             </Text>
           </DataTable.Title>
           <View className="w-4" />
@@ -362,7 +362,7 @@ export default function MembershipsManagement() {
             </View>
 
             <TextInput
-              label="Monthly Price per Employee (€)"
+              label="price per meal (€)"
               value={formData.price_per_meal?.toString() || ''}
               onChangeText={(text: string) =>
                 setFormData({
