@@ -5,61 +5,143 @@ import { supabase } from '../../../lib/supabase';
 import { Image } from 'expo-image';
 import { Ionicons } from '@expo/vector-icons';
 import { Database } from '../../../supabase/types';
+import { useAuth } from '../../../lib/AuthContext';
 
 type Restaurant = Database['public']['Tables']['restaurants']['Row'] & {
   hours_range_lunch?: {
     from: string;
     to: string;
   };
+  allowed_restaurants: {
+    distance_km: number;
+    company_id: string;
+  }[];
 };
 
-// Placeholder image URL
+type AllowedRestaurantResponse = {
+  restaurant: Database['public']['Tables']['restaurants']['Row'] & {
+    hours_range_lunch?: {
+      from: string;
+      to: string;
+    };
+  };
+  distance_km: number;
+};
+
+type AppUser = Database['public']['Tables']['app_users']['Row'];
+
 const PLACEHOLDER_IMAGE =
   'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4';
-
-// Mock distance data (to be implemented with actual distance calculation)
-const getDistance = (id: string) => {
-  const distances: { [key: string]: string } = {
-    '1': '10min',
-    '2': '12min',
-    '3': '10min',
-  };
-  return distances[id] || '15min';
-};
 
 // Format lunch hours into a readable string
 const formatLunchHours = (hours?: { from: string; to: string }) => {
   if (!hours) return 'Lunch: 12 pm - 2 pm'; // Default hours
-  return `Lunch: ${hours.from} - ${hours.to}`;
+
+  // Format time from HH:MM to 12-hour format
+  const formatTime = (timeStr: string) => {
+    const [hours, minutes] = timeStr.split(':');
+    const hour = parseInt(hours, 10);
+    const ampm = hour >= 12 ? 'PM' : 'AM';
+    const hour12 = hour % 12 || 12;
+    return `${hour12}${minutes ? `:${minutes}` : ''} ${ampm}`;
+  };
+
+  return `Lunch: ${formatTime(hours.from)} - ${formatTime(hours.to)}`;
 };
 
 export default function RestaurantsHome() {
   const [restaurants, setRestaurants] = useState<Restaurant[]>([]);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
+  const { session } = useAuth();
+  const [userCompanyId, setUserCompanyId] = useState<string | null>(null);
 
   useEffect(() => {
-    fetchRestaurants();
-  }, []);
+    if (session?.user) {
+      fetchUserCompany();
+    }
+  }, [session]);
 
-  async function fetchRestaurants() {
+  useEffect(() => {
+    if (userCompanyId) {
+      fetchRestaurants();
+    }
+  }, [userCompanyId]);
+
+  async function fetchUserCompany() {
     try {
       const { data, error } = await supabase
-        .from('restaurants')
-        .select(
-          `
-          *,
-          hours_range_lunch:lunch_hours(from, to)
-        `
-        )
-        .order('created_at', { ascending: false });
+        .from('app_users')
+        .select('company_id')
+        .eq('id', session?.user?.id)
+        .single();
 
-      if (error) {
-        throw error;
-      }
-
+      if (error) throw error;
       if (data) {
-        setRestaurants(data);
+        setUserCompanyId(data.company_id);
+      }
+    } catch (error) {
+      console.error('Error fetching user company:', error);
+    }
+  }
+
+  async function fetchRestaurants() {
+    if (!userCompanyId) return;
+
+    try {
+      // First get all allowed restaurant IDs and distances
+      const { data: allowedData, error: allowedError } = await supabase
+        .from('allowed_restaurants')
+        .select('*')
+        .eq('company_id', userCompanyId);
+
+      if (allowedError) throw allowedError;
+
+      if (allowedData && allowedData.length > 0) {
+        // Then get the restaurant details for those IDs
+        const { data: restaurantData, error: restaurantError } = await supabase
+          .from('restaurants')
+          .select(
+            `
+            *,
+            hours_range_lunch:lunch_hours(from, to)
+          `
+          )
+          .in(
+            'id',
+            allowedData.map((r) => r.restaurant_id)
+          );
+
+        if (restaurantError) throw restaurantError;
+
+        if (restaurantData) {
+          // Combine the data
+          const combinedData = restaurantData.map((restaurant) => {
+            const allowedRestaurant = allowedData.find(
+              (ar) => ar.restaurant_id === restaurant.id
+            );
+            return {
+              ...restaurant,
+              allowed_restaurants: [
+                {
+                  distance_km: allowedRestaurant?.distance_km || 0,
+                  company_id: userCompanyId,
+                },
+              ],
+            };
+          });
+
+          // Sort by distance
+          const sortedData = combinedData.sort((a, b) => {
+            const distanceA = a.allowed_restaurants[0]?.distance_km || 0;
+            const distanceB = b.allowed_restaurants[0]?.distance_km || 0;
+            return distanceA - distanceB;
+          });
+
+          setRestaurants(sortedData);
+        }
+      } else {
+        setRestaurants([]);
       }
     } catch (error) {
       console.error('Error fetching restaurants:', error);
@@ -101,7 +183,11 @@ export default function RestaurantsHome() {
             </View>
             <View className="flex-row items-center ml-6">
               <Ionicons name="walk-outline" size={16} color="#666" />
-              <Text className="text-gray-600 ml-1">{getDistance(item.id)}</Text>
+              <Text className="text-gray-600 ml-1">
+                {item.allowed_restaurants?.[0]?.distance_km != null
+                  ? `${item.allowed_restaurants[0].distance_km.toFixed(1)} km`
+                  : '-'}
+              </Text>
             </View>
           </View>
           <View className="bg-gray-100 px-3 py-1 rounded-full">
