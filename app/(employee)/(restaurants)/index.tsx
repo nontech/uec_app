@@ -18,6 +18,14 @@ type Restaurant = Database['public']['Tables']['restaurants']['Row'] & {
   }[];
 };
 
+type UserWithCompany = Database['public']['Tables']['app_users']['Row'] & {
+  companies?: {
+    memberships: {
+      plan_type: 'S' | 'M' | 'L';
+    }[];
+  };
+};
+
 const PLACEHOLDER_IMAGE =
   'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4';
 
@@ -43,38 +51,59 @@ export default function RestaurantsHome() {
   const router = useRouter();
   const { session } = useAuth();
   const [userCompanyId, setUserCompanyId] = useState<string | null>(null);
+  const [userMembershipTier, setUserMembershipTier] = useState<
+    'S' | 'M' | 'L' | null
+  >(null);
 
   useEffect(() => {
     if (session?.user) {
-      fetchUserCompany();
+      fetchUserDetails();
     }
   }, [session]);
 
   useEffect(() => {
-    if (userCompanyId) {
+    if (userCompanyId && userMembershipTier) {
       fetchRestaurants();
     }
-  }, [userCompanyId]);
+  }, [userCompanyId, userMembershipTier]);
 
-  async function fetchUserCompany() {
+  async function fetchUserDetails() {
     try {
-      const { data, error } = await supabase
+      // Get user details including membership_id
+      const { data: userData, error: userError } = await supabase
         .from('app_users')
-        .select('company_id')
+        .select(
+          `
+          company_id,
+          membership_id
+        `
+        )
         .eq('id', session?.user?.id)
         .single();
 
-      if (error) throw error;
-      if (data) {
-        setUserCompanyId(data.company_id);
+      if (userError) throw userError;
+      if (!userData?.company_id || !userData?.membership_id) return;
+
+      setUserCompanyId(userData.company_id);
+
+      // Get user's membership details
+      const { data: membershipData, error: membershipError } = await supabase
+        .from('memberships')
+        .select('plan_type')
+        .eq('id', userData.membership_id)
+        .single();
+
+      if (membershipError) throw membershipError;
+      if (membershipData) {
+        setUserMembershipTier(membershipData.plan_type as 'S' | 'M' | 'L');
       }
     } catch (error) {
-      console.error('Error fetching user company:', error);
+      console.error('Error fetching user details:', error);
     }
   }
 
   async function fetchRestaurants() {
-    if (!userCompanyId) return;
+    if (!userCompanyId || !userMembershipTier) return;
 
     try {
       // First get all allowed restaurant IDs and distances
@@ -103,21 +132,35 @@ export default function RestaurantsHome() {
         if (restaurantError) throw restaurantError;
 
         if (restaurantData) {
-          // Combine the data
-          const combinedData = restaurantData.map((restaurant) => {
-            const allowedRestaurant = allowedData.find(
-              (ar) => ar.restaurant_id === restaurant.id
-            );
-            return {
-              ...restaurant,
-              allowed_restaurants: [
-                {
-                  distance_km: allowedRestaurant?.distance_km || 0,
-                  company_id: userCompanyId,
-                },
-              ],
-            };
-          });
+          // Combine the data and filter by tier
+          const combinedData = restaurantData
+            .filter((restaurant) => {
+              const tier = restaurant.tier as 'S' | 'M' | 'L';
+              switch (userMembershipTier) {
+                case 'S':
+                  return tier === 'S';
+                case 'M':
+                  return tier === 'S' || tier === 'M';
+                case 'L':
+                  return tier === 'S' || tier === 'M' || tier === 'L';
+                default:
+                  return false;
+              }
+            })
+            .map((restaurant) => {
+              const allowedRestaurant = allowedData.find(
+                (ar) => ar.restaurant_id === restaurant.id
+              );
+              return {
+                ...restaurant,
+                allowed_restaurants: [
+                  {
+                    distance_km: allowedRestaurant?.distance_km || 0,
+                    company_id: userCompanyId,
+                  },
+                ],
+              };
+            });
 
           // Sort by distance
           const sortedData = combinedData.sort((a, b) => {

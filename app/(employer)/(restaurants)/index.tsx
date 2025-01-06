@@ -55,38 +55,63 @@ export default function RestaurantsHome() {
   const router = useRouter();
   const { session } = useAuth();
   const [userCompanyId, setUserCompanyId] = useState<string | null>(null);
+  const [userMembershipTier, setUserMembershipTier] = useState<string | null>(
+    null
+  );
 
   useEffect(() => {
     if (session?.user) {
-      fetchUserCompany();
+      fetchUserDetails();
     }
   }, [session]);
 
   useEffect(() => {
-    if (userCompanyId) {
+    if (userCompanyId && userMembershipTier) {
       fetchRestaurants();
     }
-  }, [userCompanyId]);
+  }, [userCompanyId, userMembershipTier]);
 
-  async function fetchUserCompany() {
+  async function fetchUserDetails() {
     try {
-      const { data, error } = await supabase
+      // Get user's company ID
+      const { data: userData, error: userError } = await supabase
         .from('app_users')
         .select('company_id')
         .eq('id', session?.user?.id)
         .single();
 
-      if (error) throw error;
-      if (data) {
-        setUserCompanyId(data.company_id);
+      if (userError) throw userError;
+      if (!userData?.company_id) return;
+
+      setUserCompanyId(userData.company_id);
+
+      // Get all active memberships for the company
+      const { data: membershipsData, error: membershipError } = await supabase
+        .from('memberships')
+        .select('plan_type')
+        .eq('company_id', userData.company_id)
+        .eq('status', 'active');
+
+      if (membershipError) throw membershipError;
+      if (membershipsData && membershipsData.length > 0) {
+        // Find the highest tier membership
+        // L > M > S
+        const highestTier = membershipsData.reduce((highest, current) => {
+          if (!highest) return current.plan_type;
+          if (current.plan_type === 'L') return 'L';
+          if (current.plan_type === 'M' && highest !== 'L') return 'M';
+          return highest;
+        }, '' as 'S' | 'M' | 'L');
+
+        setUserMembershipTier(highestTier);
       }
     } catch (error) {
-      console.error('Error fetching user company:', error);
+      console.error('Error fetching user details:', error);
     }
   }
 
   async function fetchRestaurants() {
-    if (!userCompanyId) return;
+    if (!userCompanyId || !userMembershipTier) return;
 
     try {
       // First get all allowed restaurant IDs and distances
@@ -115,21 +140,35 @@ export default function RestaurantsHome() {
         if (restaurantError) throw restaurantError;
 
         if (restaurantData) {
-          // Combine the data
-          const combinedData = restaurantData.map((restaurant) => {
-            const allowedRestaurant = allowedData.find(
-              (ar) => ar.restaurant_id === restaurant.id
-            );
-            return {
-              ...restaurant,
-              allowed_restaurants: [
-                {
-                  distance_km: allowedRestaurant?.distance_km || 0,
-                  company_id: userCompanyId,
-                },
-              ],
-            };
-          });
+          // Combine the data and filter by tier
+          const combinedData = restaurantData
+            .filter((restaurant) => {
+              const tier = restaurant.tier as 'S' | 'M' | 'L';
+              switch (userMembershipTier) {
+                case 'S':
+                  return tier === 'S';
+                case 'M':
+                  return tier === 'S' || tier === 'M';
+                case 'L':
+                  return tier === 'S' || tier === 'M' || tier === 'L';
+                default:
+                  return false;
+              }
+            })
+            .map((restaurant) => {
+              const allowedRestaurant = allowedData.find(
+                (ar) => ar.restaurant_id === restaurant.id
+              );
+              return {
+                ...restaurant,
+                allowed_restaurants: [
+                  {
+                    distance_km: allowedRestaurant?.distance_km || 0,
+                    company_id: userCompanyId,
+                  },
+                ],
+              };
+            });
 
           // Sort by distance
           const sortedData = combinedData.sort((a, b) => {
