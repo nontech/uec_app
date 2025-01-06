@@ -16,6 +16,7 @@ import {
   europeanCountries,
   type EuropeanCountry,
 } from '../../../lib/constants/countries';
+import { useRouter } from 'expo-router';
 
 type Company = Database['public']['Tables']['companies']['Row'];
 type CompanyInput = {
@@ -70,6 +71,7 @@ export default function CompaniesManagement() {
       country: 'Germany' as EuropeanCountry,
     },
   });
+  const router = useRouter();
 
   useEffect(() => {
     fetchCompanies();
@@ -296,22 +298,34 @@ export default function CompaniesManagement() {
               </Text>
             </DataTable.Cell>
             <DataTable.Cell>
-              <View className="flex-row gap-2">
+              <View className="flex-col gap-2">
+                <View className="flex-row gap-2 mb-2">
+                  <Button
+                    mode="outlined"
+                    onPress={() => openEditModal(company)}
+                    className="border-blue-500"
+                    textColor="#3b82f6"
+                  >
+                    Edit
+                  </Button>
+                  <Button
+                    mode="outlined"
+                    onPress={() => openDeleteConfirm(company)}
+                    className="border-red-500"
+                    textColor="#ef4444"
+                  >
+                    Delete
+                  </Button>
+                </View>
                 <Button
                   mode="outlined"
-                  onPress={() => openEditModal(company)}
-                  className="border-blue-500"
-                  textColor="#3b82f6"
+                  onPress={() =>
+                    router.push(`/companies/${company.id}/allowedRestaurants`)
+                  }
+                  className="border-green-500 mt-1"
+                  textColor="#22c55e"
                 >
-                  Edit
-                </Button>
-                <Button
-                  mode="outlined"
-                  onPress={() => openDeleteConfirm(company)}
-                  className="border-red-500"
-                  textColor="#ef4444"
-                >
-                  Delete
+                  Manage Restaurants
                 </Button>
               </View>
             </DataTable.Cell>

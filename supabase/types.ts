@@ -72,7 +72,7 @@ export type Database = {
           company_id: string | null
           created_at: string
           distance_km: number | null
-          id: number
+          id: string
           restaurant_id: string | null
           updated_at: string
         }
@@ -80,7 +80,7 @@ export type Database = {
           company_id?: string | null
           created_at?: string
           distance_km?: number | null
-          id?: number
+          id?: string
           restaurant_id?: string | null
           updated_at?: string
         }
@@ -88,7 +88,7 @@ export type Database = {
           company_id?: string | null
           created_at?: string
           distance_km?: number | null
-          id?: number
+          id?: string
           restaurant_id?: string | null
           updated_at?: string
         }
