@@ -43,9 +43,9 @@ export default function Dashboard() {
     );
     currentWeekStart.setHours(0, 0, 0, 0);
 
-    // Get the end of the current week (Sunday)
+    // Get the end of the current week (Friday)
     const currentWeekEnd = new Date(currentWeekStart);
-    currentWeekEnd.setDate(currentWeekStart.getDate() + 6);
+    currentWeekEnd.setDate(currentWeekStart.getDate() + 4); // +4 to get to Friday
     currentWeekEnd.setHours(23, 59, 59, 999);
 
     // If the current week is not within the membership period, return 0
@@ -53,12 +53,24 @@ export default function Dashboard() {
       return 0;
     }
 
-    // Return the meals per week since it's now directly on the user
-    return mealsPerWeek;
-  };
+    // Calculate remaining working days in the week
+    const dayOfWeek = today.getDay(); // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
+    const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
 
-  const calculateMonthlyMeals = (mealsPerWeek: number) => {
-    return mealsPerWeek * 4; // Approximate monthly meals
+    // If it's weekend, return 0
+    if (isWeekend) return 0;
+
+    // Calculate remaining working days (Monday-Friday)
+    const remainingDays = 5 - dayOfWeek; // 5 = Friday
+
+    // For 5 meals per week, we subtract based on passed days
+    if (mealsPerWeek === 5) {
+      const passedDays = dayOfWeek - 1; // -1 because we start from Monday
+      return Math.max(0, mealsPerWeek - passedDays);
+    }
+
+    // For fewer meals, we keep the full amount as long as there are enough remaining days
+    return Math.min(mealsPerWeek, remainingDays + 1); // +1 to include current day
   };
 
   const getCurrentMonthName = () => {
@@ -171,10 +183,6 @@ export default function Dashboard() {
         )
       : 0;
 
-  const monthlyMeals = userDetails?.meals_per_week
-    ? calculateMonthlyMeals(userDetails.meals_per_week)
-    : 0;
-
   return (
     <View className="flex-1 bg-white">
       {/* User Info Section */}
@@ -210,16 +218,11 @@ export default function Dashboard() {
         {/* Meals Section */}
         <View className="mt-8">
           <Text className="text-xl font-semibold mb-6">Meals Remaining</Text>
-          <View className="flex-row justify-around">
+          <View className="flex-row justify-center">
             <CircularProgress
               value={weeklyMeals}
               maxValue={userDetails?.meals_per_week || 0}
               text="This week"
-            />
-            <CircularProgress
-              value={monthlyMeals}
-              maxValue={(userDetails?.meals_per_week || 0) * 4}
-              text={`In ${getCurrentMonthName()}`}
             />
           </View>
         </View>
