@@ -5,16 +5,19 @@ import { useAuth } from '../../lib/AuthContext';
 import { Database } from '../../supabase/types';
 import { Svg, Circle } from 'react-native-svg';
 
-type MealBalance = Database['public']['Tables']['meal_balances']['Row'];
 type AppUser = Database['public']['Tables']['app_users']['Row'];
 type Company = Database['public']['Tables']['companies']['Row'];
 type Membership = Database['public']['Tables']['memberships']['Row'];
 
+type UserWithDetails = AppUser & {
+  companies?: Company;
+  memberships?: Membership;
+};
+
 export default function Dashboard() {
   const { session } = useAuth();
   const [loading, setLoading] = useState(true);
-  const [mealBalance, setMealBalance] = useState<MealBalance | null>(null);
-  const [userDetails, setUserDetails] = useState<AppUser | null>(null);
+  const [userDetails, setUserDetails] = useState<UserWithDetails | null>(null);
   const [company, setCompany] = useState<Company | null>(null);
   const [membership, setMembership] = useState<Membership | null>(null);
 
@@ -27,7 +30,6 @@ export default function Dashboard() {
   const calculateWeeklyMeals = (
     startDate: string,
     endDate: string,
-    remainingMeals: number,
     mealsPerWeek: number
   ) => {
     const start = new Date(startDate);
@@ -41,32 +43,34 @@ export default function Dashboard() {
     );
     currentWeekStart.setHours(0, 0, 0, 0);
 
-    // Get the end of the current week (Sunday)
+    // Get the end of the current week (Friday)
     const currentWeekEnd = new Date(currentWeekStart);
-    currentWeekEnd.setDate(currentWeekStart.getDate() + 6);
+    currentWeekEnd.setDate(currentWeekStart.getDate() + 4); // +4 to get to Friday
     currentWeekEnd.setHours(23, 59, 59, 999);
 
-    // If the current week is not within the meal balance period, return 0
+    // If the current week is not within the membership period, return 0
     if (currentWeekEnd < start || currentWeekStart > end) {
       return 0;
     }
 
-    // Calculate total weeks in the period
-    const totalWeeks = Math.ceil(
-      (end.getTime() - start.getTime()) / (7 * 24 * 60 * 60 * 1000)
-    );
+    // Calculate remaining working days in the week
+    const dayOfWeek = today.getDay(); // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
+    const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
 
-    // Calculate meals per week based on remaining meals and remaining weeks
-    const remainingWeeks = Math.ceil(
-      (end.getTime() - today.getTime()) / (7 * 24 * 60 * 60 * 1000)
-    );
+    // If it's weekend, return 0
+    if (isWeekend) return 0;
 
-    // Return the minimum of mealsPerWeek and the calculated weekly meals
-    return Math.min(mealsPerWeek, Math.floor(remainingMeals / remainingWeeks));
-  };
+    // Calculate remaining working days (Monday-Friday)
+    const remainingDays = 5 - dayOfWeek; // 5 = Friday
 
-  const calculateMonthlyMeals = (remainingMeals: number) => {
-    return remainingMeals;
+    // For 5 meals per week, we subtract based on passed days
+    if (mealsPerWeek === 5) {
+      const passedDays = dayOfWeek - 1; // -1 because we start from Monday
+      return Math.max(0, mealsPerWeek - passedDays);
+    }
+
+    // For fewer meals, we keep the full amount as long as there are enough remaining days
+    return Math.min(mealsPerWeek, remainingDays + 1); // +1 to include current day
   };
 
   const getCurrentMonthName = () => {
@@ -75,10 +79,10 @@ export default function Dashboard() {
 
   async function fetchUserData() {
     try {
-      // Fetch user details with company
+      // Fetch user details with company and membership
       const { data: userData, error: userError } = await supabase
         .from('app_users')
-        .select('*, companies(*)')
+        .select('*, companies(*), memberships(*)')
         .eq('id', session?.user?.id)
         .single();
 
@@ -86,30 +90,7 @@ export default function Dashboard() {
       if (userData) {
         setUserDetails(userData);
         setCompany(userData.companies);
-
-        // Fetch membership for the company
-        const { data: membershipData, error: membershipError } = await supabase
-          .from('memberships')
-          .select('*, meals_per_week')
-          .eq('company_id', userData.company_id)
-          .eq('status', 'active')
-          .single();
-
-        if (membershipError) throw membershipError;
-        // @ts-ignore - meals_per_week exists in the database but not in types yet
-        setMembership(membershipData);
-      }
-
-      // Fetch meal balance
-      const { data: balanceData, error: balanceError } = await supabase
-        .from('meal_balances')
-        .select('*')
-        .eq('employee_id', session?.user?.id)
-        .single();
-
-      if (balanceError) throw balanceError;
-      if (balanceData) {
-        setMealBalance(balanceData);
+        setMembership(userData.memberships);
       }
     } catch (error) {
       console.error('Error:', error);
@@ -192,21 +173,15 @@ export default function Dashboard() {
   }
 
   const weeklyMeals =
-    mealBalance?.start_date &&
-    mealBalance?.end_date &&
-    mealBalance?.remaining_meals
+    membership?.start_date &&
+    membership?.end_date &&
+    userDetails?.meals_per_week
       ? calculateWeeklyMeals(
-          mealBalance.start_date,
-          mealBalance.end_date,
-          mealBalance.remaining_meals,
-          // @ts-ignore - meals_per_week exists in the database but not in types yet
-          membership?.meals_per_week || 2
+          membership.start_date,
+          membership.end_date,
+          userDetails.meals_per_week
         )
       : 0;
-
-  const monthlyMeals = mealBalance?.remaining_meals
-    ? calculateMonthlyMeals(mealBalance.remaining_meals)
-    : 0;
 
   return (
     <View className="flex-1 bg-white">
@@ -222,7 +197,7 @@ export default function Dashboard() {
             <Text className="text-xl font-semibold">
               {userDetails?.first_name} {userDetails?.last_name}
             </Text>
-            <Text className="text-gray-600">{userDetails?.company_email}</Text>
+            <Text className="text-gray-600">{userDetails?.email}</Text>
           </View>
         </View>
 
@@ -243,16 +218,11 @@ export default function Dashboard() {
         {/* Meals Section */}
         <View className="mt-8">
           <Text className="text-xl font-semibold mb-6">Meals Remaining</Text>
-          <View className="flex-row justify-around">
+          <View className="flex-row justify-center">
             <CircularProgress
               value={weeklyMeals}
-              maxValue={membership?.meals_per_week || 2}
+              maxValue={userDetails?.meals_per_week || 0}
               text="This week"
-            />
-            <CircularProgress
-              value={monthlyMeals}
-              maxValue={(membership?.meals_per_week || 2) * 4}
-              text={`In ${getCurrentMonthName()}`}
             />
           </View>
         </View>

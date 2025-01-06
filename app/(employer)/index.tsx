@@ -3,15 +3,28 @@ import { useAuth } from '../../lib/AuthContext';
 import { useEffect, useState } from 'react';
 import { supabase } from '../../lib/supabase';
 import { Database } from '../../supabase/types';
+import { Ionicons } from '@expo/vector-icons';
 
 type Company = Database['public']['Tables']['companies']['Row'];
 type Membership = Database['public']['Tables']['memberships']['Row'];
+
+const TIER_COLORS = {
+  S: 'bg-purple-500',
+  M: 'bg-blue-500',
+  L: 'bg-green-500',
+};
+
+const TIER_DESCRIPTIONS = {
+  S: 'Premium tier with access to exclusive S-tier restaurants',
+  M: 'Advanced tier with access to S and M-tier restaurants',
+  L: 'Complete tier with access to all restaurant tiers',
+};
 
 export default function EmployerDashboard() {
   const { session } = useAuth();
   const [loading, setLoading] = useState(true);
   const [company, setCompany] = useState<Company | null>(null);
-  const [membership, setMembership] = useState<Membership | null>(null);
+  const [memberships, setMemberships] = useState<Membership[]>([]);
 
   useEffect(() => {
     if (session?.user) {
@@ -41,16 +54,17 @@ export default function EmployerDashboard() {
         if (companyError) throw companyError;
         setCompany(companyData);
 
-        // Fetch membership details
-        const { data: membershipData, error: membershipError } = await supabase
-          .from('memberships')
-          .select('*')
-          .eq('company_id', userData.company_id)
-          .eq('status', 'active')
-          .single();
+        // Fetch all active memberships
+        const { data: membershipsData, error: membershipsError } =
+          await supabase
+            .from('memberships')
+            .select('*')
+            .eq('company_id', userData.company_id)
+            .eq('status', 'active')
+            .order('plan_type');
 
-        if (membershipError) throw membershipError;
-        setMembership(membershipData);
+        if (membershipsError) throw membershipsError;
+        setMemberships(membershipsData || []);
       }
     } catch (error) {
       console.error('Error fetching dashboard data:', error);
@@ -72,40 +86,35 @@ export default function EmployerDashboard() {
       <View className="p-6">
         <Text className="text-3xl font-bold mb-8">{company?.name}</Text>
 
-        {/* Plan Details Card */}
-        <View className="bg-blue-500 rounded-3xl p-8 mb-8">
-          <View className="flex-row justify-between items-center mb-8">
-            <Text className="text-3xl text-black font-semibold">
-              Each Employee
-            </Text>
-            <Text className="text-xl text-white">
-              Plan {membership?.plan_type}
-            </Text>
-          </View>
-
-          <View className="flex-row justify-between">
-            {/* Weekly Meals */}
-            <View className="bg-white rounded-2xl p-6 mr-4 w-[45%] shadow-xl">
-              <Text className="text-gray-600 mb-2">Weekly</Text>
-              <View className="flex-row items-baseline">
-                <Text className="text-4xl font-bold text-black mr-2">
-                  {membership?.meals_per_week || 3}
-                </Text>
-                <Text className="text-gray-500">Meals</Text>
+        {/* Memberships Section */}
+        <Text className="text-2xl font-semibold mb-4">Active Memberships</Text>
+        <View className="space-y-4">
+          {memberships.map((membership) => (
+            <View
+              key={membership.id}
+              className={`rounded-3xl p-6 ${
+                TIER_COLORS[membership.plan_type as keyof typeof TIER_COLORS]
+              }`}
+            >
+              <View className="flex-row justify-between items-center">
+                <View className="flex-1 mr-4">
+                  <Text className="text-white text-lg font-semibold">
+                    Tier {membership.plan_type}
+                  </Text>
+                  <Text className="text-white opacity-80 mt-1">
+                    {
+                      TIER_DESCRIPTIONS[
+                        membership.plan_type as keyof typeof TIER_DESCRIPTIONS
+                      ]
+                    }
+                  </Text>
+                </View>
+                <View className="bg-white/20 rounded-full p-2">
+                  <Ionicons name="star" size={24} color="white" />
+                </View>
               </View>
             </View>
-
-            {/* Monthly Meals */}
-            <View className="bg-white rounded-2xl p-6 w-[45%] shadow-xl">
-              <Text className="text-gray-600 mb-2">Monthly</Text>
-              <View className="flex-row items-baseline">
-                <Text className="text-4xl font-bold text-black mr-2">
-                  {(membership?.meals_per_week || 3) * 4}
-                </Text>
-                <Text className="text-gray-500">Meals</Text>
-              </View>
-            </View>
-          </View>
+          ))}
         </View>
       </View>
     </ScrollView>

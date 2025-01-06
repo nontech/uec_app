@@ -67,44 +67,92 @@ export type Database = {
         }
         Relationships: []
       }
-      app_users: {
+      allowed_restaurants: {
         Row: {
-          company_email: string
-          company_id: string
+          company_id: string | null
           created_at: string
-          first_name: string
+          distance_km: number | null
           id: string
-          last_name: string | null
-          profile_image_url: string | null
-          secondary_email: string | null
-          status: string | null
-          type: string | null
+          restaurant_id: string | null
           updated_at: string
         }
         Insert: {
-          company_email: string
-          company_id: string
+          company_id?: string | null
           created_at?: string
-          first_name: string
+          distance_km?: number | null
           id?: string
-          last_name?: string | null
-          profile_image_url?: string | null
-          secondary_email?: string | null
-          status?: string | null
-          type?: string | null
+          restaurant_id?: string | null
           updated_at?: string
         }
         Update: {
-          company_email?: string
-          company_id?: string
+          company_id?: string | null
           created_at?: string
+          distance_km?: number | null
+          id?: string
+          restaurant_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "allowed_restaurants_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "allowed_restaurants_restaurant_id_fkey"
+            columns: ["restaurant_id"]
+            isOneToOne: false
+            referencedRelation: "restaurants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      app_users: {
+        Row: {
+          company_id: string | null
+          created_at: string
+          email: string
+          first_name: string
+          id: string
+          last_name: string | null
+          meals_per_week: number | null
+          membership_id: string | null
+          personal_email: string | null
+          profile_image_url: string | null
+          status: string | null
+          type: string
+          updated_at: string
+        }
+        Insert: {
+          company_id?: string | null
+          created_at?: string
+          email: string
+          first_name: string
+          id?: string
+          last_name?: string | null
+          meals_per_week?: number | null
+          membership_id?: string | null
+          personal_email?: string | null
+          profile_image_url?: string | null
+          status?: string | null
+          type: string
+          updated_at?: string
+        }
+        Update: {
+          company_id?: string | null
+          created_at?: string
+          email?: string
           first_name?: string
           id?: string
           last_name?: string | null
+          meals_per_week?: number | null
+          membership_id?: string | null
+          personal_email?: string | null
           profile_image_url?: string | null
-          secondary_email?: string | null
           status?: string | null
-          type?: string | null
+          type?: string
           updated_at?: string
         }
         Relationships: [
@@ -115,11 +163,18 @@ export type Database = {
             referencedRelation: "companies"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "app_users_membership_id_fkey"
+            columns: ["membership_id"]
+            isOneToOne: false
+            referencedRelation: "memberships"
+            referencedColumns: ["id"]
+          },
         ]
       }
       companies: {
         Row: {
-          address_id: string
+          address: string
           billing_email: string | null
           created_at: string | null
           description: string | null
@@ -131,7 +186,7 @@ export type Database = {
           vat_id: string | null
         }
         Insert: {
-          address_id: string
+          address: string
           billing_email?: string | null
           created_at?: string | null
           description?: string | null
@@ -143,7 +198,7 @@ export type Database = {
           vat_id?: string | null
         }
         Update: {
-          address_id?: string
+          address?: string
           billing_email?: string | null
           created_at?: string | null
           description?: string | null
@@ -156,13 +211,37 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "companies_address_id_fkey"
-            columns: ["address_id"]
+            foreignKeyName: "companies_address_fkey"
+            columns: ["address"]
             isOneToOne: false
             referencedRelation: "addresses"
             referencedColumns: ["id"]
           },
         ]
+      }
+      hours_range: {
+        Row: {
+          created_at: string
+          from: string | null
+          id: string
+          to: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          from?: string | null
+          id?: string
+          to?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          from?: string | null
+          id?: string
+          to?: string | null
+          updated_at?: string
+        }
+        Relationships: []
       }
       invoices: {
         Row: {
@@ -202,63 +281,14 @@ export type Database = {
           },
         ]
       }
-      meal_balances: {
-        Row: {
-          created_at: string | null
-          employee_id: string | null
-          end_date: string | null
-          id: string
-          membership_id: string | null
-          remaining_meals: number | null
-          start_date: string | null
-          updated_at: string | null
-        }
-        Insert: {
-          created_at?: string | null
-          employee_id?: string | null
-          end_date?: string | null
-          id?: string
-          membership_id?: string | null
-          remaining_meals?: number | null
-          start_date?: string | null
-          updated_at?: string | null
-        }
-        Update: {
-          created_at?: string | null
-          employee_id?: string | null
-          end_date?: string | null
-          id?: string
-          membership_id?: string | null
-          remaining_meals?: number | null
-          start_date?: string | null
-          updated_at?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "meal_balances_employee_id_fkey"
-            columns: ["employee_id"]
-            isOneToOne: true
-            referencedRelation: "app_users"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "meal_balances_membership_id_fkey"
-            columns: ["membership_id"]
-            isOneToOne: false
-            referencedRelation: "memberships"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       memberships: {
         Row: {
           company_id: string | null
           created_at: string | null
           end_date: string | null
           id: string
-          meals_per_week: number | null
-          monthly_price_per_employee: number | null
           plan_type: string | null
+          price_per_meal: number | null
           start_date: string | null
           status: string | null
           updated_at: string | null
@@ -268,9 +298,8 @@ export type Database = {
           created_at?: string | null
           end_date?: string | null
           id?: string
-          meals_per_week?: number | null
-          monthly_price_per_employee?: number | null
           plan_type?: string | null
+          price_per_meal?: number | null
           start_date?: string | null
           status?: string | null
           updated_at?: string | null
@@ -280,9 +309,8 @@ export type Database = {
           created_at?: string | null
           end_date?: string | null
           id?: string
-          meals_per_week?: number | null
-          monthly_price_per_employee?: number | null
           plan_type?: string | null
+          price_per_meal?: number | null
           start_date?: string | null
           status?: string | null
           updated_at?: string | null
@@ -378,36 +406,39 @@ export type Database = {
       }
       restaurants: {
         Row: {
-          address_id: string | null
+          address: string | null
           created_at: string | null
           cuisine_type: string | null
           description: string | null
           id: string
           image_url: string | null
+          lunch_hours: string | null
           name: string | null
           opening_hours: string | null
           tier: string | null
           updated_at: string | null
         }
         Insert: {
-          address_id?: string | null
+          address?: string | null
           created_at?: string | null
           cuisine_type?: string | null
           description?: string | null
           id?: string
           image_url?: string | null
+          lunch_hours?: string | null
           name?: string | null
           opening_hours?: string | null
           tier?: string | null
           updated_at?: string | null
         }
         Update: {
-          address_id?: string | null
+          address?: string | null
           created_at?: string | null
           cuisine_type?: string | null
           description?: string | null
           id?: string
           image_url?: string | null
+          lunch_hours?: string | null
           name?: string | null
           opening_hours?: string | null
           tier?: string | null
@@ -415,10 +446,24 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "restaurants_address_id_fkey"
-            columns: ["address_id"]
+            foreignKeyName: "restaurants_address_fkey"
+            columns: ["address"]
             isOneToOne: false
             referencedRelation: "addresses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "restaurants_lunch_hours_fkey"
+            columns: ["lunch_hours"]
+            isOneToOne: false
+            referencedRelation: "hours_range"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "restaurants_opening_hours_fkey"
+            columns: ["opening_hours"]
+            isOneToOne: false
+            referencedRelation: "hours_range"
             referencedColumns: ["id"]
           },
         ]
