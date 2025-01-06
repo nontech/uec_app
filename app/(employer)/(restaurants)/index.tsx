@@ -6,7 +6,12 @@ import { Image } from 'expo-image';
 import { Ionicons } from '@expo/vector-icons';
 import { Database } from '../../../supabase/types';
 
-type Restaurant = Database['public']['Tables']['restaurants']['Row'];
+type Restaurant = Database['public']['Tables']['restaurants']['Row'] & {
+  hours_range_lunch?: {
+    from: string;
+    to: string;
+  };
+};
 
 // Placeholder image URL
 const PLACEHOLDER_IMAGE =
@@ -22,10 +27,10 @@ const getDistance = (id: string) => {
   return distances[id] || '15min';
 };
 
-// Parse opening hours string into a more readable format
-const formatOpeningHours = (hours: string) => {
-  if (!hours) return '9 am - 5 pm'; // Default hours
-  return hours;
+// Format lunch hours into a readable string
+const formatLunchHours = (hours?: { from: string; to: string }) => {
+  if (!hours) return 'Lunch: 12 pm - 2 pm'; // Default hours
+  return `Lunch: ${hours.from} - ${hours.to}`;
 };
 
 export default function RestaurantsHome() {
@@ -41,7 +46,12 @@ export default function RestaurantsHome() {
     try {
       const { data, error } = await supabase
         .from('restaurants')
-        .select('*')
+        .select(
+          `
+          *,
+          hours_range_lunch:lunch_hours(from, to)
+        `
+        )
         .order('created_at', { ascending: false });
 
       if (error) {
@@ -86,7 +96,7 @@ export default function RestaurantsHome() {
             <View className="flex-row items-center">
               <Ionicons name="time-outline" size={16} color="#666" />
               <Text className="text-gray-600 ml-1">
-                {formatOpeningHours(item.opening_hours || '')}
+                {formatLunchHours(item.hours_range_lunch)}
               </Text>
             </View>
             <View className="flex-row items-center ml-6">
