@@ -12,6 +12,7 @@ import {
 } from 'react-native-paper';
 import { Database } from '../../../supabase/types';
 import { useRouter } from 'expo-router';
+import { ScrollView } from 'react-native';
 
 type HoursRange = {
   id: string;
@@ -397,219 +398,224 @@ export default function RestaurantsManagement() {
 
       <Portal>
         <Modal visible={visible} onDismiss={() => setVisible(false)}>
-          <View className="mx-5 my-8 bg-white p-6 rounded-lg max-w-lg self-center w-full">
-            <Text className="text-xl font-semibold text-gray-800 mb-6">
-              {selectedRestaurant ? 'Edit Restaurant' : 'Add Restaurant'}
-            </Text>
-
-            <TextInput
-              label="Name"
-              value={formData.restaurant.name}
-              onChangeText={(text) =>
-                setFormData({
-                  ...formData,
-                  restaurant: { ...formData.restaurant, name: text },
-                })
-              }
-              className="mb-4"
-              mode="flat"
-            />
-
-            <TextInput
-              label="Description"
-              value={formData.restaurant.description || ''}
-              onChangeText={(text) =>
-                setFormData({
-                  ...formData,
-                  restaurant: { ...formData.restaurant, description: text },
-                })
-              }
-              className="mb-4"
-              mode="flat"
-            />
-
-            <TextInput
-              label="Cuisine Type"
-              value={formData.restaurant.cuisine_type || ''}
-              onChangeText={(text) =>
-                setFormData({
-                  ...formData,
-                  restaurant: { ...formData.restaurant, cuisine_type: text },
-                })
-              }
-              className="mb-4"
-              mode="flat"
-            />
-
-            <TextInput
-              label="Tier"
-              value={formData.restaurant.tier || ''}
-              onChangeText={(text) =>
-                setFormData({
-                  ...formData,
-                  restaurant: { ...formData.restaurant, tier: text },
-                })
-              }
-              className="mb-4"
-              mode="flat"
-            />
-
-            <TextInput
-              label="Image URL"
-              value={formData.restaurant.image_url || ''}
-              onChangeText={(text) =>
-                setFormData({
-                  ...formData,
-                  restaurant: { ...formData.restaurant, image_url: text },
-                })
-              }
-              className="mb-4"
-              mode="flat"
-            />
-
-            <View className="mb-4">
-              <Text className="text-sm font-medium text-gray-600 mb-2">
-                Address Details
+          <View className="mx-5 my-8 bg-white rounded-lg max-w-lg self-center w-full max-h-[80%]">
+            <ScrollView className="p-6">
+              <Text className="text-xl font-semibold text-gray-800 mb-6">
+                {selectedRestaurant ? 'Edit Restaurant' : 'Add Restaurant'}
               </Text>
+
               <TextInput
-                label="Street Address"
-                value={formData.address.address || ''}
+                label="Name"
+                value={formData.restaurant.name}
                 onChangeText={(text) =>
                   setFormData({
                     ...formData,
-                    address: { ...formData.address, address: text },
+                    restaurant: { ...formData.restaurant, name: text },
                   })
                 }
-                className="mb-2"
+                className="mb-4"
                 mode="flat"
               />
-              <View className="flex-row gap-4 mb-2">
-                <TextInput
-                  label="Postal Code"
-                  value={formData.address.postal_code?.toString() || ''}
-                  onChangeText={(text) =>
-                    setFormData({
-                      ...formData,
-                      address: {
-                        ...formData.address,
-                        postal_code: text ? parseInt(text) : null,
-                      },
-                    })
-                  }
-                  keyboardType="numeric"
-                  className="flex-1"
-                  mode="flat"
-                />
-                <TextInput
-                  label="City"
-                  value={formData.address.city || ''}
-                  onChangeText={(text) =>
-                    setFormData({
-                      ...formData,
-                      address: { ...formData.address, city: text },
-                    })
-                  }
-                  className="flex-1"
-                  mode="flat"
-                />
-              </View>
-              <View className="flex-row gap-4">
-                <TextInput
-                  label="State"
-                  value={formData.address.state || ''}
-                  onChangeText={(text) =>
-                    setFormData({
-                      ...formData,
-                      address: { ...formData.address, state: text },
-                    })
-                  }
-                  className="flex-1"
-                  mode="flat"
-                />
-                <TextInput
-                  label="Country"
-                  value={formData.address.country}
-                  onChangeText={(text) =>
-                    setFormData({
-                      ...formData,
-                      address: { ...formData.address, country: text },
-                    })
-                  }
-                  className="flex-1"
-                  mode="flat"
-                />
-              </View>
-            </View>
 
-            <View className="mb-4">
-              <Text className="text-sm font-medium text-gray-600 mb-2">
-                Opening Hours
-              </Text>
-              <View className="flex-row gap-4">
-                <TextInput
-                  label="From"
-                  value={formData.opening_hours.from}
-                  onChangeText={(text) =>
-                    setFormData({
-                      ...formData,
-                      opening_hours: { ...formData.opening_hours, from: text },
-                    })
-                  }
-                  placeholder="HH:MM"
-                  className="flex-1"
-                  mode="flat"
-                />
-                <TextInput
-                  label="To"
-                  value={formData.opening_hours.to}
-                  onChangeText={(text) =>
-                    setFormData({
-                      ...formData,
-                      opening_hours: { ...formData.opening_hours, to: text },
-                    })
-                  }
-                  placeholder="HH:MM"
-                  className="flex-1"
-                  mode="flat"
-                />
-              </View>
-            </View>
+              <TextInput
+                label="Description"
+                value={formData.restaurant.description || ''}
+                onChangeText={(text) =>
+                  setFormData({
+                    ...formData,
+                    restaurant: { ...formData.restaurant, description: text },
+                  })
+                }
+                className="mb-4"
+                mode="flat"
+              />
 
-            <View className="mb-4">
-              <Text className="text-sm font-medium text-gray-600 mb-2">
-                Lunch Hours
-              </Text>
-              <View className="flex-row gap-4">
-                <TextInput
-                  label="From"
-                  value={formData.lunch_hours.from}
-                  onChangeText={(text) =>
-                    setFormData({
-                      ...formData,
-                      lunch_hours: { ...formData.lunch_hours, from: text },
-                    })
-                  }
-                  placeholder="HH:MM"
-                  className="flex-1"
-                  mode="flat"
-                />
-                <TextInput
-                  label="To"
-                  value={formData.lunch_hours.to}
-                  onChangeText={(text) =>
-                    setFormData({
-                      ...formData,
-                      lunch_hours: { ...formData.lunch_hours, to: text },
-                    })
-                  }
-                  placeholder="HH:MM"
-                  className="flex-1"
-                  mode="flat"
-                />
-              </View>
-            </View>
+              <TextInput
+                label="Cuisine Type"
+                value={formData.restaurant.cuisine_type || ''}
+                onChangeText={(text) =>
+                  setFormData({
+                    ...formData,
+                    restaurant: { ...formData.restaurant, cuisine_type: text },
+                  })
+                }
+                className="mb-4"
+                mode="flat"
+              />
 
-            <View className="flex-row justify-end items-center gap-3 mt-6">
+              <TextInput
+                label="Tier"
+                value={formData.restaurant.tier || ''}
+                onChangeText={(text) =>
+                  setFormData({
+                    ...formData,
+                    restaurant: { ...formData.restaurant, tier: text },
+                  })
+                }
+                className="mb-4"
+                mode="flat"
+              />
+
+              <TextInput
+                label="Image URL"
+                value={formData.restaurant.image_url || ''}
+                onChangeText={(text) =>
+                  setFormData({
+                    ...formData,
+                    restaurant: { ...formData.restaurant, image_url: text },
+                  })
+                }
+                className="mb-4"
+                mode="flat"
+              />
+
+              <View className="mb-4">
+                <Text className="text-sm font-medium text-gray-600 mb-2">
+                  Address Details
+                </Text>
+                <TextInput
+                  label="Street Address"
+                  value={formData.address.address || ''}
+                  onChangeText={(text) =>
+                    setFormData({
+                      ...formData,
+                      address: { ...formData.address, address: text },
+                    })
+                  }
+                  className="mb-2"
+                  mode="flat"
+                />
+                <View className="flex-row gap-4 mb-2">
+                  <TextInput
+                    label="Postal Code"
+                    value={formData.address.postal_code?.toString() || ''}
+                    onChangeText={(text) =>
+                      setFormData({
+                        ...formData,
+                        address: {
+                          ...formData.address,
+                          postal_code: text ? parseInt(text) : null,
+                        },
+                      })
+                    }
+                    keyboardType="numeric"
+                    className="flex-1"
+                    mode="flat"
+                  />
+                  <TextInput
+                    label="City"
+                    value={formData.address.city || ''}
+                    onChangeText={(text) =>
+                      setFormData({
+                        ...formData,
+                        address: { ...formData.address, city: text },
+                      })
+                    }
+                    className="flex-1"
+                    mode="flat"
+                  />
+                </View>
+                <View className="flex-row gap-4">
+                  <TextInput
+                    label="State"
+                    value={formData.address.state || ''}
+                    onChangeText={(text) =>
+                      setFormData({
+                        ...formData,
+                        address: { ...formData.address, state: text },
+                      })
+                    }
+                    className="flex-1"
+                    mode="flat"
+                  />
+                  <TextInput
+                    label="Country"
+                    value={formData.address.country}
+                    onChangeText={(text) =>
+                      setFormData({
+                        ...formData,
+                        address: { ...formData.address, country: text },
+                      })
+                    }
+                    className="flex-1"
+                    mode="flat"
+                  />
+                </View>
+              </View>
+
+              <View className="mb-4">
+                <Text className="text-sm font-medium text-gray-600 mb-2">
+                  Opening Hours
+                </Text>
+                <View className="flex-row gap-4">
+                  <TextInput
+                    label="From"
+                    value={formData.opening_hours.from}
+                    onChangeText={(text) =>
+                      setFormData({
+                        ...formData,
+                        opening_hours: {
+                          ...formData.opening_hours,
+                          from: text,
+                        },
+                      })
+                    }
+                    placeholder="HH:MM"
+                    className="flex-1"
+                    mode="flat"
+                  />
+                  <TextInput
+                    label="To"
+                    value={formData.opening_hours.to}
+                    onChangeText={(text) =>
+                      setFormData({
+                        ...formData,
+                        opening_hours: { ...formData.opening_hours, to: text },
+                      })
+                    }
+                    placeholder="HH:MM"
+                    className="flex-1"
+                    mode="flat"
+                  />
+                </View>
+              </View>
+
+              <View className="mb-4">
+                <Text className="text-sm font-medium text-gray-600 mb-2">
+                  Lunch Hours
+                </Text>
+                <View className="flex-row gap-4">
+                  <TextInput
+                    label="From"
+                    value={formData.lunch_hours.from}
+                    onChangeText={(text) =>
+                      setFormData({
+                        ...formData,
+                        lunch_hours: { ...formData.lunch_hours, from: text },
+                      })
+                    }
+                    placeholder="HH:MM"
+                    className="flex-1"
+                    mode="flat"
+                  />
+                  <TextInput
+                    label="To"
+                    value={formData.lunch_hours.to}
+                    onChangeText={(text) =>
+                      setFormData({
+                        ...formData,
+                        lunch_hours: { ...formData.lunch_hours, to: text },
+                      })
+                    }
+                    placeholder="HH:MM"
+                    className="flex-1"
+                    mode="flat"
+                  />
+                </View>
+              </View>
+            </ScrollView>
+
+            <View className="flex-row justify-end items-center gap-3 p-4 border-t border-gray-200">
               <Button
                 mode="text"
                 onPress={() => setVisible(false)}

@@ -9,8 +9,10 @@ import {
   Portal,
   TextInput,
   SegmentedButtons,
+  Menu,
 } from 'react-native-paper';
 import { Database } from '../../../supabase/types';
+import { ScrollView } from 'react-native';
 
 type Membership = Database['public']['Tables']['memberships']['Row'] & {
   companies?: {
@@ -26,6 +28,7 @@ type MembershipInput = {
   start_date: string | null;
   end_date: string | null;
   status: 'active' | 'inactive';
+  showCompanyMenu?: boolean;
 };
 
 type CompanyBasic = {
@@ -303,136 +306,146 @@ export default function MembershipsManagement() {
 
       <Portal>
         <Modal visible={visible} onDismiss={() => setVisible(false)}>
-          <View className="mx-5 my-8 bg-white p-6 rounded-lg max-w-lg self-center w-full">
-            <Text className="text-xl font-semibold text-gray-800 mb-6">
-              {selectedMembership ? 'Edit Membership' : 'Add Membership'}
-            </Text>
-
-            <View className="mb-6">
-              <Text className="text-sm font-medium text-gray-600 mb-2">
-                Company
+          <View className="mx-5 my-8 bg-white rounded-lg max-w-lg self-center w-full max-h-[80%]">
+            <ScrollView className="p-6">
+              <Text className="text-xl font-semibold text-gray-800 mb-6">
+                {selectedMembership ? 'Edit Membership' : 'Add Membership'}
               </Text>
-              <View className="flex-row flex-wrap gap-2">
-                {companies.map((company) => (
-                  <Button
-                    key={company.id}
-                    mode={
-                      formData.company_id === company.id
-                        ? 'contained'
-                        : 'outlined'
-                    }
-                    onPress={() =>
-                      setFormData({ ...formData, company_id: company.id })
-                    }
-                    className={
-                      formData.company_id === company.id
-                        ? 'bg-blue-500'
-                        : 'border-gray-300'
-                    }
-                    textColor={
-                      formData.company_id === company.id ? 'white' : '#4b5563'
-                    }
-                  >
-                    {company.name}
-                  </Button>
-                ))}
+
+              <View className="mb-6">
+                <Text className="text-sm font-medium text-gray-600 mb-2">
+                  Company
+                </Text>
+                <Menu
+                  visible={!!formData.showCompanyMenu}
+                  onDismiss={() =>
+                    setFormData({ ...formData, showCompanyMenu: false })
+                  }
+                  anchor={
+                    <Button
+                      mode="outlined"
+                      onPress={() =>
+                        setFormData({ ...formData, showCompanyMenu: true })
+                      }
+                      className="border-gray-300 w-full justify-start"
+                      textColor="#4b5563"
+                    >
+                      {companies.find((c) => c.id === formData.company_id)
+                        ?.name || 'Select a company'}
+                    </Button>
+                  }
+                >
+                  {companies.map((company) => (
+                    <Menu.Item
+                      key={company.id}
+                      onPress={() => {
+                        setFormData({
+                          ...formData,
+                          company_id: company.id,
+                          showCompanyMenu: false,
+                        });
+                      }}
+                      title={company.name}
+                    />
+                  ))}
+                </Menu>
               </View>
-            </View>
 
-            <View className="mb-6">
-              <Text className="text-sm font-medium text-gray-600 mb-2">
-                Plan Type
-              </Text>
-              <SegmentedButtons
-                value={formData.plan_type}
-                onValueChange={(value) =>
+              <View className="mb-6">
+                <Text className="text-sm font-medium text-gray-600 mb-2">
+                  Plan Type
+                </Text>
+                <SegmentedButtons
+                  value={formData.plan_type}
+                  onValueChange={(value) =>
+                    setFormData({
+                      ...formData,
+                      plan_type: value as 'S' | 'M' | 'L' | 'XL',
+                    })
+                  }
+                  buttons={[
+                    { value: 'S', label: 'Small' },
+                    { value: 'M', label: 'Medium' },
+                    { value: 'L', label: 'Large' },
+                    { value: 'XL', label: 'X-Large' },
+                  ]}
+                  style={{ marginBottom: 16 }}
+                />
+              </View>
+
+              <TextInput
+                label="price per meal (€)"
+                value={formData.price_per_meal?.toString() || ''}
+                onChangeText={(text: string) =>
                   setFormData({
                     ...formData,
-                    plan_type: value as 'S' | 'M' | 'L' | 'XL',
+                    price_per_meal: text ? parseFloat(text) : null,
                   })
                 }
-                buttons={[
-                  { value: 'S', label: 'Small' },
-                  { value: 'M', label: 'Medium' },
-                  { value: 'L', label: 'Large' },
-                  { value: 'XL', label: 'X-Large' },
-                ]}
-                style={{ marginBottom: 16 }}
+                keyboardType="decimal-pad"
+                className="mb-6"
+                mode="flat"
               />
-            </View>
 
-            <TextInput
-              label="price per meal (€)"
-              value={formData.price_per_meal?.toString() || ''}
-              onChangeText={(text: string) =>
-                setFormData({
-                  ...formData,
-                  price_per_meal: text ? parseFloat(text) : null,
-                })
-              }
-              keyboardType="decimal-pad"
-              className="mb-6"
-              mode="flat"
-            />
-
-            <TextInput
-              label="Start Date"
-              value={formData.start_date || ''}
-              onChangeText={(text: string) =>
-                setFormData({ ...formData, start_date: text || null })
-              }
-              placeholder="YYYY-MM-DD"
-              className="mb-6"
-              mode="flat"
-            />
-
-            <TextInput
-              label="End Date"
-              value={formData.end_date || ''}
-              onChangeText={(text: string) =>
-                setFormData({ ...formData, end_date: text || null })
-              }
-              placeholder="YYYY-MM-DD"
-              className="mb-6"
-              mode="flat"
-            />
-
-            <View className="mb-6">
-              <Text className="text-sm font-medium text-gray-600 mb-2">
-                Status
-              </Text>
-              <SegmentedButtons
-                value={formData.status}
-                onValueChange={(value) =>
-                  setFormData({
-                    ...formData,
-                    status: value as 'active' | 'inactive',
-                  })
+              <TextInput
+                label="Start Date"
+                value={formData.start_date || ''}
+                onChangeText={(text: string) =>
+                  setFormData({ ...formData, start_date: text || null })
                 }
-                buttons={[
-                  { value: 'active', label: 'Active' },
-                  { value: 'inactive', label: 'Inactive' },
-                ]}
-                style={{ marginBottom: 16 }}
+                placeholder="YYYY-MM-DD"
+                className="mb-6"
+                mode="flat"
               />
-            </View>
 
-            <View className="flex-row justify-end items-center gap-3 mt-6">
-              <Button
-                mode="text"
-                onPress={() => setVisible(false)}
-                textColor="#6b7280"
-              >
-                Cancel
-              </Button>
-              <Button
-                mode="contained"
-                onPress={selectedMembership ? handleUpdate : handleCreate}
-                className="bg-blue-500"
-              >
-                {selectedMembership ? 'Save Changes' : 'Create Membership'}
-              </Button>
-            </View>
+              <TextInput
+                label="End Date"
+                value={formData.end_date || ''}
+                onChangeText={(text: string) =>
+                  setFormData({ ...formData, end_date: text || null })
+                }
+                placeholder="YYYY-MM-DD"
+                className="mb-6"
+                mode="flat"
+              />
+
+              <View className="mb-6">
+                <Text className="text-sm font-medium text-gray-600 mb-2">
+                  Status
+                </Text>
+                <SegmentedButtons
+                  value={formData.status}
+                  onValueChange={(value) =>
+                    setFormData({
+                      ...formData,
+                      status: value as 'active' | 'inactive',
+                    })
+                  }
+                  buttons={[
+                    { value: 'active', label: 'Active' },
+                    { value: 'inactive', label: 'Inactive' },
+                  ]}
+                  style={{ marginBottom: 16 }}
+                />
+              </View>
+
+              <View className="flex-row justify-end items-center gap-3 mt-6">
+                <Button
+                  mode="text"
+                  onPress={() => setVisible(false)}
+                  textColor="#6b7280"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  mode="contained"
+                  onPress={selectedMembership ? handleUpdate : handleCreate}
+                  className="bg-blue-500"
+                >
+                  {selectedMembership ? 'Save Changes' : 'Create Membership'}
+                </Button>
+              </View>
+            </ScrollView>
           </View>
         </Modal>
 
