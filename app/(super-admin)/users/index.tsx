@@ -35,6 +35,7 @@ type UserFormData = {
   personal_email: string;
   meals_per_week: number;
   showCompanyMenu?: boolean;
+  email: string;
 };
 
 export default function UsersManagement() {
@@ -60,8 +61,8 @@ export default function UsersManagement() {
     status: 'active',
     personal_email: '',
     meals_per_week: 0,
+    email: '',
   });
-  const [email, setEmail] = useState('');
 
   useEffect(() => {
     fetchUsers();
@@ -126,10 +127,11 @@ export default function UsersManagement() {
       const { error: dbError } = await supabase.from('app_users').insert([
         {
           company_id: formData.company_id!,
+          email: formData.email,
           first_name: formData.first_name,
           last_name: formData.last_name,
           type: formData.type,
-          status: 'inactive',
+          status: 'active',
         },
       ]);
 
@@ -137,7 +139,7 @@ export default function UsersManagement() {
 
       // Then send the magic link
       const { error: authError } = await supabase.auth.signInWithOtp({
-        email: email,
+        email: formData.email,
         options: {
           emailRedirectTo: 'exp://192.168.1.2:8081',
           data: {
@@ -192,7 +194,6 @@ export default function UsersManagement() {
   const resetForm = () => {
     setSelectedUser(null);
     setIsInviteMode(true);
-    setEmail('');
     setFormData({
       first_name: '',
       last_name: '',
@@ -202,6 +203,7 @@ export default function UsersManagement() {
       status: 'active',
       personal_email: '',
       meals_per_week: 0,
+      email: '',
     });
   };
 
@@ -223,6 +225,7 @@ export default function UsersManagement() {
       status: user.status as 'active' | 'inactive',
       personal_email: user.personal_email || '',
       meals_per_week: user.meals_per_week || 0,
+      email: user.email || '',
     });
     setVisible(true);
   };
@@ -280,9 +283,7 @@ export default function UsersManagement() {
             <Text className="text-sm font-medium text-gray-600">Name</Text>
           </DataTable.Title>
           <DataTable.Title>
-            <Text className="text-sm font-medium text-gray-600">
-              Company Email
-            </Text>
+            <Text className="text-sm font-medium text-gray-600">Email</Text>
           </DataTable.Title>
           <DataTable.Title>
             <Text className="text-sm font-medium text-gray-600">
@@ -395,9 +396,11 @@ export default function UsersManagement() {
 
               {isInviteMode && (
                 <TextInput
-                  label="Company Email"
-                  value={email}
-                  onChangeText={setEmail}
+                  label="Email"
+                  value={formData.email}
+                  onChangeText={(text: string) =>
+                    setFormData({ ...formData, email: text })
+                  }
                   className="mb-4"
                   mode="flat"
                   keyboardType="email-address"
@@ -407,7 +410,7 @@ export default function UsersManagement() {
 
               {!isInviteMode && (
                 <TextInput
-                  label="Company Email"
+                  label="Email"
                   value={selectedUser?.email || ''}
                   onChangeText={(text: string) =>
                     setSelectedUser((prev) =>
@@ -620,7 +623,7 @@ export default function UsersManagement() {
                 className="bg-blue-500"
                 disabled={
                   isInviteMode
-                    ? !email || !formData.first_name
+                    ? !formData.email || !formData.first_name
                     : !selectedUser?.email || !formData.first_name
                 }
               >
