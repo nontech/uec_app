@@ -13,6 +13,7 @@ import {
 } from 'react-native-paper';
 import { Database } from '../../../supabase/types';
 import { ScrollView } from 'react-native';
+import { Alert } from 'react-native';
 
 type AppUser = Database['public']['Tables']['app_users']['Row'];
 type Company = Database['public']['Tables']['companies']['Row'];
@@ -123,42 +124,25 @@ export default function UsersManagement() {
 
   const handleInviteUser = async () => {
     try {
-      // First create the user record in the database
-      const { error: dbError } = await supabase.from('app_users').insert([
-        {
-          company_id: formData.company_id!,
+      const { data, error } = await supabase.functions.invoke('invite-user', {
+        body: {
           email: formData.email,
           first_name: formData.first_name,
           last_name: formData.last_name,
           type: formData.type,
-          status: 'active',
-        },
-      ]);
-
-      if (dbError) throw dbError;
-
-      // Then send the magic link
-      const { error: authError } = await supabase.auth.signInWithOtp({
-        email: formData.email,
-        options: {
-          emailRedirectTo: 'exp://192.168.1.2:8081',
-          data: {
-            type: formData.type,
-            company_id: formData.company_id,
-            membership_id: formData.membership_id,
-            first_name: formData.first_name,
-            last_name: formData.last_name,
-          },
+          company_id: formData.company_id,
+          membership_id: formData.membership_id,
         },
       });
 
-      if (authError) throw authError;
+      if (error) throw error;
 
       setVisible(false);
       resetForm();
       fetchUsers();
     } catch (error) {
       console.error('Error inviting user:', error);
+      Alert.alert('Error', 'Failed to invite user. Please try again.');
     }
   };
 
