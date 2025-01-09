@@ -58,19 +58,16 @@ export default function Dashboard() {
     const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
 
     // If it's weekend, return 0
-    if (isWeekend) return 0;
-
-    // Calculate remaining working days (Monday-Friday)
-    const remainingDays = 5 - dayOfWeek; // 5 = Friday
-
-    // For 5 meals per week, we subtract based on passed days
-    if (mealsPerWeek === 5) {
-      const passedDays = dayOfWeek - 1; // -1 because we start from Monday
-      return Math.max(0, mealsPerWeek - passedDays);
+    if (isWeekend) {
+      return 0;
     }
 
-    // For fewer meals, we keep the full amount as long as there are enough remaining days
-    return Math.min(mealsPerWeek, remainingDays + 1); // +1 to include current day
+    // Calculate remaining days (including current day)
+    const remainingDays =
+      dayOfWeek >= 1 && dayOfWeek <= 5 ? 5 - dayOfWeek + 1 : 0;
+
+    // Return the minimum between meals_per_week and remaining days
+    return Math.min(mealsPerWeek, remainingDays);
   };
 
   const getCurrentMonthName = () => {

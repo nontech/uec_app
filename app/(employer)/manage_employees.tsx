@@ -80,37 +80,19 @@ export default function ManageEmployees() {
         // Get membership IDs
         const membershipIds = membershipsData.map((m) => m.id);
 
-        // Get all employee IDs from meal_balances for all active memberships
-        const { data: mealBalances, error: mealBalancesError } = await supabase
-          .from('meal_balances')
-          .select('employee_id')
+        //check which employee has one of the membership ids
+        const { data: employeesData, error: employeeError } = await supabase
+          .from('app_users')
+          .select('*')
           .in('membership_id', membershipIds);
 
-        if (mealBalancesError) {
-          console.error('Error fetching meal balances:', mealBalancesError);
-          throw mealBalancesError;
-        }
-
-        if (mealBalances && mealBalances.length > 0) {
-          // Get unique employee IDs across all memberships
-          const uniqueEmployeeIds = [
-            ...new Set(mealBalances.map((mb) => mb.employee_id)),
-          ];
-
-          // Fetch employee details
-          const { data: employeesData, error: employeesError } = await supabase
-            .from('app_users')
-            .select('*')
-            .in('id', uniqueEmployeeIds);
-
-          if (employeesError) throw employeesError;
-
-          if (employeesData) {
-            setEmployees(employeesData);
-          }
+        if (employeesData) {
+          setEmployees(employeesData);
         } else {
           setEmployees([]);
         }
+      } else {
+        setEmployees([]);
       }
     } catch (error) {
       console.error('Error fetching employees:', error);
