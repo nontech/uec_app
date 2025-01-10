@@ -441,19 +441,21 @@ export default function UsersManagement() {
                 autoCapitalize="none"
               />
 
-              <TextInput
-                label="Meals per Week"
-                value={formData.meals_per_week.toString()}
-                onChangeText={(text: string) =>
-                  setFormData({
-                    ...formData,
-                    meals_per_week: parseInt(text) || 0,
-                  })
-                }
-                className="mb-4"
-                mode="flat"
-                keyboardType="numeric"
-              />
+              {formData.type === 'employee' && (
+                <TextInput
+                  label="Meals per Week"
+                  value={formData.meals_per_week.toString()}
+                  onChangeText={(text: string) =>
+                    setFormData({
+                      ...formData,
+                      meals_per_week: parseInt(text) || 0,
+                    })
+                  }
+                  className="mb-4"
+                  mode="flat"
+                  keyboardType="numeric"
+                />
+              )}
 
               <Text className="text-sm font-medium text-gray-600 mb-2">
                 Role
@@ -464,6 +466,10 @@ export default function UsersManagement() {
                   setFormData({
                     ...formData,
                     type: value as 'super_admin' | 'company_admin' | 'employee',
+                    company_id:
+                      value === 'super_admin' ? null : formData.company_id,
+                    membership_id:
+                      value === 'super_admin' ? null : formData.membership_id,
                   })
                 }
                 buttons={[
@@ -474,102 +480,108 @@ export default function UsersManagement() {
                 style={{ marginBottom: 16 }}
               />
 
-              <Text className="text-sm font-medium text-gray-600 mb-2">
-                Company
-              </Text>
-              <Menu
-                visible={!!formData.showCompanyMenu}
-                onDismiss={() =>
-                  setFormData({ ...formData, showCompanyMenu: false })
-                }
-                anchor={
-                  <Button
-                    mode="outlined"
-                    onPress={() =>
-                      setFormData({ ...formData, showCompanyMenu: true })
-                    }
-                    className="border-gray-300 w-full justify-start mb-4"
-                    textColor="#4b5563"
-                  >
-                    {formData.company_id === null
-                      ? 'No Company'
-                      : companies.find((c) => c.id === formData.company_id)
-                          ?.name || 'Select a company'}
-                  </Button>
-                }
-              >
-                <Menu.Item
-                  onPress={() =>
-                    setFormData({
-                      ...formData,
-                      company_id: null,
-                      membership_id: null,
-                      showCompanyMenu: false,
-                    })
-                  }
-                  title="No Company"
-                />
-                {companies.map((company) => (
-                  <Menu.Item
-                    key={company.id}
-                    onPress={() => {
-                      setFormData({
-                        ...formData,
-                        company_id: company.id,
-                        showCompanyMenu: false,
-                      });
-                    }}
-                    title={company.name}
-                  />
-                ))}
-              </Menu>
-
-              {(isInviteMode || (!isInviteMode && formData.company_id)) && (
+              {formData.type !== 'super_admin' && (
                 <>
                   <Text className="text-sm font-medium text-gray-600 mb-2">
-                    Membership Plan
+                    Company
                   </Text>
-                  <View className="flex-row flex-wrap gap-2 mb-4">
-                    {memberships
-                      .filter((m) => m.company_id === formData.company_id)
-                      .map((membership) => (
-                        <Button
-                          key={membership.id}
-                          mode={
-                            formData.membership_id === membership.id
-                              ? 'contained'
-                              : 'outlined'
-                          }
-                          onPress={() =>
-                            setFormData({
-                              ...formData,
-                              membership_id: membership.id,
-                            })
-                          }
-                          className={
-                            formData.membership_id === membership.id
-                              ? 'bg-blue-500'
-                              : 'border-gray-300'
-                          }
-                          textColor={
-                            formData.membership_id === membership.id
-                              ? 'white'
-                              : '#4b5563'
-                          }
-                        >
-                          {`${membership.plan_type} Plan`}
-                        </Button>
-                      ))}
-                    {memberships.filter(
-                      (m) => m.company_id === formData.company_id
-                    ).length === 0 && (
-                      <Text className="text-sm text-gray-500 italic">
-                        No memberships available for this company
-                      </Text>
-                    )}
-                  </View>
+                  <Menu
+                    visible={!!formData.showCompanyMenu}
+                    onDismiss={() =>
+                      setFormData({ ...formData, showCompanyMenu: false })
+                    }
+                    anchor={
+                      <Button
+                        mode="outlined"
+                        onPress={() =>
+                          setFormData({ ...formData, showCompanyMenu: true })
+                        }
+                        className="border-gray-300 w-full justify-start mb-4"
+                        textColor="#4b5563"
+                      >
+                        {formData.company_id === null
+                          ? 'No Company'
+                          : companies.find((c) => c.id === formData.company_id)
+                              ?.name || 'Select a company'}
+                      </Button>
+                    }
+                  >
+                    <Menu.Item
+                      onPress={() =>
+                        setFormData({
+                          ...formData,
+                          company_id: null,
+                          membership_id: null,
+                          showCompanyMenu: false,
+                        })
+                      }
+                      title="No Company"
+                    />
+                    {companies.map((company) => (
+                      <Menu.Item
+                        key={company.id}
+                        onPress={() => {
+                          setFormData({
+                            ...formData,
+                            company_id: company.id,
+                            showCompanyMenu: false,
+                          });
+                        }}
+                        title={company.name}
+                      />
+                    ))}
+                  </Menu>
                 </>
               )}
+
+              {(isInviteMode || (!isInviteMode && formData.company_id)) &&
+                formData.type !== 'company_admin' &&
+                formData.type !== 'super_admin' && (
+                  <>
+                    <Text className="text-sm font-medium text-gray-600 mb-2">
+                      Membership Plan
+                    </Text>
+                    <View className="flex-row flex-wrap gap-2 mb-4">
+                      {memberships
+                        .filter((m) => m.company_id === formData.company_id)
+                        .map((membership) => (
+                          <Button
+                            key={membership.id}
+                            mode={
+                              formData.membership_id === membership.id
+                                ? 'contained'
+                                : 'outlined'
+                            }
+                            onPress={() =>
+                              setFormData({
+                                ...formData,
+                                membership_id: membership.id,
+                              })
+                            }
+                            className={
+                              formData.membership_id === membership.id
+                                ? 'bg-blue-500'
+                                : 'border-gray-300'
+                            }
+                            textColor={
+                              formData.membership_id === membership.id
+                                ? 'white'
+                                : '#4b5563'
+                            }
+                          >
+                            {`${membership.plan_type} Plan`}
+                          </Button>
+                        ))}
+                      {memberships.filter(
+                        (m) => m.company_id === formData.company_id
+                      ).length === 0 && (
+                        <Text className="text-sm text-gray-500 italic">
+                          No memberships available for this company
+                        </Text>
+                      )}
+                    </View>
+                  </>
+                )}
 
               {!isInviteMode && (
                 <>
