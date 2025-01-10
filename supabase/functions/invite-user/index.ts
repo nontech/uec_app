@@ -19,8 +19,15 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const { email, first_name, last_name, type, company_id, membership_id } =
-      await req.json();
+    const {
+      email,
+      first_name,
+      last_name,
+      type,
+      company_id,
+      membership_id,
+      meals_per_week,
+    } = await req.json();
 
     // Validate required fields
     if (!email || !first_name) {
@@ -60,7 +67,8 @@ Deno.serve(async (req) => {
       type: type || 'employee',
       company_id,
       membership_id,
-      status: 'active',
+      meals_per_week,
+      status: 'invited',
     });
 
     if (appUserError) throw appUserError;

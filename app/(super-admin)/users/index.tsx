@@ -132,6 +132,7 @@ export default function UsersManagement() {
           type: formData.type,
           company_id: formData.company_id,
           membership_id: formData.membership_id,
+          meals_per_week: formData.meals_per_week,
         },
       });
 
