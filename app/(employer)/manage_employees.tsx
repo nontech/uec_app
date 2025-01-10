@@ -15,7 +15,9 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { Input, Button } from '@rneui/themed';
 
-type AppUser = Database['public']['Tables']['app_users']['Row'];
+type AppUser = Database['public']['Tables']['app_users']['Row'] & {
+  memberships?: Database['public']['Tables']['memberships']['Row'];
+};
 type Company = Database['public']['Tables']['companies']['Row'];
 
 type MealBalanceWithUser = {
@@ -31,6 +33,8 @@ export default function ManageEmployees() {
   const [companies, setCompanies] = useState<Company[]>([]);
   const [showInviteModal, setShowInviteModal] = useState(false);
   const [inviteEmail, setInviteEmail] = useState('');
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
   const [inviting, setInviting] = useState(false);
   const [userCompanyId, setUserCompanyId] = useState<string | null>(null);
   const [selectedEmployee, setSelectedEmployee] = useState<AppUser | null>(
@@ -38,6 +42,14 @@ export default function ManageEmployees() {
   );
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [selectedMembership, setSelectedMembership] = useState<string | null>(
+    null
+  );
+  const [mealsPerWeek, setMealsPerWeek] = useState(3);
+  const [showMembershipDropdown, setShowMembershipDropdown] = useState(false);
+  const [activeMemberships, setActiveMemberships] = useState<
+    Database['public']['Tables']['memberships']['Row'][]
+  >([]);
 
   useEffect(() => {
     if (session?.user) {
@@ -83,7 +95,13 @@ export default function ManageEmployees() {
         //check which employee has one of the membership ids
         const { data: employeesData, error: employeeError } = await supabase
           .from('app_users')
-          .select('*')
+          .select(
+            `
+            *,
+            memberships (*)
+          `
+          )
+          .eq('type', 'employee')
           .in('membership_id', membershipIds);
 
         if (employeesData) {
@@ -125,9 +143,33 @@ export default function ManageEmployees() {
     return fullName.includes(searchQuery.toLowerCase());
   });
 
+  const fetchActiveMemberships = async () => {
+    if (!userCompanyId) return;
+
+    try {
+      const { data, error } = await supabase
+        .from('memberships')
+        .select('*')
+        .eq('company_id', userCompanyId)
+        .eq('status', 'active')
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      setActiveMemberships(data || []);
+    } catch (error) {
+      console.error('Error fetching active memberships:', error);
+    }
+  };
+
+  useEffect(() => {
+    if (showInviteModal) {
+      fetchActiveMemberships();
+    }
+  }, [showInviteModal, userCompanyId]);
+
   const handleInviteEmployee = async () => {
-    if (!inviteEmail || !userCompanyId) {
-      Alert.alert('Error', 'Please enter an email address');
+    if (!inviteEmail || !userCompanyId || !selectedMembership || !firstName) {
+      Alert.alert('Error', 'Please fill in all required fields');
       return;
     }
 
@@ -137,7 +179,7 @@ export default function ManageEmployees() {
       const { data: existingUser, error: checkError } = await supabase
         .from('app_users')
         .select('*')
-        .eq('company_email', inviteEmail)
+        .eq('email', inviteEmail)
         .single();
 
       if (existingUser) {
@@ -145,21 +187,27 @@ export default function ManageEmployees() {
         return;
       }
 
-      // Create a new user with invited status
-      const { error: createError } = await supabase.from('app_users').insert([
-        {
-          company_email: inviteEmail,
+      // Use the invite-user function to send invitation
+      const { data, error } = await supabase.functions.invoke('invite-user', {
+        body: {
+          email: inviteEmail,
+          first_name: firstName,
+          last_name: lastName || null,
           type: 'employee',
           company_id: userCompanyId,
-          status: 'invited',
-          first_name: inviteEmail.split('@')[0], // Temporary name from email
+          membership_id: selectedMembership,
+          meals_per_week: mealsPerWeek,
         },
-      ]);
+      });
 
-      if (createError) throw createError;
+      if (error) throw error;
 
       Alert.alert('Success', 'Invitation sent successfully');
       setInviteEmail('');
+      setFirstName('');
+      setLastName('');
+      setSelectedMembership(null);
+      setMealsPerWeek(3);
       setShowInviteModal(false);
       fetchEmployees(); // Refresh the list
     } catch (error) {
@@ -241,6 +289,53 @@ export default function ManageEmployees() {
     }
   };
 
+  const renderDropdown = (
+    visible: boolean,
+    onClose: () => void,
+    items: { label: string; value: string }[],
+    onSelect: (value: string) => void
+  ) => {
+    return (
+      <Modal visible={visible} transparent animationType="fade">
+        <TouchableOpacity
+          style={{
+            flex: 1,
+            backgroundColor: 'rgba(0, 0, 0, 0.5)',
+            justifyContent: 'center',
+            alignItems: 'center',
+          }}
+          activeOpacity={1}
+          onPress={onClose}
+        >
+          <View className="bg-white rounded-lg w-[80%] max-h-[50%]">
+            <ScrollView>
+              {items.length === 0 ? (
+                <View className="p-4">
+                  <Text className="text-gray-600">No items available</Text>
+                </View>
+              ) : (
+                items.map((item, index) => (
+                  <TouchableOpacity
+                    key={index}
+                    className="p-4 border-b border-gray-100"
+                    onPress={() => {
+                      onSelect(item.value);
+                      onClose();
+                    }}
+                  >
+                    <Text className="text-base text-gray-700">
+                      {item.label}
+                    </Text>
+                  </TouchableOpacity>
+                ))
+              )}
+            </ScrollView>
+          </View>
+        </TouchableOpacity>
+      </Modal>
+    );
+  };
+
   if (loading) {
     return (
       <View className="flex-1 items-center justify-center">
@@ -270,9 +365,8 @@ export default function ManageEmployees() {
 
         {/* Header */}
         <View className="flex-row justify-between items-center mb-4 px-2">
-          <Text className="text-sm font-medium text-gray-600">Name</Text>
           <Text className="text-sm font-medium text-gray-600">
-            Total: {employees.length}
+            Employees ({employees.length})
           </Text>
         </View>
 
@@ -285,45 +379,76 @@ export default function ManageEmployees() {
           {filteredEmployees.map((employee) => (
             <View
               key={employee.id}
-              className="flex-row items-center justify-between py-4 px-2 border-b border-gray-100"
+              className="flex-row items-center justify-between py-3 px-2 border-b border-gray-100"
             >
-              <TouchableOpacity
-                className="flex-row items-center flex-1"
-                onPress={() => {
-                  // Handle employee selection
-                }}
-              >
+              <View className="flex-row items-center flex-1 mr-2">
                 <View className="w-10 h-10 rounded-full bg-gray-100 items-center justify-center mr-3">
                   <MaterialIcons name="person" size={24} color="#666" />
                 </View>
                 <View className="flex-1">
-                  <Text className="text-base font-medium text-gray-900">
-                    {employee.first_name} {employee.last_name}
-                  </Text>
-                  <Text className="text-sm text-gray-500">
+                  <View className="flex-row items-center justify-between">
+                    <Text className="text-base font-medium text-gray-900">
+                      {employee.first_name} {employee.last_name}
+                    </Text>
+                    <View className="flex-row items-center">
+                      <Text
+                        className={`text-xs px-2 py-1 rounded-full ${
+                          employee.status === 'active'
+                            ? 'bg-green-100 text-green-800'
+                            : employee.status === 'inactive'
+                            ? 'bg-red-100 text-red-800'
+                            : employee.status === 'invited'
+                            ? 'bg-yellow-100 text-yellow-800'
+                            : 'bg-gray-100 text-gray-800'
+                        }`}
+                      >
+                        {employee.status}
+                      </Text>
+                      <TouchableOpacity
+                        className="p-2 ml-2"
+                        onPress={() => {
+                          setSelectedEmployee(employee);
+                          setShowDeleteModal(true);
+                        }}
+                      >
+                        <MaterialIcons
+                          name="delete-outline"
+                          size={20}
+                          color="#EF4444"
+                        />
+                      </TouchableOpacity>
+                    </View>
+                  </View>
+                  <Text className="text-sm text-gray-500 mb-1">
                     {employee.email}
                   </Text>
-                </View>
-              </TouchableOpacity>
-              <View className="flex-row items-center">
-                {employee.status === 'invited' && (
-                  <View className="bg-gray-100 px-3 py-1 rounded-full mr-2">
-                    <Text className="text-sm text-gray-600">Invited</Text>
+                  <View className="flex-row items-center mt-1">
+                    <View className="flex-row items-center mr-4">
+                      <MaterialIcons
+                        name="card-membership"
+                        size={16}
+                        color="#666"
+                      />
+                      <Text className="text-sm text-gray-600 ml-1">
+                        {employee.membership_id
+                          ? employee.memberships?.plan_type
+                          : 'No Plan'}
+                      </Text>
+                    </View>
+                    <View className="flex-row items-center">
+                      <MaterialIcons
+                        name="restaurant-menu"
+                        size={16}
+                        color="#666"
+                      />
+                      <Text className="text-sm text-gray-600 ml-1">
+                        {employee.meals_per_week
+                          ? `${employee.meals_per_week} meals/week`
+                          : 'No meals'}
+                      </Text>
+                    </View>
                   </View>
-                )}
-                <TouchableOpacity
-                  className="p-2 ml-2"
-                  onPress={() => {
-                    setSelectedEmployee(employee);
-                    setShowDeleteModal(true);
-                  }}
-                >
-                  <MaterialIcons
-                    name="delete-outline"
-                    size={24}
-                    color="#EF4444"
-                  />
-                </TouchableOpacity>
+                </View>
               </View>
             </View>
           ))}
@@ -360,7 +485,14 @@ export default function ManageEmployees() {
                 Invite Employee
               </Text>
               <TouchableOpacity
-                onPress={() => setShowInviteModal(false)}
+                onPress={() => {
+                  setShowInviteModal(false);
+                  setInviteEmail('');
+                  setFirstName('');
+                  setLastName('');
+                  setSelectedMembership(null);
+                  setMealsPerWeek(3);
+                }}
                 className="p-2"
               >
                 <MaterialIcons name="close" size={24} color="#4B5563" />
@@ -368,8 +500,52 @@ export default function ManageEmployees() {
             </View>
 
             <Text className="text-base text-gray-600 mb-4">
-              Enter the email address of the employee you want to invite.
+              Enter the details of the employee you want to invite.
             </Text>
+
+            <Input
+              placeholder="First Name"
+              value={firstName}
+              onChangeText={setFirstName}
+              leftIcon={{
+                type: 'font-awesome',
+                name: 'user',
+                color: '#6B7280',
+                size: 18,
+              }}
+              inputStyle={{ color: '#1F2937', fontSize: 16 }}
+              inputContainerStyle={{
+                borderWidth: 1,
+                borderColor: '#E5E7EB',
+                borderRadius: 8,
+                paddingHorizontal: 12,
+                paddingVertical: 4,
+                marginBottom: 8,
+              }}
+              containerStyle={{ paddingHorizontal: 0 }}
+            />
+
+            <Input
+              placeholder="Last Name"
+              value={lastName}
+              onChangeText={setLastName}
+              leftIcon={{
+                type: 'font-awesome',
+                name: 'user',
+                color: '#6B7280',
+                size: 18,
+              }}
+              inputStyle={{ color: '#1F2937', fontSize: 16 }}
+              inputContainerStyle={{
+                borderWidth: 1,
+                borderColor: '#E5E7EB',
+                borderRadius: 8,
+                paddingHorizontal: 12,
+                paddingVertical: 4,
+                marginBottom: 8,
+              }}
+              containerStyle={{ paddingHorizontal: 0 }}
+            />
 
             <Input
               placeholder="employee@company.com"
@@ -394,10 +570,49 @@ export default function ManageEmployees() {
               containerStyle={{ paddingHorizontal: 0 }}
             />
 
+            <View className="mb-4">
+              <Text className="text-sm font-medium text-gray-600 mb-2">
+                Membership Plan
+              </Text>
+              <TouchableOpacity
+                className="flex-row items-center justify-between border border-gray-300 rounded-lg p-3"
+                onPress={() => setShowMembershipDropdown(true)}
+              >
+                <Text className="text-base text-gray-700">
+                  {selectedMembership
+                    ? activeMemberships.find((m) => m.id === selectedMembership)
+                        ?.plan_type
+                    : 'Select a plan'}
+                </Text>
+                <MaterialIcons name="arrow-drop-down" size={24} color="#666" />
+              </TouchableOpacity>
+            </View>
+
+            <View className="mb-6">
+              <Text className="text-sm font-medium text-gray-600 mb-2">
+                Meals per Week
+              </Text>
+              <View className="flex-row items-center justify-between border border-gray-300 rounded-lg p-3">
+                <TouchableOpacity
+                  onPress={() => setMealsPerWeek(Math.max(1, mealsPerWeek - 1))}
+                  className="p-2"
+                >
+                  <MaterialIcons name="remove" size={24} color="#666" />
+                </TouchableOpacity>
+                <Text className="text-base text-gray-700">{mealsPerWeek}</Text>
+                <TouchableOpacity
+                  onPress={() => setMealsPerWeek(Math.min(5, mealsPerWeek + 1))}
+                  className="p-2"
+                >
+                  <MaterialIcons name="add" size={24} color="#666" />
+                </TouchableOpacity>
+              </View>
+            </View>
+
             <Button
               title="Send Invitation"
               loading={inviting}
-              disabled={inviting || !inviteEmail}
+              disabled={inviting || !inviteEmail || !selectedMembership}
               onPress={handleInviteEmployee}
               buttonStyle={{
                 backgroundColor: '#6B4EFF',
@@ -410,6 +625,18 @@ export default function ManageEmployees() {
           </View>
         </View>
       </Modal>
+
+      {renderDropdown(
+        showMembershipDropdown,
+        () => setShowMembershipDropdown(false),
+        activeMemberships
+          .filter((m) => m.plan_type !== null)
+          .map((m) => ({
+            label: m.plan_type as string,
+            value: m.id,
+          })),
+        (value) => setSelectedMembership(value)
+      )}
 
       {/* Delete Confirmation Modal */}
       <Modal

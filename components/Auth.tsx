@@ -185,7 +185,20 @@ export default function Auth() {
           throw updateError;
         }
 
-        console.log('Password updated successfully');
+        // Update user status to active in app_users table
+        if (sessionData.session?.user?.id) {
+          const { error: statusError } = await supabase
+            .from('app_users')
+            .update({ status: 'active' })
+            .eq('id', sessionData.session.user.id);
+
+          if (statusError) {
+            console.error('Error updating user status:', statusError);
+            throw statusError;
+          }
+        }
+
+        console.log('Password updated successfully and user activated');
 
         authResponse = { data: { session: sessionData.session }, error: null };
       } else {
