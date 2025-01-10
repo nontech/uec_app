@@ -319,10 +319,10 @@ export default function MenuManagement() {
               onChangeText={(text: string) =>
                 setFormData({
                   ...formData,
-                  price: text ? parseFloat(text) : null,
+                  price: text || null,
                 })
               }
-              keyboardType="decimal-pad"
+              keyboardType="numeric"
               className="mb-4"
               mode="flat"
             />
