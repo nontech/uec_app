@@ -6,7 +6,9 @@ import { Tables } from '../../supabase/types';
 
 type Transaction = Tables<'transactions'> & {
   menu_items: Tables<'menu_items'>;
-  app_users: Tables<'app_users'>;
+  app_users: Tables<'app_users'> & {
+    companies: Tables<'companies'>;
+  };
 };
 
 export default function ActivitiesScreen() {
@@ -37,7 +39,10 @@ export default function ActivitiesScreen() {
         `
         *,
         menu_items (*),
-        app_users (*)
+        app_users (
+          *,
+          companies (*)
+        )
       `
       )
       .eq('restaurant_id', userData.restaurant_id)
@@ -83,9 +88,11 @@ export default function ActivitiesScreen() {
               <Text style={styles.employee}>
                 Employee: {transaction.app_users?.first_name}{' '}
                 {transaction.app_users?.last_name}
+                {transaction.app_users?.companies?.name &&
+                  ` (${transaction.app_users.companies.name})`}
               </Text>
               <Text style={styles.amount}>
-                Amount: ${transaction.amount?.toFixed(2)}
+                Amount: €{transaction.amount?.toFixed(2)}
               </Text>
               <Text style={styles.paymentMethod}>
                 Payment Method: {transaction.payment_method}
