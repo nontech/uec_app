@@ -4,13 +4,15 @@
     "strict": true,
     "types": [
       "nativewind/types"
-    ]
+    ],
+    "allowImportingTsExtensions": true
   },
   "include": [
+    "supabase/functions/**/*.ts",
     "**/*.ts",
     "**/*.tsx",
     ".expo/types/**/*.ts",
     "expo-env.d.ts",
     "nativewind-env.d.ts"
-  ]
+  ],
 }

@@ -334,7 +334,7 @@ export type Database = {
           id: string
           is_available: boolean | null
           name: string | null
-          price: number | null
+          price: string | null
           restaurant_id: string | null
           updated_at: string | null
         }
@@ -346,7 +346,7 @@ export type Database = {
           id?: string
           is_available?: boolean | null
           name?: string | null
-          price?: number | null
+          price?: string | null
           restaurant_id?: string | null
           updated_at?: string | null
         }
@@ -358,7 +358,7 @@ export type Database = {
           id?: string
           is_available?: boolean | null
           name?: string | null
-          price?: number | null
+          price?: string | null
           restaurant_id?: string | null
           updated_at?: string | null
         }

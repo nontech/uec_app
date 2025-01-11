@@ -159,7 +159,7 @@ const DrawerLayout = ({
         <Drawer.Screen
           name="(employer)"
           options={{
-            headerTitle: userName || 'Employer',
+            headerTitle: `Bon Appetit! ${userName}` || 'Employer',
             headerShown: true,
           }}
         />
@@ -167,7 +167,7 @@ const DrawerLayout = ({
         <Drawer.Screen
           name="(employee)"
           options={{
-            headerTitle: userName || 'Employee',
+            headerTitle: `Bon Appetit! ${userName}` || 'Employee',
             headerShown: true,
           }}
         />

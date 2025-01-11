@@ -5,15 +5,24 @@ import {
   TouchableOpacity,
   Modal,
   Pressable,
+  Alert,
 } from 'react-native';
 import { useLocalSearchParams } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { supabase } from '../../../../lib/supabase';
 import { Database } from '../../../../supabase/types';
-import { Ionicons } from '@expo/vector-icons';
+import { Ionicons, MaterialIcons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
 
 type MenuItem = Database['public']['Tables']['menu_items']['Row'];
+type HoursRange = {
+  from: string | null;
+  to: string | null;
+};
+type Restaurant = Database['public']['Tables']['restaurants']['Row'] & {
+  opening_hours: HoursRange | null;
+  lunch_hours: HoursRange | null;
+};
 
 const getDayInGerman = () => {
   const days = [
@@ -42,10 +51,56 @@ const getCurrentDay = () => {
   return days[new Date().getDay()];
 };
 
+const isWeekend = () => {
+  const day = new Date().getDay();
+  return day === 0 || day === 6; // 0 is Sunday, 6 is Saturday
+};
+
+const isWithinLunchHours = (lunchHours: HoursRange | null | undefined) => {
+  if (isWeekend()) return false;
+  if (!lunchHours?.from || !lunchHours?.to) return false;
+
+  try {
+    const now = new Date();
+    const currentTime = now.getHours() * 100 + now.getMinutes();
+
+    const [fromHours, fromMinutes] = lunchHours.from.split(':').map(Number);
+    const [toHours, toMinutes] = lunchHours.to.split(':').map(Number);
+
+    if (
+      isNaN(fromHours) ||
+      isNaN(fromMinutes) ||
+      isNaN(toHours) ||
+      isNaN(toMinutes)
+    ) {
+      return false;
+    }
+
+    const fromTime = fromHours * 100 + fromMinutes;
+    const toTime = toHours * 100 + toMinutes;
+
+    return currentTime >= fromTime && currentTime <= toTime;
+  } catch (error) {
+    console.error('Error parsing lunch hours:', error);
+    return false;
+  }
+};
+
+const formatTime = (time: string | null) => {
+  if (!time) return '';
+
+  const [hours, minutes] = time.split(':').map(Number);
+  const period = hours >= 12 ? 'PM' : 'AM';
+  const formattedHours = hours % 12 || 12;
+
+  return `${formattedHours}:${minutes.toString().padStart(2, '0')} ${period}`;
+};
+
 export default function Menu() {
   const params = useLocalSearchParams();
   const restaurantId = params.id as string;
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
+  const [restaurant, setRestaurant] = useState<Restaurant | null>(null);
   const [loading, setLoading] = useState(true);
   const [selectedItem, setSelectedItem] = useState<MenuItem | null>(null);
   const [showCheckout, setShowCheckout] = useState(false);
@@ -53,9 +108,48 @@ export default function Menu() {
 
   useEffect(() => {
     if (restaurantId) {
+      fetchRestaurantDetails();
       fetchMenuItems();
     }
   }, [restaurantId]);
+
+  async function fetchRestaurantDetails() {
+    try {
+      const { data, error } = await supabase
+        .from('restaurants')
+        .select(
+          `
+          *,
+          lunch_hours:lunch_hours (
+            from,
+            to
+          ),
+          opening_hours:opening_hours (
+            from,
+            to
+          )
+        `
+        )
+        .eq('id', restaurantId)
+        .single();
+
+      if (error) throw error;
+      if (data) {
+        console.log('Raw restaurant data:', data);
+        console.log('Lunch hours:', data.lunch_hours);
+
+        const parsedData = {
+          ...data,
+          opening_hours: data.opening_hours,
+          lunch_hours: data.lunch_hours,
+        };
+        console.log('Parsed restaurant data:', parsedData);
+        setRestaurant(parsedData);
+      }
+    } catch (error) {
+      console.error('Error fetching restaurant details:', error);
+    }
+  }
 
   async function fetchMenuItems() {
     try {
@@ -78,6 +172,26 @@ export default function Menu() {
   }
 
   const handleItemPress = (item: MenuItem) => {
+    if (isWeekend()) {
+      Alert.alert('Not Available', 'Orders are not available on weekends');
+      return;
+    }
+
+    if (!restaurant?.lunch_hours) {
+      Alert.alert('Error', 'Lunch hours not available');
+      return;
+    }
+
+    if (!isWithinLunchHours(restaurant.lunch_hours)) {
+      Alert.alert(
+        'Not Available',
+        `Orders are only available between ${formatTime(
+          restaurant.lunch_hours.from
+        )} - ${formatTime(restaurant.lunch_hours.to)}`
+      );
+      return;
+    }
+
     setSelectedItem(item);
     setShowCheckout(true);
   };
@@ -151,42 +265,124 @@ export default function Menu() {
     );
   }
 
+  const isOpen = restaurant?.lunch_hours
+    ? isWithinLunchHours(restaurant.lunch_hours)
+    : false;
+
   return (
     <ScrollView className="flex-1 bg-white">
-      <View className="px-4 pt-6 pb-4">
-        <Text className="text-2xl text-center text-gray-700 font-medium">
-          LUNCH SPECIAL
+      <View className="px-4 pt-6 pb-2">
+        <Text className="text-2xl text-center text-gray-800 font-semibold">
+          {restaurant?.name}
         </Text>
       </View>
 
-      <View className="px-4 pb-4">
-        <Text className="text-xl text-center text-gray-800">
-          {getDayInGerman()}
-        </Text>
-        <View className="h-[1px] bg-gray-300 my-4" />
+      <View className="px-4 pb-2">
+        <View className="flex-row items-center justify-center">
+          <MaterialIcons
+            name="access-time"
+            size={16}
+            color={isOpen ? '#22C55E' : '#EF4444'}
+          />
+          <Text
+            className={`text-sm ml-1 ${
+              isOpen ? 'text-green-600' : 'text-red-600'
+            }`}
+          >
+            {isOpen ? 'Open Now' : isWeekend() ? 'Closed (Weekend)' : 'Closed'}
+            {!isWeekend() &&
+              restaurant?.lunch_hours &&
+              ` (${formatTime(restaurant.lunch_hours.from)} - ${formatTime(
+                restaurant.lunch_hours.to
+              )})`}
+          </Text>
+        </View>
       </View>
 
-      <View className="px-4 pb-4">
-        <Text className="text-base text-gray-600 mb-4">
-          Select to confirm order
-        </Text>
+      {!isWeekend() && (
+        <View className="px-4 pb-4">
+          <Text className="text-xl text-center text-[#6B4EFF] font-medium mt-4">
+            LUNCH SPECIAL
+          </Text>
+          <Text className="text-lg text-center text-gray-700 mt-1">
+            {getDayInGerman()}
+          </Text>
+          <View className="h-[1px] bg-gray-200 my-4" />
+        </View>
+      )}
+
+      <View className="px-4 pb-6">
+        <View
+          className={`rounded-lg p-4 flex-row items-center justify-center ${
+            isOpen
+              ? 'bg-green-50 border border-green-200'
+              : isWeekend()
+              ? 'bg-orange-50 border border-orange-200'
+              : 'bg-blue-50 border border-blue-200'
+          }`}
+        >
+          <MaterialIcons
+            name={
+              isOpen ? 'check-circle' : isWeekend() ? 'event-busy' : 'schedule'
+            }
+            size={20}
+            color={isOpen ? '#22C55E' : isWeekend() ? '#F97316' : '#3B82F6'}
+            style={{ marginRight: 8 }}
+          />
+          <Text
+            className={`text-base font-medium ${
+              isOpen
+                ? 'text-green-700'
+                : isWeekend()
+                ? 'text-orange-700'
+                : 'text-blue-700'
+            }`}
+          >
+            {isOpen
+              ? 'Select a meal to order'
+              : isWeekend()
+              ? 'Orders unavailable on weekends'
+              : restaurant?.lunch_hours
+              ? `Orders available ${formatTime(
+                  restaurant.lunch_hours.from
+                )} - ${formatTime(restaurant.lunch_hours.to)}`
+              : 'Lunch hours not available'}
+          </Text>
+        </View>
       </View>
 
       <View className="px-4">
         {menuItems.map((item) => (
           <TouchableOpacity
             key={item.id}
-            className="mb-6 bg-[#FDF7FF] rounded-lg p-4"
+            className={`mb-6 rounded-lg p-4 ${
+              isOpen ? 'bg-[#FDF7FF]' : 'bg-gray-100'
+            }`}
             onPress={() => handleItemPress(item)}
+            disabled={!isOpen}
           >
             <View className="flex-row justify-between items-start">
               <View className="flex-1 pr-4">
-                <Text className="text-lg font-medium mb-1">{item.name}</Text>
-                <Text className="text-gray-600 text-sm">
+                <Text
+                  className={`text-lg font-medium mb-1 ${
+                    !isOpen ? 'text-gray-500' : 'text-gray-900'
+                  }`}
+                >
+                  {item.name}
+                </Text>
+                <Text
+                  className={`text-sm ${
+                    !isOpen ? 'text-gray-400' : 'text-gray-600'
+                  }`}
+                >
                   {item.description}
                 </Text>
               </View>
-              <Ionicons name="chevron-forward" size={20} color="#666" />
+              <Ionicons
+                name="chevron-forward"
+                size={20}
+                color={isOpen ? '#666' : '#999'}
+              />
             </View>
           </TouchableOpacity>
         ))}

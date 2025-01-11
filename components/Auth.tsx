@@ -12,14 +12,18 @@ import { supabase } from '../lib/supabase';
 import { Button, Input } from '@rneui/themed';
 import { Database } from '../supabase/types';
 import { MaterialIcons } from '@expo/vector-icons';
+import { useLocalSearchParams } from 'expo-router';
+import * as Linking from 'expo-linking';
 
 type Company = Database['public']['Tables']['companies']['Row'];
 
 export default function Auth() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [isSignUp, setIsSignUp] = useState(false);
+  const [isInvitedUser, setIsInvitedUser] = useState(false);
   const [companies, setCompanies] = useState<Company[]>([]);
   const [selectedCompany, setSelectedCompany] = useState<string>('');
   const [selectedCompanyName, setSelectedCompanyName] = useState<string>('');
@@ -29,6 +33,7 @@ export default function Auth() {
   const [showTypeDropdown, setShowTypeDropdown] = useState(false);
   const [showCompanyDropdown, setShowCompanyDropdown] = useState(false);
   const [companiesLoading, setCompaniesLoading] = useState(false);
+  const searchParams = useLocalSearchParams();
 
   const userTypes = [
     { label: 'Employee', value: 'employee' },
@@ -36,8 +41,63 @@ export default function Auth() {
   ];
 
   useEffect(() => {
+    // Parse hash parameters and check for invite
+    const checkInviteLink = async () => {
+      try {
+        const url = await Linking.getInitialURL();
+        console.log('Initial URL:', url);
+
+        if (url) {
+          const hashIndex = url.indexOf('#');
+          if (hashIndex !== -1) {
+            const hash = url.slice(hashIndex);
+            const params = new URLSearchParams(hash.replace('#', ''));
+
+            // Get all parameters
+            const accessToken = params.get('access_token');
+            const refreshToken = params.get('refresh_token');
+            const type = params.get('type');
+            const email = params.get('email');
+
+            if (accessToken && refreshToken) {
+              setIsInvitedUser(true);
+              setIsSignUp(true);
+              if (email) {
+                setEmail(email);
+              }
+
+              // Store tokens for later use in signUpWithEmail
+              setTokens({
+                accessToken,
+                refreshToken,
+                type: type || 'invite',
+              });
+
+              console.log('Stored tokens for invited user');
+            } else {
+              console.log('Missing required tokens in URL');
+            }
+          } else {
+            console.log('No hash parameters found in URL');
+          }
+        } else {
+          console.log('No initial URL found');
+        }
+      } catch (error) {
+        console.error('Error parsing invite link:', error);
+      }
+    };
+
+    checkInviteLink();
     fetchCompanies();
   }, []);
+
+  // Add state for storing tokens
+  const [tokens, setTokens] = useState<{
+    accessToken: string;
+    refreshToken: string;
+    type: string;
+  } | null>(null);
 
   async function fetchCompanies() {
     setCompaniesLoading(true);
@@ -83,55 +143,114 @@ export default function Auth() {
   }
 
   async function signUpWithEmail() {
-    if (!email || !password) {
-      Alert.alert('Please enter both email and password');
+    if (!isInvitedUser && !email) {
+      Alert.alert('Please enter your email');
       return;
     }
 
-    if (!selectedCompany) {
+    if (!password) {
+      Alert.alert('Please enter a password');
+      return;
+    }
+
+    if ((isSignUp || isInvitedUser) && password !== confirmPassword) {
+      Alert.alert('Error', 'Passwords do not match');
+      return;
+    }
+
+    if (!isInvitedUser && !selectedCompany) {
       Alert.alert('Please select a company');
       return;
     }
 
     setLoading(true);
     try {
-      const { data: authData, error: authError } = await supabase.auth.signUp({
-        email,
-        password,
-      });
+      let authResponse;
 
-      if (authError) {
-        Alert.alert('Error', authError.message);
-        return;
-      }
+      if (isInvitedUser && tokens) {
+        // First set the session with the tokens to log them in
+        const { data: sessionData, error: sessionError } =
+          await supabase.auth.setSession({
+            access_token: tokens.accessToken,
+            refresh_token: tokens.refreshToken,
+          });
 
-      if (authData.user) {
-        // Add user to app_users table
-        const { error: dbError } = await supabase.from('app_users').insert([
+        // Then update the user's password
+        const { error: updateError } = await supabase.auth.updateUser({
+          password: password,
+        });
+
+        if (updateError) {
+          console.error('Password update error:', updateError);
+          throw updateError;
+        }
+
+        // Update user status to active in app_users table
+        if (sessionData.session?.user?.id) {
+          const { error: statusError } = await supabase
+            .from('app_users')
+            .update({ status: 'active' })
+            .eq('id', sessionData.session.user.id);
+
+          if (statusError) {
+            console.error('Error updating user status:', statusError);
+            throw statusError;
+          }
+        }
+
+        console.log('Password updated successfully and user activated');
+
+        authResponse = { data: { session: sessionData.session }, error: null };
+      } else {
+        // Regular sign up flow
+        const { data: authData, error: authError } = await supabase.auth.signUp(
           {
-            id: authData.user.id,
-            type: userType,
-            email: email,
-            first_name: email.split('@')[0],
-            company_id: selectedCompany,
-            status: 'active',
-          },
-        ]);
+            email,
+            password,
+          }
+        );
 
-        if (dbError) {
-          console.error('Error adding user to app_users:', dbError);
-          Alert.alert('Error', 'Failed to create user profile');
+        if (authError) throw authError;
+        authResponse = { data: authData, error: null };
+
+        if (authData.user) {
+          // Add user to app_users table
+          const { error: dbError } = await supabase.from('app_users').insert([
+            {
+              id: authData.user.id,
+              type: userType,
+              email: email,
+              first_name: email.split('@')[0],
+              company_id: selectedCompany,
+              status: 'active',
+            },
+          ]);
+
+          if (dbError) {
+            console.error('Error adding user to app_users:', dbError);
+            Alert.alert('Error', 'Failed to create user profile');
+          }
         }
       }
 
-      if (!authData.session) {
+      // For invited users, we should have a session at this point
+      if (isInvitedUser && !authResponse?.data?.session) {
+        throw new Error('Failed to create session for invited user');
+      }
+
+      // For regular sign up, show verification message
+      if (!isInvitedUser && !authResponse?.data?.session) {
         Alert.alert(
           'Success',
           'Please check your inbox for email verification!'
         );
       }
     } catch (error) {
-      Alert.alert('Error', 'An unexpected error occurred');
+      console.error('Signup error:', error);
+      Alert.alert(
+        'Error',
+        error instanceof Error ? error.message : 'An unexpected error occurred'
+      );
     } finally {
       setLoading(false);
     }
@@ -184,26 +303,37 @@ export default function Auth() {
       <View style={styles.header}>
         <Text style={styles.title}>Welcome to Urban Eats Club</Text>
         <Text style={styles.subtitle}>
-          {isSignUp ? 'Create an account' : 'Sign in to your account'}
+          {isInvitedUser
+            ? 'Set your password to complete account setup'
+            : isSignUp
+            ? 'Create an account'
+            : 'Sign in to your account'}
         </Text>
       </View>
 
-      <View style={[styles.verticallySpaced, styles.mt20]}>
-        <Input
-          label="Email"
-          labelStyle={styles.inputLabel}
-          inputStyle={styles.input}
-          leftIcon={{ type: 'font-awesome', name: 'envelope', color: '#666' }}
-          onChangeText={setEmail}
-          value={email}
-          placeholder="email@address.com"
-          placeholderTextColor="#666"
-          autoCapitalize="none"
-          containerStyle={styles.inputContainer}
-        />
-      </View>
+      {!isInvitedUser && (
+        <View style={[styles.verticallySpaced, styles.mt20]}>
+          <Input
+            label="Email"
+            labelStyle={styles.inputLabel}
+            inputStyle={styles.input}
+            leftIcon={{ type: 'font-awesome', name: 'envelope', color: '#666' }}
+            onChangeText={setEmail}
+            value={email}
+            placeholder="email@address.com"
+            placeholderTextColor="#666"
+            autoCapitalize="none"
+            containerStyle={styles.inputContainer}
+          />
+        </View>
+      )}
 
-      <View style={styles.verticallySpaced}>
+      <View
+        style={[
+          styles.verticallySpaced,
+          isInvitedUser ? styles.mt20 : undefined,
+        ]}
+      >
         <Input
           label="Password"
           labelStyle={styles.inputLabel}
@@ -219,7 +349,25 @@ export default function Auth() {
         />
       </View>
 
-      {isSignUp && (
+      {(isSignUp || isInvitedUser) && (
+        <View style={styles.verticallySpaced}>
+          <Input
+            label="Confirm Password"
+            labelStyle={styles.inputLabel}
+            inputStyle={styles.input}
+            leftIcon={{ type: 'font-awesome', name: 'lock', color: '#666' }}
+            onChangeText={setConfirmPassword}
+            value={confirmPassword}
+            secureTextEntry={true}
+            placeholder="Confirm Password"
+            placeholderTextColor="#666"
+            autoCapitalize="none"
+            containerStyle={styles.inputContainer}
+          />
+        </View>
+      )}
+
+      {isSignUp && !isInvitedUser && (
         <>
           <View style={[styles.verticallySpaced, styles.pickerContainer]}>
             <Text style={styles.inputLabel}>User Type</Text>
@@ -269,24 +417,45 @@ export default function Auth() {
 
       <View style={[styles.verticallySpaced, styles.mt20]}>
         <Button
-          title={isSignUp ? 'Sign up' : 'Sign in'}
+          title={
+            isInvitedUser ? 'Complete Setup' : isSignUp ? 'Sign up' : 'Sign in'
+          }
           disabled={loading}
-          onPress={() => (isSignUp ? signUpWithEmail() : signInWithEmail())}
+          onPress={async () => {
+            try {
+              console.log('Button pressed', { isSignUp, isInvitedUser });
+              if (isSignUp || isInvitedUser) {
+                await signUpWithEmail();
+              } else {
+                await signInWithEmail();
+              }
+            } catch (error) {
+              console.error('Error in button press handler:', error);
+              Alert.alert(
+                'Error',
+                error instanceof Error
+                  ? error.message
+                  : 'An unexpected error occurred'
+              );
+            }
+          }}
           buttonStyle={styles.primaryButton}
           titleStyle={styles.buttonText}
         />
       </View>
 
-      <TouchableOpacity
-        style={styles.switchButton}
-        onPress={() => setIsSignUp(!isSignUp)}
-      >
-        <Text style={styles.switchButtonText}>
-          {isSignUp
-            ? 'Already have an account? Sign in'
-            : "Don't have an account? Sign up"}
-        </Text>
-      </TouchableOpacity>
+      {!isInvitedUser && (
+        <TouchableOpacity
+          style={styles.switchButton}
+          onPress={() => setIsSignUp(!isSignUp)}
+        >
+          <Text style={styles.switchButtonText}>
+            {isSignUp
+              ? 'Already have an account? Sign in'
+              : "Don't have an account? Sign up"}
+          </Text>
+        </TouchableOpacity>
+      )}
     </View>
   );
 }
