@@ -61,7 +61,7 @@ export default function Menu() {
         .from('menu_items')
         .select('*')
         .eq('restaurant_id', restaurantId)
-        .eq('day', currentDay)
+        .contains('days', [currentDay])
         .order('category');
 
       if (error) throw error;

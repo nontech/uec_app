@@ -50,6 +50,8 @@ const AuthCheck = () => {
         route = '/(super-admin)';
       } else if (userType === 'company_admin') {
         route = '/(employer)';
+      } else if (userType === 'restaurant_admin') {
+        route = '/(restaurant-admin)';
       } else {
         route = '/(employee)';
       }
@@ -160,6 +162,14 @@ const DrawerLayout = ({
           name="(employer)"
           options={{
             headerTitle: `Bon Appetit! ${userName}` || 'Employer',
+            headerShown: true,
+          }}
+        />
+      ) : userType === 'restaurant_admin' ? (
+        <Drawer.Screen
+          name="(restaurant-admin)"
+          options={{
+            headerTitle: `Restaurant Dashboard - ${userName}`,
             headerShown: true,
           }}
         />
