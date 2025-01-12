@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, ScrollView, StyleSheet } from 'react-native';
+import { View, Text, ScrollView } from 'react-native';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../lib/AuthContext';
 import { Tables } from '../../supabase/types';
@@ -68,33 +68,33 @@ export default function ActivitiesScreen() {
   };
 
   return (
-    <ScrollView style={styles.container}>
-      <Text style={styles.title}>Transaction History</Text>
-      <View style={styles.transactionList}>
+    <ScrollView className="flex-1 p-4">
+      <Text className="text-2xl font-bold mb-5">Transaction History</Text>
+      <View className="space-y-3">
         {transactions.map((transaction) => (
-          <View key={transaction.id} style={styles.transactionItem}>
-            <View style={styles.transactionHeader}>
-              <Text style={styles.date}>
+          <View key={transaction.id} className="bg-gray-50 rounded-lg p-4">
+            <View className="flex-row justify-between mb-2">
+              <Text className="text-sm text-gray-600">
                 {formatDate(transaction.transaction_date)}
               </Text>
-              <Text style={styles.status}>
+              <Text className="text-sm font-medium">
                 Status: {transaction.payment_status}
               </Text>
             </View>
-            <View style={styles.transactionDetails}>
-              <Text style={styles.menuItem}>
+            <View className="space-y-1">
+              <Text className="text-base font-medium">
                 Item: {transaction.menu_items?.name}
               </Text>
-              <Text style={styles.employee}>
+              <Text className="text-sm">
                 Employee: {transaction.app_users?.first_name}{' '}
                 {transaction.app_users?.last_name}
                 {transaction.app_users?.companies?.name &&
                   ` (${transaction.app_users.companies.name})`}
               </Text>
-              <Text style={styles.amount}>
+              <Text className="text-base font-bold text-blue-500">
                 Amount: €{transaction.amount?.toFixed(2)}
               </Text>
-              <Text style={styles.paymentMethod}>
+              <Text className="text-sm text-gray-600">
                 Payment Method: {transaction.payment_method}
               </Text>
             </View>
@@ -104,55 +104,3 @@ export default function ActivitiesScreen() {
     </ScrollView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 16,
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 20,
-  },
-  transactionList: {
-    gap: 12,
-  },
-  transactionItem: {
-    backgroundColor: '#f8f8f8',
-    borderRadius: 8,
-    padding: 16,
-  },
-  transactionHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 8,
-  },
-  date: {
-    fontSize: 14,
-    color: '#666',
-  },
-  status: {
-    fontSize: 14,
-    fontWeight: '500',
-  },
-  transactionDetails: {
-    gap: 4,
-  },
-  menuItem: {
-    fontSize: 16,
-    fontWeight: '500',
-  },
-  employee: {
-    fontSize: 14,
-  },
-  amount: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#007AFF',
-  },
-  paymentMethod: {
-    fontSize: 14,
-    color: '#666',
-  },
-});

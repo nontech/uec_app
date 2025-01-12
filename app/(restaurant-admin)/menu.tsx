@@ -3,7 +3,6 @@ import {
   View,
   Text,
   ScrollView,
-  StyleSheet,
   TouchableOpacity,
   Animated,
 } from 'react-native';
@@ -170,6 +169,15 @@ export default function ManageMenuScreen() {
     'Friday',
   ];
 
+  const dayShortForms = {
+    All: 'All',
+    Monday: 'M',
+    Tuesday: 'T',
+    Wednesday: 'W',
+    Thursday: 'TH',
+    Friday: 'F',
+  };
+
   const allDays = ['All', ...days] as const;
 
   const getMenuItemsForDay = (day: string) => {
@@ -205,475 +213,375 @@ export default function ManageMenuScreen() {
   };
 
   return (
-    <ScrollView style={styles.container}>
-      <TouchableOpacity
-        style={styles.addButton}
-        onPress={() => setShowAddForm(!showAddForm)}
-      >
-        <View style={styles.addButtonContent}>
-          <Ionicons
-            name={showAddForm ? 'remove-circle' : 'add-circle'}
-            size={24}
-            color="#007AFF"
-          />
-          <Text style={styles.addButtonText}>
-            {showAddForm ? 'Cancel Adding Item' : 'Add New Menu Item'}
-          </Text>
-        </View>
-      </TouchableOpacity>
-
-      <Animated.View
-        style={[
-          styles.addItemContainer,
-          {
-            transform: [
-              {
-                translateY: slideAnim.interpolate({
-                  inputRange: [0, 1],
-                  outputRange: [-20, 0],
-                }),
-              },
-            ],
-            opacity: slideAnim,
-            display: showAddForm ? 'flex' : 'none',
-          },
-        ]}
-      >
-        <Input
-          placeholder="Item Name"
-          value={newItem.name}
-          onChangeText={(text) => setNewItem({ ...newItem, name: text })}
-          leftIcon={<Ionicons name="fast-food" size={20} color="#86939e" />}
-        />
-        <Input
-          placeholder="Description"
-          value={newItem.description}
-          onChangeText={(text) => setNewItem({ ...newItem, description: text })}
-          multiline
-          leftIcon={<Ionicons name="document-text" size={20} color="#86939e" />}
-        />
-        <Input
-          placeholder="Price"
-          value={newItem.price}
-          onChangeText={(text) => setNewItem({ ...newItem, price: text })}
-          keyboardType="numeric"
-          leftIcon={<Ionicons name="pricetag" size={20} color="#86939e" />}
-          label="Price (€)"
-        />
-
-        <Text style={styles.daysLabel}>Available Days</Text>
-        <View style={styles.daysContainer}>
-          {days.map((day) => (
-            <Chip
-              key={day}
-              title={day}
-              type={newItem.days.includes(day) ? 'solid' : 'outline'}
-              onPress={() => toggleDay(day)}
-              containerStyle={styles.dayChip}
+    <View className="flex-1 bg-white">
+      <View className="flex-1 p-4">
+        <TouchableOpacity
+          className="bg-white p-4 rounded-lg mb-4 shadow-sm"
+          onPress={() => setShowAddForm(!showAddForm)}
+        >
+          <View className="flex-row items-center justify-center">
+            <Ionicons
+              name={showAddForm ? 'remove-circle' : 'add-circle'}
+              size={24}
               color="#007AFF"
             />
-          ))}
-        </View>
+            <Text className="ml-2 text-base font-medium text-[#007AFF]">
+              {showAddForm ? 'Cancel Adding Item' : 'Add New Menu Item'}
+            </Text>
+          </View>
+        </TouchableOpacity>
 
-        <Button
-          title="Add Menu Item"
-          onPress={addMenuItem}
-          disabled={!newItem.name || !newItem.price || !newItem.days.length}
-          icon={
-            <Ionicons
-              name="add-circle"
-              size={20}
-              color="white"
-              style={{ marginRight: 8 }}
-            />
-          }
-          buttonStyle={styles.submitButton}
-          disabledStyle={styles.submitButtonDisabled}
-        />
-      </Animated.View>
-
-      <View style={styles.previewContainer}>
-        <Tab
-          value={tabIndex}
-          onChange={setTabIndex}
-          indicatorStyle={{ backgroundColor: '#007AFF' }}
-          scrollable
+        <Animated.View
+          className="mb-5 bg-white p-4 rounded-lg shadow-sm"
+          style={[
+            {
+              transform: [
+                {
+                  translateY: slideAnim.interpolate({
+                    inputRange: [0, 1],
+                    outputRange: [-20, 0],
+                  }),
+                },
+              ],
+              opacity: slideAnim,
+              display: showAddForm ? 'flex' : 'none',
+            },
+          ]}
         >
-          {allDays.map((day, index) => (
-            <Tab.Item
-              key={day}
-              title={day}
-              titleStyle={(active) => ({
-                color: active ? '#007AFF' : '#666',
-                fontSize: 14,
-              })}
-            />
-          ))}
-        </Tab>
+          <Input
+            placeholder="Item Name"
+            value={newItem.name}
+            onChangeText={(text) => setNewItem({ ...newItem, name: text })}
+            leftIcon={<Ionicons name="fast-food" size={20} color="#86939e" />}
+          />
+          <Input
+            placeholder="Description"
+            value={newItem.description}
+            onChangeText={(text) =>
+              setNewItem({ ...newItem, description: text })
+            }
+            multiline
+            leftIcon={
+              <Ionicons name="document-text" size={20} color="#86939e" />
+            }
+          />
+          <Input
+            placeholder="Price"
+            value={newItem.price}
+            onChangeText={(text) => setNewItem({ ...newItem, price: text })}
+            keyboardType="numeric"
+            leftIcon={<Ionicons name="pricetag" size={20} color="#86939e" />}
+            label="Price (€)"
+          />
 
-        <TabView value={tabIndex} onChange={setTabIndex} animationType="spring">
-          {allDays.map((day, index) => (
-            <TabView.Item key={day} style={styles.tabContent}>
-              <View style={styles.menuList}>
-                {getMenuItemsForDay(day).map((item) => (
-                  <View key={item.id} style={styles.menuItem}>
-                    {editingItem?.id === item.id ? (
-                      <View style={styles.editItemForm}>
-                        <Input
-                          placeholder="Item Name"
-                          value={editingItem.name || ''}
-                          onChangeText={(text) =>
-                            setEditingItem({ ...editingItem, name: text })
-                          }
-                          leftIcon={
-                            <Ionicons
-                              name="fast-food"
-                              size={20}
-                              color="#86939e"
-                            />
-                          }
-                        />
-                        <Input
-                          placeholder="Description"
-                          value={editingItem.description || ''}
-                          onChangeText={(text) =>
-                            setEditingItem({
-                              ...editingItem,
-                              description: text,
-                            })
-                          }
-                          multiline
-                          leftIcon={
-                            <Ionicons
-                              name="document-text"
-                              size={20}
-                              color="#86939e"
-                            />
-                          }
-                        />
-                        <Input
-                          placeholder="Price"
-                          value={editingItem.price || ''}
-                          onChangeText={(text) =>
-                            setEditingItem({ ...editingItem, price: text })
-                          }
-                          keyboardType="numeric"
-                          leftIcon={
-                            <Ionicons
-                              name="pricetag"
-                              size={20}
-                              color="#86939e"
-                            />
-                          }
-                          label="Price (€)"
-                        />
+          <Text className="text-base font-medium text-[#86939e] mb-2 px-2.5">
+            Available Days
+          </Text>
+          <View className="flex-row flex-wrap gap-2 mb-5">
+            {days.map((day) => (
+              <Chip
+                key={day}
+                title={day}
+                type={newItem.days.includes(day) ? 'solid' : 'outline'}
+                onPress={() => toggleDay(day)}
+                containerStyle={{ marginRight: 4, marginBottom: 4 }}
+                color="#007AFF"
+              />
+            ))}
+          </View>
 
-                        <Text style={styles.daysLabel}>Available Days</Text>
-                        <View style={styles.daysContainer}>
-                          {days.map((dayOption) => (
-                            <Chip
-                              key={dayOption}
-                              title={dayOption}
-                              type={
-                                editingItem.days
-                                  ?.map((d) => d.toLowerCase())
-                                  .includes(dayOption.toLowerCase())
-                                  ? 'solid'
-                                  : 'outline'
-                              }
-                              onPress={() => {
-                                const currentDays = editingItem.days || [];
-                                const dayLower = dayOption.toLowerCase();
-                                const newDays = currentDays
-                                  .map((d) => d.toLowerCase())
-                                  .includes(dayLower)
-                                  ? currentDays.filter(
-                                      (d) => d.toLowerCase() !== dayLower
-                                    )
-                                  : [...currentDays, dayLower];
-                                setEditingItem({
-                                  ...editingItem,
-                                  days: newDays,
-                                });
-                              }}
-                              containerStyle={styles.dayChip}
-                              color="#007AFF"
-                            />
-                          ))}
-                        </View>
-                        <View style={styles.editButtons}>
-                          <Button
-                            title="Cancel"
-                            onPress={() => setEditingItem(null)}
-                            buttonStyle={styles.cancelButton}
-                          />
-                          <Button
-                            title="Save Changes"
-                            onPress={updateMenuItem}
-                            disabled={
-                              !editingItem?.name ||
-                              !editingItem?.price ||
-                              !editingItem?.days?.length
-                            }
-                            buttonStyle={styles.saveButton}
-                            disabledStyle={styles.submitButtonDisabled}
-                          />
-                        </View>
-                      </View>
-                    ) : (
-                      <>
-                        <View style={styles.menuItemContent}>
-                          <Text style={styles.itemName}>{item.name}</Text>
-                          <Text style={styles.itemDescription}>
-                            {item.description}
-                          </Text>
-                          <Text style={styles.itemPrice}>€{item.price}</Text>
-                          {day === 'All' && (
-                            <View style={styles.itemDays}>
-                              {item.days?.map((availableDay) => (
-                                <Chip
-                                  key={availableDay}
-                                  title={availableDay}
-                                  type="solid"
-                                  containerStyle={[
-                                    styles.dayChip,
-                                    { marginTop: 8 },
-                                  ]}
-                                  color="#007AFF"
+          <Button
+            title="Add Menu Item"
+            onPress={addMenuItem}
+            disabled={!newItem.name || !newItem.price || !newItem.days.length}
+            icon={
+              <Ionicons
+                name="add-circle"
+                size={20}
+                color="white"
+                style={{ marginRight: 8 }}
+              />
+            }
+            buttonStyle={{
+              backgroundColor: '#007AFF',
+              borderRadius: 8,
+              paddingVertical: 12,
+            }}
+            disabledStyle={{ backgroundColor: '#ccc' }}
+          />
+        </Animated.View>
+
+        <View className="flex-1 bg-white rounded-lg shadow-sm">
+          <Tab
+            value={tabIndex}
+            onChange={setTabIndex}
+            indicatorStyle={{ backgroundColor: '#007AFF' }}
+            containerStyle={{ height: 48 }}
+          >
+            {allDays.map((day) => (
+              <Tab.Item
+                key={day}
+                title={dayShortForms[day]}
+                titleStyle={(active) => ({
+                  color: active ? '#007AFF' : '#666',
+                  fontSize: 14,
+                  paddingHorizontal: 2,
+                })}
+              />
+            ))}
+          </Tab>
+
+          <View className="flex-1">
+            <TabView
+              value={tabIndex}
+              onChange={setTabIndex}
+              animationType="spring"
+            >
+              {allDays.map((day) => (
+                <TabView.Item key={day} className="w-full h-full">
+                  <ScrollView
+                    className="flex-1"
+                    contentContainerStyle={{ paddingBottom: 20 }}
+                    showsVerticalScrollIndicator={true}
+                  >
+                    <View className="px-4 pt-4">
+                      <View className="gap-3">
+                        {getMenuItemsForDay(day).map((item) => (
+                          <View
+                            key={item.id}
+                            className="flex-row justify-between items-center p-4 bg-gray-50 rounded-lg border border-gray-200"
+                          >
+                            {editingItem?.id === item.id ? (
+                              <View className="w-full py-2">
+                                <Input
+                                  placeholder="Item Name"
+                                  value={editingItem.name || ''}
+                                  onChangeText={(text) =>
+                                    setEditingItem({
+                                      ...editingItem,
+                                      name: text,
+                                    })
+                                  }
+                                  leftIcon={
+                                    <Ionicons
+                                      name="fast-food"
+                                      size={20}
+                                      color="#86939e"
+                                    />
+                                  }
                                 />
-                              ))}
-                            </View>
-                          )}
-                        </View>
-                        <View style={styles.itemActions}>
-                          {day === 'All' ? (
-                            <>
-                              <Button
-                                icon={
-                                  <Ionicons
-                                    name="create-outline"
-                                    size={20}
-                                    color="#007AFF"
+                                <Input
+                                  placeholder="Description"
+                                  value={editingItem.description || ''}
+                                  onChangeText={(text) =>
+                                    setEditingItem({
+                                      ...editingItem,
+                                      description: text,
+                                    })
+                                  }
+                                  multiline
+                                  leftIcon={
+                                    <Ionicons
+                                      name="document-text"
+                                      size={20}
+                                      color="#86939e"
+                                    />
+                                  }
+                                />
+                                <Input
+                                  placeholder="Price"
+                                  value={editingItem.price || ''}
+                                  onChangeText={(text) =>
+                                    setEditingItem({
+                                      ...editingItem,
+                                      price: text,
+                                    })
+                                  }
+                                  keyboardType="numeric"
+                                  leftIcon={
+                                    <Ionicons
+                                      name="pricetag"
+                                      size={20}
+                                      color="#86939e"
+                                    />
+                                  }
+                                  label="Price (€)"
+                                />
+
+                                <Text className="text-base font-medium text-[#86939e] mb-2 px-2.5">
+                                  Available Days
+                                </Text>
+                                <View className="flex-row flex-wrap gap-2 mb-5">
+                                  {days.map((dayOption) => (
+                                    <Chip
+                                      key={dayOption}
+                                      title={dayOption}
+                                      type={
+                                        editingItem.days
+                                          ?.map((d) => d.toLowerCase())
+                                          .includes(dayOption.toLowerCase())
+                                          ? 'solid'
+                                          : 'outline'
+                                      }
+                                      onPress={() => {
+                                        const currentDays =
+                                          editingItem.days || [];
+                                        const dayLower =
+                                          dayOption.toLowerCase();
+                                        const newDays = currentDays
+                                          .map((d) => d.toLowerCase())
+                                          .includes(dayLower)
+                                          ? currentDays.filter(
+                                              (d) =>
+                                                d.toLowerCase() !== dayLower
+                                            )
+                                          : [...currentDays, dayLower];
+                                        setEditingItem({
+                                          ...editingItem,
+                                          days: newDays,
+                                        });
+                                      }}
+                                      containerStyle={{
+                                        marginRight: 4,
+                                        marginBottom: 4,
+                                      }}
+                                      color="#007AFF"
+                                    />
+                                  ))}
+                                </View>
+                                <View className="flex-row justify-end gap-2 mt-4">
+                                  <Button
+                                    title="Cancel"
+                                    onPress={() => setEditingItem(null)}
+                                    buttonStyle={{
+                                      backgroundColor: '#666',
+                                      paddingHorizontal: 16,
+                                    }}
                                   />
-                                }
-                                onPress={() => setEditingItem(item)}
-                                buttonStyle={styles.editButton}
-                              />
-                              <Button
-                                icon={
-                                  <Ionicons
-                                    name="trash-outline"
-                                    size={20}
-                                    color="#ff4444"
+                                  <Button
+                                    title="Save Changes"
+                                    onPress={updateMenuItem}
+                                    disabled={
+                                      !editingItem?.name ||
+                                      !editingItem?.price ||
+                                      !editingItem?.days?.length
+                                    }
+                                    buttonStyle={{
+                                      backgroundColor: '#007AFF',
+                                      paddingHorizontal: 16,
+                                    }}
+                                    disabledStyle={{ backgroundColor: '#ccc' }}
                                   />
-                                }
-                                onPress={() =>
-                                  item.id && deleteMenuItem(item.id)
-                                }
-                                buttonStyle={styles.deleteItemButton}
-                              />
-                            </>
-                          ) : (
-                            <Button
-                              icon={
-                                <Ionicons name="close" size={20} color="#666" />
-                              }
-                              onPress={() =>
-                                item.id && removeDayFromMenuItem(item.id, day)
-                              }
-                              buttonStyle={styles.deleteButton}
-                            />
-                          )}
-                        </View>
-                      </>
-                    )}
-                  </View>
-                ))}
-                {getMenuItemsForDay(day).length === 0 && (
-                  <Text style={styles.noItemsText}>
-                    No menu items {day === 'All' ? 'available' : `for ${day}`}
-                  </Text>
-                )}
-              </View>
-            </TabView.Item>
-          ))}
-        </TabView>
+                                </View>
+                              </View>
+                            ) : (
+                              <>
+                                <View className="flex-1 mr-4">
+                                  <Text className="text-base font-bold text-[#1c1c1e] mb-1">
+                                    {item.name}
+                                  </Text>
+                                  <Text className="text-sm text-gray-600 mb-1">
+                                    {item.description}
+                                  </Text>
+                                  <Text className="text-sm font-medium text-[#007AFF] mb-0.5">
+                                    €{item.price}
+                                  </Text>
+                                  {day === 'All' && (
+                                    <View className="flex-row flex-wrap gap-1 mt-2">
+                                      {item.days?.map((availableDay) => (
+                                        <Chip
+                                          key={availableDay}
+                                          title={availableDay}
+                                          type="solid"
+                                          containerStyle={{
+                                            marginRight: 4,
+                                            marginBottom: 4,
+                                          }}
+                                          color="#007AFF"
+                                        />
+                                      ))}
+                                    </View>
+                                  )}
+                                </View>
+                                <View className="flex-row gap-2">
+                                  {day === 'All' ? (
+                                    <>
+                                      <Button
+                                        icon={
+                                          <Ionicons
+                                            name="create-outline"
+                                            size={20}
+                                            color="#007AFF"
+                                          />
+                                        }
+                                        onPress={() => setEditingItem(item)}
+                                        buttonStyle={{
+                                          backgroundColor: 'transparent',
+                                          padding: 10,
+                                          minWidth: 40,
+                                          minHeight: 40,
+                                        }}
+                                      />
+                                      <Button
+                                        icon={
+                                          <Ionicons
+                                            name="trash-outline"
+                                            size={20}
+                                            color="#ff4444"
+                                          />
+                                        }
+                                        onPress={() =>
+                                          item.id && deleteMenuItem(item.id)
+                                        }
+                                        buttonStyle={{
+                                          backgroundColor: 'transparent',
+                                          padding: 10,
+                                          minWidth: 40,
+                                          minHeight: 40,
+                                        }}
+                                      />
+                                    </>
+                                  ) : (
+                                    <Button
+                                      icon={
+                                        <Ionicons
+                                          name="close"
+                                          size={20}
+                                          color="#666"
+                                        />
+                                      }
+                                      onPress={() =>
+                                        item.id &&
+                                        removeDayFromMenuItem(item.id, day)
+                                      }
+                                      buttonStyle={{
+                                        backgroundColor: 'transparent',
+                                        padding: 10,
+                                        minWidth: 40,
+                                        minHeight: 40,
+                                      }}
+                                    />
+                                  )}
+                                </View>
+                              </>
+                            )}
+                          </View>
+                        ))}
+                        {getMenuItemsForDay(day).length === 0 && (
+                          <Text className="text-center text-gray-600 text-base mt-5">
+                            No menu items{' '}
+                            {day === 'All' ? 'available' : `for ${day}`}
+                          </Text>
+                        )}
+                      </View>
+                    </View>
+                  </ScrollView>
+                </TabView.Item>
+              ))}
+            </TabView>
+          </View>
+        </View>
       </View>
-    </ScrollView>
+    </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 16,
-  },
-  addButton: {
-    backgroundColor: 'white',
-    padding: 16,
-    borderRadius: 8,
-    marginBottom: 16,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  addButtonContent: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  addButtonText: {
-    marginLeft: 8,
-    fontSize: 16,
-    fontWeight: '500',
-    color: '#007AFF',
-  },
-  daysContainer: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 8,
-    marginBottom: 20,
-  },
-  dayChip: {
-    marginRight: 4,
-    marginBottom: 4,
-  },
-  daysLabel: {
-    fontSize: 16,
-    fontWeight: '500',
-    marginBottom: 8,
-    color: '#86939e',
-    paddingHorizontal: 10,
-  },
-  addItemContainer: {
-    marginBottom: 20,
-    backgroundColor: 'white',
-    padding: 16,
-    borderRadius: 8,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  submitButton: {
-    backgroundColor: '#007AFF',
-    borderRadius: 8,
-    paddingVertical: 12,
-  },
-  submitButtonDisabled: {
-    backgroundColor: '#ccc',
-  },
-  previewContainer: {
-    flex: 1,
-    backgroundColor: 'white',
-    padding: 16,
-    borderRadius: 8,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  sectionTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    marginBottom: 16,
-    color: '#1c1c1e',
-  },
-  tabContent: {
-    width: '100%',
-    paddingTop: 16,
-  },
-  menuList: {
-    gap: 12,
-  },
-  menuItem: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: 16,
-    backgroundColor: '#f8f8f8',
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: '#e1e1e1',
-  },
-  menuItemContent: {
-    flex: 1,
-    marginRight: 16,
-  },
-  itemName: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#1c1c1e',
-    marginBottom: 4,
-  },
-  itemDescription: {
-    fontSize: 14,
-    color: '#666',
-    marginBottom: 4,
-  },
-  itemPrice: {
-    fontSize: 14,
-    fontWeight: '500',
-    color: '#007AFF',
-    marginBottom: 2,
-  },
-  itemCategory: {
-    fontSize: 12,
-    color: '#888',
-  },
-  deleteButton: {
-    backgroundColor: 'transparent',
-    padding: 10,
-    minWidth: 40,
-    minHeight: 40,
-  },
-  noItemsText: {
-    textAlign: 'center',
-    color: '#666',
-    fontSize: 16,
-    marginTop: 20,
-  },
-  editItemForm: {
-    width: '100%',
-    paddingVertical: 8,
-  },
-  editButtons: {
-    flexDirection: 'row',
-    justifyContent: 'flex-end',
-    gap: 8,
-    marginTop: 16,
-  },
-  cancelButton: {
-    backgroundColor: '#666',
-    paddingHorizontal: 16,
-  },
-  saveButton: {
-    backgroundColor: '#007AFF',
-    paddingHorizontal: 16,
-  },
-  itemDays: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 4,
-  },
-  itemActions: {
-    flexDirection: 'row',
-    gap: 8,
-  },
-  editButton: {
-    backgroundColor: 'transparent',
-    padding: 10,
-    minWidth: 40,
-    minHeight: 40,
-  },
-  deleteItemButton: {
-    backgroundColor: 'transparent',
-    padding: 10,
-    minWidth: 40,
-    minHeight: 40,
-  },
-});

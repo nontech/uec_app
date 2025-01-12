@@ -169,7 +169,7 @@ const DrawerLayout = ({
         <Drawer.Screen
           name="(restaurant-admin)"
           options={{
-            headerTitle: `Restaurant Dashboard - ${userName}`,
+            headerTitle: `Restaurant Admin`,
             headerShown: true,
           }}
         />

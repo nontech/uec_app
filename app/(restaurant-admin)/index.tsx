@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text } from 'react-native';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../lib/AuthContext';
 import { Tables } from '../../supabase/types';
@@ -28,7 +28,6 @@ export default function DashboardScreen() {
       .single();
 
     if (!userData?.restaurant_id) {
-      console.error('No restaurant ID found for user');
       return;
     }
 
@@ -92,78 +91,39 @@ export default function DashboardScreen() {
   };
 
   return (
-    <View style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.restaurantName}>
+    <View className="flex-1 p-4 bg-white">
+      <View className="mb-6">
+        <Text className="text-2xl font-bold mb-1">
           {restaurant?.name || 'Loading...'}
         </Text>
-        <Text style={styles.cuisine}>{restaurant?.cuisine_type}</Text>
+        <Text className="text-lg text-gray-600">
+          {restaurant?.cuisine_type}
+        </Text>
       </View>
 
-      <View style={styles.infoCard}>
-        <Text style={styles.sectionTitle}>About</Text>
-        <Text style={styles.description}>
+      <View className="bg-gray-50 rounded-xl p-4 mb-4">
+        <Text className="text-xl font-semibold mb-2">About</Text>
+        <Text className="text-base text-gray-700 leading-6">
           {restaurant?.description || 'No description available'}
         </Text>
       </View>
 
-      <View style={styles.infoCard}>
-        <Text style={styles.sectionTitle}>Hours</Text>
-        <Text style={styles.infoText}>
+      <View className="bg-gray-50 rounded-xl p-4 mb-4">
+        <Text className="text-xl font-semibold mb-2">Hours</Text>
+        <Text className="text-base text-gray-700 mb-1">
           Opening Hours: {formatHours(restaurant?.opening_hours_range || null)}
         </Text>
-        <Text style={styles.infoText}>
+        <Text className="text-base text-gray-700 mb-1">
           Lunch Hours: {formatHours(restaurant?.lunch_hours_range || null)}
         </Text>
       </View>
 
-      <View style={styles.infoCard}>
-        <Text style={styles.sectionTitle}>Location</Text>
-        <Text style={styles.infoText}>
+      <View className="bg-gray-50 rounded-xl p-4 mb-4">
+        <Text className="text-xl font-semibold mb-2">Location</Text>
+        <Text className="text-base text-gray-700">
           {formatAddress(restaurant?.address_details || null)}
         </Text>
       </View>
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 16,
-    backgroundColor: '#fff',
-  },
-  header: {
-    marginBottom: 24,
-  },
-  restaurantName: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    marginBottom: 4,
-  },
-  cuisine: {
-    fontSize: 18,
-    color: '#666',
-  },
-  infoCard: {
-    backgroundColor: '#f8f8f8',
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 16,
-  },
-  sectionTitle: {
-    fontSize: 20,
-    fontWeight: '600',
-    marginBottom: 8,
-  },
-  description: {
-    fontSize: 16,
-    color: '#444',
-    lineHeight: 24,
-  },
-  infoText: {
-    fontSize: 16,
-    color: '#444',
-    marginBottom: 4,
-  },
-});
