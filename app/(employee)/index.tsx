@@ -1,4 +1,4 @@
-import { View, Text } from 'react-native';
+import { View, Text, ScrollView } from 'react-native';
 import { useEffect, useState } from 'react';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../lib/AuthContext';
@@ -161,10 +161,16 @@ export default function Dashboard() {
     );
   };
 
+  const Card = ({ children }: { children: React.ReactNode }) => (
+    <View className="bg-white rounded-2xl p-6 shadow-sm mb-4 border border-gray-100">
+      {children}
+    </View>
+  );
+
   if (loading) {
     return (
-      <View className="flex-1 items-center justify-center">
-        <Text>Loading...</Text>
+      <View className="flex-1 items-center justify-center bg-gray-50">
+        <Text className="text-gray-600">Loading...</Text>
       </View>
     );
   }
@@ -181,49 +187,67 @@ export default function Dashboard() {
       : 0;
 
   return (
-    <View className="flex-1 bg-white">
-      {/* User Info Section */}
-      <View className="p-6">
-        <View className="flex-row items-center mb-6">
-          <View className="w-16 h-16 bg-[#6B4EFF] rounded-full mr-4 items-center justify-center">
-            <Text className="text-white text-2xl font-semibold">
-              {userDetails?.first_name?.[0]?.toUpperCase() || ''}
-            </Text>
+    <ScrollView className="flex-1 bg-gray-50">
+      <View className="p-4">
+        {/* Profile Card */}
+        <Card>
+          <View className="flex-row items-center">
+            <View className="w-16 h-16 bg-[#6B4EFF] rounded-full mr-4 items-center justify-center">
+              <Text className="text-white text-2xl font-semibold">
+                {userDetails?.first_name?.[0]?.toUpperCase() || ''}
+              </Text>
+            </View>
+            <View>
+              <Text className="text-xl font-semibold text-gray-900">
+                {userDetails?.first_name} {userDetails?.last_name}
+              </Text>
+              <Text className="text-gray-500">{userDetails?.email}</Text>
+            </View>
           </View>
-          <View>
-            <Text className="text-xl font-semibold">
-              {userDetails?.first_name} {userDetails?.last_name}
-            </Text>
-            <Text className="text-gray-600">{userDetails?.email}</Text>
+        </Card>
+
+        {/* Company & Membership Info Card */}
+        <Card>
+          <View className="space-y-4">
+            <View className="flex-row justify-between items-center pb-4 border-b border-gray-100">
+              <Text className="text-gray-500 font-medium">Company</Text>
+              <Text className="text-gray-900 font-semibold">
+                {company?.name}
+              </Text>
+            </View>
+            {membership && (
+              <View className="flex-row justify-between items-center">
+                <Text className="text-gray-500 font-medium">Membership</Text>
+                <View className="bg-purple-100 px-3 py-1 rounded-full">
+                  <Text className="text-purple-700 font-medium">
+                    Plan {membership.plan_type}
+                  </Text>
+                </View>
+              </View>
+            )}
           </View>
-        </View>
+        </Card>
 
-        {/* Company Info */}
-        <View className="flex-row justify-between items-center mb-8">
-          <Text className="text-gray-600">Company</Text>
-          <Text className="text-lg">{company?.name}</Text>
-        </View>
-
-        {/* Membership Info */}
-        {membership && (
-          <View className="flex-row justify-between items-center mb-8">
-            <Text className="text-gray-600">Membership</Text>
-            <Text className="text-lg">Plan {membership.plan_type}</Text>
-          </View>
-        )}
-
-        {/* Meals Section */}
-        <View className="mt-8">
-          <Text className="text-xl font-semibold mb-6">Meals Remaining</Text>
-          <View className="flex-row justify-center">
+        {/* Meals Progress Card */}
+        <Card>
+          <Text className="text-xl font-semibold text-gray-900 mb-6">
+            Meals Remaining
+          </Text>
+          <View className="items-center">
             <CircularProgress
               value={weeklyMeals}
               maxValue={userDetails?.meals_per_week || 0}
               text="This week"
+              size={160}
             />
+            <View className="mt-6 bg-purple-50 px-4 py-3 rounded-lg">
+              <Text className="text-purple-700 text-center">
+                {weeklyMeals} of {userDetails?.meals_per_week} meals available
+              </Text>
+            </View>
           </View>
-        </View>
+        </Card>
       </View>
-    </View>
+    </ScrollView>
   );
 }
