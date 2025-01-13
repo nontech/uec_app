@@ -4,6 +4,13 @@ import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../lib/AuthContext';
 import { Database } from '../../supabase/types';
 import { Svg, Circle } from 'react-native-svg';
+import Colors from '../../constants/Colors';
+
+const PLAN_COLORS = {
+  S: 'bg-[#7C3AED]',
+  M: 'bg-[#2563EB]',
+  L: 'bg-[#059669]',
+};
 
 type AppUser = Database['public']['Tables']['app_users']['Row'];
 type Company = Database['public']['Tables']['companies']['Row'];
@@ -151,26 +158,34 @@ export default function Dashboard() {
               alignItems: 'center',
             }}
           >
-            <Text style={{ fontSize: 24, fontWeight: 'bold' }}>
+            <Text
+              style={{
+                fontSize: 24,
+                fontWeight: 'bold',
+                color: Colors.text.primary,
+              }}
+            >
               {Math.floor(value)}
             </Text>
           </View>
         </View>
-        <Text style={{ marginTop: 8, color: '#666' }}>{text}</Text>
+        <Text style={{ marginTop: 8, color: Colors.text.secondary }}>
+          {text}
+        </Text>
       </View>
     );
   };
 
   const Card = ({ children }: { children: React.ReactNode }) => (
-    <View className="bg-white rounded-2xl p-6 shadow-sm mb-4 border border-gray-100">
+    <View className="bg-[#2C2C2E] rounded-2xl p-6 shadow-sm mb-4 border border-[#3C3C3E]">
       {children}
     </View>
   );
 
   if (loading) {
     return (
-      <View className="flex-1 items-center justify-center bg-gray-50">
-        <Text className="text-gray-600">Loading...</Text>
+      <View className="flex-1 items-center justify-center bg-[#1C1C1E]">
+        <Text className="text-[#999999]">Loading...</Text>
       </View>
     );
   }
@@ -187,7 +202,7 @@ export default function Dashboard() {
       : 0;
 
   return (
-    <ScrollView className="flex-1 bg-gray-50">
+    <ScrollView className="flex-1 bg-[#1C1C1E]">
       <View className="p-4">
         {/* Profile Card */}
         <Card>
@@ -198,10 +213,10 @@ export default function Dashboard() {
               </Text>
             </View>
             <View>
-              <Text className="text-xl font-semibold text-gray-900">
+              <Text className="text-white text-xl font-semibold">
                 {userDetails?.first_name} {userDetails?.last_name}
               </Text>
-              <Text className="text-gray-500">{userDetails?.email}</Text>
+              <Text className="text-[#999999]">{userDetails?.email}</Text>
             </View>
           </View>
         </Card>
@@ -209,17 +224,21 @@ export default function Dashboard() {
         {/* Company & Membership Info Card */}
         <Card>
           <View className="space-y-4">
-            <View className="flex-row justify-between items-center pb-4 border-b border-gray-100">
-              <Text className="text-gray-500 font-medium">Company</Text>
-              <Text className="text-gray-900 font-semibold">
-                {company?.name}
-              </Text>
+            <View className="flex-row justify-between items-center pb-4 border-b border-[#3C3C3E]">
+              <Text className="text-[#999999] font-medium">Company</Text>
+              <Text className="text-white font-semibold">{company?.name}</Text>
             </View>
             {membership && (
               <View className="flex-row justify-between items-center">
-                <Text className="text-gray-500 font-medium">Membership</Text>
-                <View className="bg-purple-100 px-3 py-1 rounded-full">
-                  <Text className="text-purple-700 font-medium">
+                <Text className="text-[#999999] font-medium">Membership</Text>
+                <View
+                  className={`${
+                    PLAN_COLORS[
+                      membership.plan_type as keyof typeof PLAN_COLORS
+                    ] || 'bg-[#3C3C3E]'
+                  } px-3 py-1 rounded-full`}
+                >
+                  <Text className="text-white font-medium">
                     Plan {membership.plan_type}
                   </Text>
                 </View>
@@ -230,7 +249,7 @@ export default function Dashboard() {
 
         {/* Meals Progress Card */}
         <Card>
-          <Text className="text-xl font-semibold text-gray-900 mb-6">
+          <Text className="text-white text-xl font-semibold mb-6">
             Meals Remaining
           </Text>
           <View className="items-center">
@@ -240,8 +259,8 @@ export default function Dashboard() {
               text="This week"
               size={160}
             />
-            <View className="mt-6 bg-purple-50 px-4 py-3 rounded-lg">
-              <Text className="text-purple-700 text-center">
+            <View className="mt-6 bg-[#3C3C3E] px-4 py-3 rounded-lg">
+              <Text className="text-white text-center">
                 {weeklyMeals} of {userDetails?.meals_per_week} meals available
               </Text>
             </View>

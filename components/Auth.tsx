@@ -7,6 +7,9 @@ import {
   TouchableOpacity,
   Modal,
   ScrollView,
+  KeyboardAvoidingView,
+  Platform,
+  SafeAreaView,
 } from 'react-native';
 import { supabase } from '../lib/supabase';
 import { Button, Input } from '@rneui/themed';
@@ -14,6 +17,7 @@ import { Database } from '../supabase/types';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useLocalSearchParams } from 'expo-router';
 import * as Linking from 'expo-linking';
+import Colors from '../constants/Colors';
 
 type Company = Database['public']['Tables']['companies']['Row'];
 
@@ -299,267 +303,340 @@ export default function Auth() {
   };
 
   return (
-    <View style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.title}>Welcome to Urban Eats Club</Text>
-        <Text style={styles.subtitle}>
-          {isInvitedUser
-            ? 'Set your password to complete account setup'
-            : isSignUp
-            ? 'Create an account'
-            : 'Sign in to your account'}
-        </Text>
-      </View>
-
-      {!isInvitedUser && (
-        <View style={[styles.verticallySpaced, styles.mt20]}>
-          <Input
-            label="Email"
-            labelStyle={styles.inputLabel}
-            inputStyle={styles.input}
-            leftIcon={{ type: 'font-awesome', name: 'envelope', color: '#666' }}
-            onChangeText={setEmail}
-            value={email}
-            placeholder="email@address.com"
-            placeholderTextColor="#666"
-            autoCapitalize="none"
-            containerStyle={styles.inputContainer}
-          />
-        </View>
-      )}
-
-      <View
-        style={[
-          styles.verticallySpaced,
-          isInvitedUser ? styles.mt20 : undefined,
-        ]}
+    <SafeAreaView style={styles.safeArea}>
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        style={styles.keyboardView}
       >
-        <Input
-          label="Password"
-          labelStyle={styles.inputLabel}
-          inputStyle={styles.input}
-          leftIcon={{ type: 'font-awesome', name: 'lock', color: '#666' }}
-          onChangeText={setPassword}
-          value={password}
-          secureTextEntry={true}
-          placeholder="Password"
-          placeholderTextColor="#666"
-          autoCapitalize="none"
-          containerStyle={styles.inputContainer}
-        />
-      </View>
-
-      {(isSignUp || isInvitedUser) && (
-        <View style={styles.verticallySpaced}>
-          <Input
-            label="Confirm Password"
-            labelStyle={styles.inputLabel}
-            inputStyle={styles.input}
-            leftIcon={{ type: 'font-awesome', name: 'lock', color: '#666' }}
-            onChangeText={setConfirmPassword}
-            value={confirmPassword}
-            secureTextEntry={true}
-            placeholder="Confirm Password"
-            placeholderTextColor="#666"
-            autoCapitalize="none"
-            containerStyle={styles.inputContainer}
-          />
-        </View>
-      )}
-
-      {isSignUp && !isInvitedUser && (
-        <>
-          <View style={[styles.verticallySpaced, styles.pickerContainer]}>
-            <Text style={styles.inputLabel}>User Type</Text>
-            <TouchableOpacity
-              style={styles.dropdownButton}
-              onPress={() => setShowTypeDropdown(true)}
-            >
-              <Text style={styles.dropdownButtonText}>
-                {userTypes.find((t) => t.value === userType)?.label ||
-                  'Select Type'}
-              </Text>
-              <MaterialIcons name="arrow-drop-down" size={24} color="#666" />
-            </TouchableOpacity>
-          </View>
-
-          <View style={[styles.verticallySpaced, styles.pickerContainer]}>
-            <Text style={styles.inputLabel}>Company</Text>
-            <TouchableOpacity
-              style={styles.dropdownButton}
-              onPress={() => setShowCompanyDropdown(true)}
-            >
-              <Text style={styles.dropdownButtonText}>
-                {selectedCompanyName || 'Select a company'}
-              </Text>
-              <MaterialIcons name="arrow-drop-down" size={24} color="#666" />
-            </TouchableOpacity>
-          </View>
-
-          {renderDropdown(
-            showTypeDropdown,
-            () => setShowTypeDropdown(false),
-            userTypes,
-            (value) => setUserType(value as 'employee' | 'company_admin')
-          )}
-
-          {renderDropdown(
-            showCompanyDropdown,
-            () => setShowCompanyDropdown(false),
-            companies.map((c) => ({ label: c.name, value: c.id })),
-            (value, label) => {
-              setSelectedCompany(value);
-              setSelectedCompanyName(label);
-            }
-          )}
-        </>
-      )}
-
-      <View style={[styles.verticallySpaced, styles.mt20]}>
-        <Button
-          title={
-            isInvitedUser ? 'Complete Setup' : isSignUp ? 'Sign up' : 'Sign in'
-          }
-          disabled={loading}
-          onPress={async () => {
-            try {
-              console.log('Button pressed', { isSignUp, isInvitedUser });
-              if (isSignUp || isInvitedUser) {
-                await signUpWithEmail();
-              } else {
-                await signInWithEmail();
-              }
-            } catch (error) {
-              console.error('Error in button press handler:', error);
-              Alert.alert(
-                'Error',
-                error instanceof Error
-                  ? error.message
-                  : 'An unexpected error occurred'
-              );
-            }
-          }}
-          buttonStyle={styles.primaryButton}
-          titleStyle={styles.buttonText}
-        />
-      </View>
-
-      {!isInvitedUser && (
-        <TouchableOpacity
-          style={styles.switchButton}
-          onPress={() => setIsSignUp(!isSignUp)}
+        <ScrollView
+          contentContainerStyle={styles.scrollContainer}
+          showsVerticalScrollIndicator={false}
         >
-          <Text style={styles.switchButtonText}>
-            {isSignUp
-              ? 'Already have an account? Sign in'
-              : "Don't have an account? Sign up"}
-          </Text>
-        </TouchableOpacity>
+          <View style={styles.container}>
+            <View style={styles.header}>
+              <Text style={styles.title}>Urban Eats Club</Text>
+              <Text style={styles.subtitle}>
+                {isInvitedUser
+                  ? 'Complete Your Account Setup'
+                  : isSignUp
+                  ? 'Join Our Community'
+                  : 'Welcome Back'}
+              </Text>
+            </View>
+
+            {!isInvitedUser && (
+              <View style={[styles.inputWrapper, styles.mt20]}>
+                <Input
+                  label="Email"
+                  labelStyle={styles.inputLabel}
+                  inputStyle={styles.input}
+                  leftIcon={{
+                    type: 'font-awesome',
+                    name: 'envelope',
+                    color: Colors.text.primary,
+                    size: 18,
+                  }}
+                  onChangeText={setEmail}
+                  value={email}
+                  placeholder="email@address.com"
+                  placeholderTextColor={Colors.text.placeholder}
+                  autoCapitalize="none"
+                  containerStyle={styles.inputContainer}
+                  inputContainerStyle={styles.inputInnerContainer}
+                />
+              </View>
+            )}
+
+            <View
+              style={[
+                styles.inputWrapper,
+                isInvitedUser ? styles.mt20 : undefined,
+              ]}
+            >
+              <Input
+                label="Password"
+                labelStyle={styles.inputLabel}
+                inputStyle={styles.input}
+                leftIcon={{
+                  type: 'font-awesome',
+                  name: 'lock',
+                  color: Colors.text.primary,
+                  size: 20,
+                }}
+                onChangeText={setPassword}
+                value={password}
+                secureTextEntry={true}
+                placeholder="Enter your password"
+                placeholderTextColor={Colors.text.placeholder}
+                autoCapitalize="none"
+                containerStyle={styles.inputContainer}
+                inputContainerStyle={styles.inputInnerContainer}
+              />
+            </View>
+
+            {(isSignUp || isInvitedUser) && (
+              <View style={styles.inputWrapper}>
+                <Input
+                  label="Confirm Password"
+                  labelStyle={styles.inputLabel}
+                  inputStyle={styles.input}
+                  leftIcon={{
+                    type: 'font-awesome',
+                    name: 'lock',
+                    color: Colors.text.primary,
+                    size: 20,
+                  }}
+                  onChangeText={setConfirmPassword}
+                  value={confirmPassword}
+                  secureTextEntry={true}
+                  placeholder="Confirm your password"
+                  placeholderTextColor={Colors.text.placeholder}
+                  autoCapitalize="none"
+                  containerStyle={styles.inputContainer}
+                  inputContainerStyle={styles.inputInnerContainer}
+                />
+              </View>
+            )}
+
+            {isSignUp && !isInvitedUser && (
+              <>
+                <View style={[styles.inputWrapper, styles.pickerContainer]}>
+                  <Text style={styles.inputLabel}>User Type</Text>
+                  <TouchableOpacity
+                    style={styles.dropdownButton}
+                    onPress={() => setShowTypeDropdown(true)}
+                  >
+                    <Text style={styles.dropdownButtonText}>
+                      {userTypes.find((t) => t.value === userType)?.label ||
+                        'Select Type'}
+                    </Text>
+                    <MaterialIcons
+                      name="arrow-drop-down"
+                      size={24}
+                      color={Colors.text.primary}
+                    />
+                  </TouchableOpacity>
+                </View>
+
+                <View style={[styles.inputWrapper, styles.pickerContainer]}>
+                  <Text style={styles.inputLabel}>Company</Text>
+                  <TouchableOpacity
+                    style={styles.dropdownButton}
+                    onPress={() => setShowCompanyDropdown(true)}
+                  >
+                    <Text style={styles.dropdownButtonText}>
+                      {selectedCompanyName || 'Select a company'}
+                    </Text>
+                    <MaterialIcons
+                      name="arrow-drop-down"
+                      size={24}
+                      color={Colors.text.primary}
+                    />
+                  </TouchableOpacity>
+                </View>
+              </>
+            )}
+
+            <View style={[styles.inputWrapper, styles.mt20]}>
+              <Button
+                title={
+                  isInvitedUser
+                    ? 'Complete Setup'
+                    : isSignUp
+                    ? 'Create Account'
+                    : 'Sign In'
+                }
+                disabled={loading}
+                onPress={async () => {
+                  try {
+                    if (isSignUp || isInvitedUser) {
+                      await signUpWithEmail();
+                    } else {
+                      await signInWithEmail();
+                    }
+                  } catch (error) {
+                    console.error('Error in button press handler:', error);
+                    Alert.alert(
+                      'Error',
+                      error instanceof Error
+                        ? error.message
+                        : 'An unexpected error occurred'
+                    );
+                  }
+                }}
+                loading={loading}
+                loadingProps={{ color: '#fff' }}
+                buttonStyle={styles.primaryButton}
+                titleStyle={styles.buttonText}
+                containerStyle={styles.buttonContainer}
+              />
+            </View>
+
+            {!isInvitedUser && (
+              <TouchableOpacity
+                style={styles.switchButton}
+                onPress={() => setIsSignUp(!isSignUp)}
+              >
+                <Text style={styles.switchButtonText}>
+                  {isSignUp
+                    ? 'Already have an account? Sign in'
+                    : "Don't have an account? Sign up"}
+                </Text>
+              </TouchableOpacity>
+            )}
+          </View>
+        </ScrollView>
+      </KeyboardAvoidingView>
+
+      {renderDropdown(
+        showTypeDropdown,
+        () => setShowTypeDropdown(false),
+        userTypes,
+        (value) => setUserType(value as 'employee' | 'company_admin')
       )}
-    </View>
+
+      {renderDropdown(
+        showCompanyDropdown,
+        () => setShowCompanyDropdown(false),
+        companies.map((c) => ({ label: c.name, value: c.id })),
+        (value, label) => {
+          setSelectedCompany(value);
+          setSelectedCompanyName(label);
+        }
+      )}
+    </SafeAreaView>
   );
 }
 const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: Colors.background.primary,
+  },
+  keyboardView: {
+    flex: 1,
+  },
+  scrollContainer: {
+    flexGrow: 1,
+  },
   container: {
     flex: 1,
-    padding: 20,
-    backgroundColor: '#fff',
+    backgroundColor: Colors.background.primary,
   },
   header: {
-    marginBottom: 40,
+    padding: 40,
+    paddingTop: 60,
     alignItems: 'center',
+    backgroundColor: Colors.background.secondary,
+    borderBottomLeftRadius: 30,
+    borderBottomRightRadius: 30,
+    marginBottom: 30,
   },
   title: {
-    fontSize: 24,
+    fontSize: 32,
     fontWeight: 'bold',
-    color: '#333',
-    marginBottom: 8,
+    color: Colors.text.primary,
+    marginBottom: 12,
   },
   subtitle: {
-    fontSize: 16,
-    color: '#666',
+    fontSize: 18,
+    color: Colors.text.secondary,
   },
-  verticallySpaced: {
-    paddingTop: 4,
-    paddingBottom: 4,
-    alignSelf: 'stretch',
-  },
-  mt20: {
-    marginTop: 20,
+  inputWrapper: {
+    paddingHorizontal: 20,
+    marginBottom: 8,
   },
   inputContainer: {
     paddingHorizontal: 0,
   },
+  inputInnerContainer: {
+    borderWidth: 1,
+    borderColor: Colors.border.primary,
+    borderRadius: 12,
+    paddingHorizontal: 12,
+    backgroundColor: Colors.background.secondary,
+    height: 50,
+  },
   inputLabel: {
-    color: '#333',
+    color: Colors.text.primary,
     fontSize: 16,
+    fontWeight: '600',
     marginBottom: 8,
   },
   input: {
-    color: '#333',
+    color: Colors.text.primary,
     fontSize: 16,
   },
   pickerContainer: {
     marginBottom: 16,
-  },
-  picker: {
-    borderWidth: 1,
-    borderColor: '#ddd',
-    borderRadius: 8,
-    backgroundColor: '#fff',
-    marginTop: 4,
-  },
-  primaryButton: {
-    backgroundColor: '#f4511e',
-    borderRadius: 8,
-    paddingVertical: 12,
-  },
-  buttonText: {
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  switchButton: {
-    marginTop: 16,
-    alignItems: 'center',
-  },
-  switchButtonText: {
-    color: '#f4511e',
-    fontSize: 16,
   },
   dropdownButton: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     borderWidth: 1,
-    borderColor: '#ddd',
-    borderRadius: 8,
-    padding: 12,
-    backgroundColor: '#fff',
+    borderColor: Colors.border.primary,
+    borderRadius: 12,
+    padding: 14,
+    backgroundColor: Colors.background.secondary,
+    height: 50,
   },
   dropdownButtonText: {
     fontSize: 16,
-    color: '#333',
+    color: Colors.text.primary,
   },
   modalOverlay: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    backgroundColor: Colors.overlay,
     justifyContent: 'center',
     alignItems: 'center',
   },
   dropdownModal: {
-    backgroundColor: '#fff',
-    borderRadius: 8,
+    backgroundColor: Colors.background.secondary,
+    borderRadius: 16,
     padding: 8,
-    width: '80%',
+    width: '85%',
     maxHeight: '50%',
+    elevation: 5,
+    shadowColor: Colors.shadow.color,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: Colors.shadow.opacity,
+    shadowRadius: 3.84,
   },
   dropdownItem: {
     padding: 16,
     borderBottomWidth: 1,
-    borderBottomColor: '#eee',
+    borderBottomColor: Colors.border.secondary,
   },
   dropdownItemText: {
     fontSize: 16,
-    color: '#333',
+    color: Colors.text.primary,
+  },
+  buttonContainer: {
+    width: '100%',
+    marginVertical: 10,
+  },
+  primaryButton: {
+    backgroundColor: Colors.background.tertiary,
+    borderRadius: 12,
+    paddingVertical: 14,
+    marginHorizontal: 20,
+  },
+  buttonText: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: Colors.text.primary,
+  },
+  switchButton: {
+    marginTop: 20,
+    marginBottom: 30,
+    alignItems: 'center',
+  },
+  switchButtonText: {
+    color: Colors.text.primary,
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  mt20: {
+    marginTop: 20,
   },
 });

@@ -11,6 +11,7 @@ import { useAuth } from '../../lib/AuthContext';
 import { Tables } from '../../supabase/types';
 import { Button, Input, Chip, Tab, TabView } from '@rneui/themed';
 import { Ionicons } from '@expo/vector-icons';
+import Colors from '../../constants/Colors';
 
 type MenuItem = Tables<'menu_items'>;
 type DayOfWeek = 'Monday' | 'Tuesday' | 'Wednesday' | 'Thursday' | 'Friday';
@@ -213,26 +214,26 @@ export default function ManageMenuScreen() {
   };
 
   return (
-    <View className="flex-1 bg-white">
+    <View className="flex-1 bg-[#1C1C1E]">
       <View className="flex-1 p-4">
         <TouchableOpacity
-          className="bg-white p-4 rounded-lg mb-4 shadow-sm"
+          className="bg-[#2C2C2E] p-4 rounded-lg mb-4 shadow-sm"
           onPress={() => setShowAddForm(!showAddForm)}
         >
           <View className="flex-row items-center justify-center">
             <Ionicons
               name={showAddForm ? 'remove-circle' : 'add-circle'}
               size={24}
-              color="#007AFF"
+              color="#6B4EFF"
             />
-            <Text className="ml-2 text-base font-medium text-[#007AFF]">
+            <Text className="ml-2 text-base font-medium text-[#6B4EFF]">
               {showAddForm ? 'Cancel Adding Item' : 'Add New Menu Item'}
             </Text>
           </View>
         </TouchableOpacity>
 
         <Animated.View
-          className="mb-5 bg-white p-4 rounded-lg shadow-sm"
+          className="mb-5 bg-[#2C2C2E] p-4 rounded-lg shadow-sm"
           style={[
             {
               transform: [
@@ -252,7 +253,16 @@ export default function ManageMenuScreen() {
             placeholder="Item Name"
             value={newItem.name}
             onChangeText={(text) => setNewItem({ ...newItem, name: text })}
-            leftIcon={<Ionicons name="fast-food" size={20} color="#86939e" />}
+            leftIcon={
+              <Ionicons
+                name="fast-food"
+                size={20}
+                color={Colors.text.secondary}
+              />
+            }
+            inputStyle={{ color: Colors.text.primary }}
+            placeholderTextColor={Colors.text.secondary}
+            labelStyle={{ color: Colors.text.primary }}
           />
           <Input
             placeholder="Description"
@@ -262,19 +272,35 @@ export default function ManageMenuScreen() {
             }
             multiline
             leftIcon={
-              <Ionicons name="document-text" size={20} color="#86939e" />
+              <Ionicons
+                name="document-text"
+                size={20}
+                color={Colors.text.secondary}
+              />
             }
+            inputStyle={{ color: Colors.text.primary }}
+            placeholderTextColor={Colors.text.secondary}
+            labelStyle={{ color: Colors.text.primary }}
           />
           <Input
             placeholder="Price"
             value={newItem.price}
             onChangeText={(text) => setNewItem({ ...newItem, price: text })}
             keyboardType="numeric"
-            leftIcon={<Ionicons name="pricetag" size={20} color="#86939e" />}
+            leftIcon={
+              <Ionicons
+                name="pricetag"
+                size={20}
+                color={Colors.text.secondary}
+              />
+            }
             label="Price (€)"
+            inputStyle={{ color: Colors.text.primary }}
+            placeholderTextColor={Colors.text.secondary}
+            labelStyle={{ color: Colors.text.primary }}
           />
 
-          <Text className="text-base font-medium text-[#86939e] mb-2 px-2.5">
+          <Text className="text-base font-medium text-[#999999] mb-2 px-2.5">
             Available Days
           </Text>
           <View className="flex-row flex-wrap gap-2 mb-5">
@@ -285,7 +311,7 @@ export default function ManageMenuScreen() {
                 type={newItem.days.includes(day) ? 'solid' : 'outline'}
                 onPress={() => toggleDay(day)}
                 containerStyle={{ marginRight: 4, marginBottom: 4 }}
-                color="#007AFF"
+                color="#6B4EFF"
               />
             ))}
           </View>
@@ -303,19 +329,19 @@ export default function ManageMenuScreen() {
               />
             }
             buttonStyle={{
-              backgroundColor: '#007AFF',
+              backgroundColor: '#6B4EFF',
               borderRadius: 8,
               paddingVertical: 12,
             }}
-            disabledStyle={{ backgroundColor: '#ccc' }}
+            disabledStyle={{ backgroundColor: '#3C3C3E' }}
           />
         </Animated.View>
 
-        <View className="flex-1 bg-white rounded-lg shadow-sm">
+        <View className="flex-1 bg-[#2C2C2E] rounded-lg shadow-sm">
           <Tab
             value={tabIndex}
             onChange={setTabIndex}
-            indicatorStyle={{ backgroundColor: '#007AFF' }}
+            indicatorStyle={{ backgroundColor: '#6B4EFF' }}
             containerStyle={{ height: 48 }}
           >
             {allDays.map((day) => (
@@ -323,7 +349,7 @@ export default function ManageMenuScreen() {
                 key={day}
                 title={dayShortForms[day]}
                 titleStyle={(active) => ({
-                  color: active ? '#007AFF' : '#666',
+                  color: active ? '#6B4EFF' : Colors.text.secondary,
                   fontSize: 14,
                   paddingHorizontal: 2,
                 })}
@@ -349,7 +375,7 @@ export default function ManageMenuScreen() {
                         {getMenuItemsForDay(day).map((item) => (
                           <View
                             key={item.id}
-                            className="flex-row justify-between items-center p-4 bg-gray-50 rounded-lg border border-gray-200"
+                            className="flex-row justify-between items-center p-4 bg-[#3C3C3E] rounded-lg border border-[#4C4C4E]"
                           >
                             {editingItem?.id === item.id ? (
                               <View className="w-full py-2">
@@ -366,9 +392,12 @@ export default function ManageMenuScreen() {
                                     <Ionicons
                                       name="fast-food"
                                       size={20}
-                                      color="#86939e"
+                                      color={Colors.text.secondary}
                                     />
                                   }
+                                  inputStyle={{ color: Colors.text.primary }}
+                                  placeholderTextColor={Colors.text.secondary}
+                                  labelStyle={{ color: Colors.text.primary }}
                                 />
                                 <Input
                                   placeholder="Description"
@@ -384,9 +413,12 @@ export default function ManageMenuScreen() {
                                     <Ionicons
                                       name="document-text"
                                       size={20}
-                                      color="#86939e"
+                                      color={Colors.text.secondary}
                                     />
                                   }
+                                  inputStyle={{ color: Colors.text.primary }}
+                                  placeholderTextColor={Colors.text.secondary}
+                                  labelStyle={{ color: Colors.text.primary }}
                                 />
                                 <Input
                                   placeholder="Price"
@@ -402,13 +434,16 @@ export default function ManageMenuScreen() {
                                     <Ionicons
                                       name="pricetag"
                                       size={20}
-                                      color="#86939e"
+                                      color={Colors.text.secondary}
                                     />
                                   }
                                   label="Price (€)"
+                                  inputStyle={{ color: Colors.text.primary }}
+                                  placeholderTextColor={Colors.text.secondary}
+                                  labelStyle={{ color: Colors.text.primary }}
                                 />
 
-                                <Text className="text-base font-medium text-[#86939e] mb-2 px-2.5">
+                                <Text className="text-base font-medium text-[#999999] mb-2 px-2.5">
                                   Available Days
                                 </Text>
                                 <View className="flex-row flex-wrap gap-2 mb-5">
@@ -445,7 +480,7 @@ export default function ManageMenuScreen() {
                                         marginRight: 4,
                                         marginBottom: 4,
                                       }}
-                                      color="#007AFF"
+                                      color="#6B4EFF"
                                     />
                                   ))}
                                 </View>
@@ -454,7 +489,7 @@ export default function ManageMenuScreen() {
                                     title="Cancel"
                                     onPress={() => setEditingItem(null)}
                                     buttonStyle={{
-                                      backgroundColor: '#666',
+                                      backgroundColor: '#3C3C3E',
                                       paddingHorizontal: 16,
                                     }}
                                   />
@@ -467,23 +502,25 @@ export default function ManageMenuScreen() {
                                       !editingItem?.days?.length
                                     }
                                     buttonStyle={{
-                                      backgroundColor: '#007AFF',
+                                      backgroundColor: '#6B4EFF',
                                       paddingHorizontal: 16,
                                     }}
-                                    disabledStyle={{ backgroundColor: '#ccc' }}
+                                    disabledStyle={{
+                                      backgroundColor: '#3C3C3E',
+                                    }}
                                   />
                                 </View>
                               </View>
                             ) : (
                               <>
                                 <View className="flex-1 mr-4">
-                                  <Text className="text-base font-bold text-[#1c1c1e] mb-1">
+                                  <Text className="text-base font-bold text-white mb-1">
                                     {item.name}
                                   </Text>
-                                  <Text className="text-sm text-gray-600 mb-1">
+                                  <Text className="text-sm text-[#999999] mb-1">
                                     {item.description}
                                   </Text>
-                                  <Text className="text-sm font-medium text-[#007AFF] mb-0.5">
+                                  <Text className="text-sm font-medium text-[#6B4EFF] mb-0.5">
                                     €{item.price}
                                   </Text>
                                   {day === 'All' && (
@@ -497,7 +534,7 @@ export default function ManageMenuScreen() {
                                             marginRight: 4,
                                             marginBottom: 4,
                                           }}
-                                          color="#007AFF"
+                                          color="#6B4EFF"
                                         />
                                       ))}
                                     </View>
@@ -511,7 +548,7 @@ export default function ManageMenuScreen() {
                                           <Ionicons
                                             name="create-outline"
                                             size={20}
-                                            color="#007AFF"
+                                            color="#6B4EFF"
                                           />
                                         }
                                         onPress={() => setEditingItem(item)}
@@ -527,7 +564,7 @@ export default function ManageMenuScreen() {
                                           <Ionicons
                                             name="trash-outline"
                                             size={20}
-                                            color="#ff4444"
+                                            color="#EF4444"
                                           />
                                         }
                                         onPress={() =>
@@ -547,7 +584,7 @@ export default function ManageMenuScreen() {
                                         <Ionicons
                                           name="close"
                                           size={20}
-                                          color="#666"
+                                          color={Colors.text.secondary}
                                         />
                                       }
                                       onPress={() =>
@@ -568,7 +605,7 @@ export default function ManageMenuScreen() {
                           </View>
                         ))}
                         {getMenuItemsForDay(day).length === 0 && (
-                          <Text className="text-center text-gray-600 text-base mt-5">
+                          <Text className="text-center text-[#999999] text-base mt-5">
                             No menu items{' '}
                             {day === 'All' ? 'available' : `for ${day}`}
                           </Text>

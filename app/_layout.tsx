@@ -8,6 +8,7 @@ import { useEffect, useState } from 'react';
 import { router } from 'expo-router';
 import { supabase } from '../lib/supabase';
 import { PaperProvider } from 'react-native-paper';
+import Colors from '../constants/Colors';
 import '../global.css';
 
 const AuthCheck = () => {
@@ -60,11 +61,7 @@ const AuthCheck = () => {
   }, [loading, userLoading, userType, session?.user]);
 
   if (loading || userLoading) {
-    return (
-      <View
-        style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}
-      />
-    );
+    return <View className="flex-1 items-center justify-center bg-[#1C1C1E]" />;
   }
 
   if (!session) {
@@ -90,38 +87,46 @@ const CustomDrawerContent = ({
   };
 
   return (
-    <DrawerContentScrollView {...props}>
+    <DrawerContentScrollView {...props} className="bg-[#1C1C1E]">
       {userType === 'super_admin' && (
         <>
           <DrawerItem
             label="Restaurants"
-            icon={({ size, color }) => (
-              <MaterialIcons name="restaurant" size={size} color={color} />
+            labelStyle={{ color: 'white' }}
+            icon={({ size }) => (
+              <MaterialIcons name="restaurant" size={size} color="white" />
             )}
             onPress={() => router.push('/(super-admin)/restaurants' as any)}
+            style={{ backgroundColor: '#1C1C1E' }}
           />
           <DrawerItem
             label="Companies"
-            icon={({ size, color }) => (
-              <MaterialIcons name="business" size={size} color={color} />
+            labelStyle={{ color: 'white' }}
+            icon={({ size }) => (
+              <MaterialIcons name="business" size={size} color="white" />
             )}
             onPress={() => router.push('/(super-admin)/companies' as any)}
+            style={{ backgroundColor: '#1C1C1E' }}
           />
           <DrawerItem
             label="Memberships"
-            icon={({ size, color }) => (
-              <MaterialIcons name="card-membership" size={size} color={color} />
+            labelStyle={{ color: 'white' }}
+            icon={({ size }) => (
+              <MaterialIcons name="card-membership" size={size} color="white" />
             )}
             onPress={() => router.push('/(super-admin)/memberships' as any)}
+            style={{ backgroundColor: '#1C1C1E' }}
           />
         </>
       )}
       <DrawerItem
         label="Sign Out"
-        icon={({ size, color }) => (
-          <MaterialIcons name="logout" size={size} color={color} />
+        labelStyle={{ color: 'white' }}
+        icon={({ size }) => (
+          <MaterialIcons name="logout" size={size} color="white" />
         )}
         onPress={handleSignOut}
+        style={{ backgroundColor: '#1C1C1E' }}
       />
     </DrawerContentScrollView>
   );
@@ -139,7 +144,17 @@ const DrawerLayout = ({
       screenOptions={{
         headerShown: true,
         drawerType: 'front',
-        drawerActiveTintColor: '#f4511e',
+        drawerActiveTintColor: '#6B4EFF',
+        headerStyle: {
+          backgroundColor: '#1C1C1E',
+        },
+        headerTintColor: 'white',
+        headerTitleStyle: {
+          color: 'white',
+        },
+        drawerStyle: {
+          backgroundColor: '#1C1C1E',
+        },
       }}
       drawerContent={(props) => (
         <CustomDrawerContent

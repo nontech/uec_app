@@ -6,6 +6,7 @@ import { Image } from 'expo-image';
 import { Ionicons } from '@expo/vector-icons';
 import { Database } from '../../../supabase/types';
 import { useAuth } from '../../../lib/AuthContext';
+import Colors from '../../../constants/Colors';
 
 type Restaurant = Database['public']['Tables']['restaurants']['Row'] & {
   hours_range_lunch?: {
@@ -204,23 +205,31 @@ export default function RestaurantsHome() {
       />
       <View className="px-1">
         <View className="flex-row items-center justify-between mb-1">
-          <Text className="text-xl font-bold">{item.name}</Text>
-          <View className="bg-gray-100 px-3 py-1 rounded-full">
-            <Text className="text-gray-600 text-sm" numberOfLines={1}>
+          <Text className="text-xl font-bold text-white">{item.name}</Text>
+          <View className="bg-[#3C3C3E] px-3 py-1 rounded-full">
+            <Text className="text-white text-sm" numberOfLines={1}>
               {item.cuisine_type}
             </Text>
           </View>
         </View>
         <View className="flex-row items-center gap-6">
           <View className="flex-row items-center">
-            <Ionicons name="time-outline" size={16} color="#666" />
-            <Text className="text-gray-600 ml-1">
+            <Ionicons
+              name="time-outline"
+              size={16}
+              color={Colors.text.secondary}
+            />
+            <Text className="text-[#999999] ml-1">
               {formatLunchHours(item.hours_range_lunch)}
             </Text>
           </View>
           <View className="flex-row items-center">
-            <Ionicons name="walk-outline" size={16} color="#666" />
-            <Text className="text-gray-600 ml-1">
+            <Ionicons
+              name="walk-outline"
+              size={16}
+              color={Colors.text.secondary}
+            />
+            <Text className="text-[#999999] ml-1">
               {item.allowed_restaurants?.[0]?.distance_km != null
                 ? `${item.allowed_restaurants[0].distance_km.toFixed(1)} km`
                 : '-'}
@@ -233,15 +242,17 @@ export default function RestaurantsHome() {
 
   if (loading) {
     return (
-      <View className="flex-1 items-center justify-center bg-white">
-        <Text className="text-gray-600">Loading restaurants...</Text>
+      <View className="flex-1 items-center justify-center bg-[#1C1C1E]">
+        <Text className="text-[#999999]">Loading restaurants...</Text>
       </View>
     );
   }
 
   return (
-    <View className="flex-1 bg-white">
-      <Text className="text-2xl font-bold px-4 py-6">Nearby Restaurants</Text>
+    <View className="flex-1 bg-[#1C1C1E]">
+      <Text className="text-2xl font-bold px-4 py-6 text-white">
+        Nearby Restaurants
+      </Text>
       <FlatList
         data={restaurants}
         renderItem={renderRestaurant}

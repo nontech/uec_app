@@ -8,12 +8,12 @@ import {
   Alert,
 } from 'react-native';
 import { useAuth } from '../../lib/AuthContext';
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { supabase } from '../../lib/supabase';
 import { Database } from '../../supabase/types';
 import { MaterialIcons } from '@expo/vector-icons';
 import { router } from 'expo-router';
-import { Input, Button } from '@rneui/themed';
+import Colors from '../../constants/Colors';
 
 type AppUser = Database['public']['Tables']['app_users']['Row'] & {
   memberships?: Database['public']['Tables']['memberships']['Row'];
@@ -298,34 +298,29 @@ export default function ManageEmployees() {
     return (
       <Modal visible={visible} transparent animationType="fade">
         <TouchableOpacity
-          style={{
-            flex: 1,
-            backgroundColor: 'rgba(0, 0, 0, 0.5)',
-            justifyContent: 'center',
-            alignItems: 'center',
-          }}
+          className="flex-1 bg-black/70 justify-center items-center"
           activeOpacity={1}
           onPress={onClose}
         >
-          <View className="bg-white rounded-lg w-[80%] max-h-[50%]">
+          <View className="bg-[#2C2C2E] rounded-2xl p-2 w-[85%] max-h-[50%] shadow-lg shadow-black/25">
             <ScrollView>
               {items.length === 0 ? (
-                <View className="p-4">
-                  <Text className="text-gray-600">No items available</Text>
+                <View className="p-4 border-b border-[#3C3C3E]">
+                  <Text className="text-base text-white">
+                    No items available
+                  </Text>
                 </View>
               ) : (
                 items.map((item, index) => (
                   <TouchableOpacity
                     key={index}
-                    className="p-4 border-b border-gray-100"
+                    className="p-4 border-b border-[#3C3C3E]"
                     onPress={() => {
                       onSelect(item.value);
                       onClose();
                     }}
                   >
-                    <Text className="text-base text-gray-700">
-                      {item.label}
-                    </Text>
+                    <Text className="text-base text-white">{item.label}</Text>
                   </TouchableOpacity>
                 ))
               )}
@@ -338,353 +333,233 @@ export default function ManageEmployees() {
 
   if (loading) {
     return (
-      <View className="flex-1 items-center justify-center">
-        <Text>Loading...</Text>
+      <View className="flex-1 items-center justify-center bg-[#1C1C1E]">
+        <Text className="text-white text-base">Loading...</Text>
       </View>
     );
   }
 
   return (
-    <View className="flex-1 bg-white">
-      <View className="p-6 flex-1">
-        <Text className="text-2xl font-semibold mb-6 text-gray-900">
-          Employees
-        </Text>
-
-        {/* Search Bar */}
-        <View className="flex-row items-center bg-[#F3F0FF] rounded-full px-4 py-3 mb-8">
-          <MaterialIcons name="search" size={24} color="#666" />
+    <View className="flex-1 bg-[#1C1C1E]">
+      {/* Search and Add Section */}
+      <View className="flex-row items-center p-4 bg-[#2C2C2E]">
+        <View className="flex-1 flex-row items-center bg-[#3C3C3E] rounded-xl px-3 mr-3">
+          <MaterialIcons
+            name="search"
+            size={24}
+            color="rgba(255, 255, 255, 0.9)"
+          />
           <TextInput
-            placeholder="Search Employee"
-            className="flex-1 ml-2 text-base text-gray-900"
-            placeholderTextColor="#666"
+            className="flex-1 text-white text-base py-3 pl-2"
+            placeholder="Search employees..."
+            placeholderTextColor="#999999"
             value={searchQuery}
             onChangeText={setSearchQuery}
           />
         </View>
-
-        {/* Header */}
-        <View className="flex-row justify-between items-center mb-4 px-2">
-          <Text className="text-sm font-medium text-gray-600">
-            Employees ({employees.length})
-          </Text>
-        </View>
-
-        {/* Employee List */}
-        <ScrollView
-          className="flex-1"
-          contentContainerStyle={{ paddingBottom: 100 }}
-          showsVerticalScrollIndicator={false}
+        <TouchableOpacity
+          className="bg-[#3C3C3E] rounded-xl p-3"
+          onPress={() => {
+            setShowInviteModal(true);
+          }}
         >
-          {filteredEmployees.map((employee) => (
-            <View
-              key={employee.id}
-              className="flex-row items-center justify-between py-3 px-2 border-b border-gray-100"
-            >
-              <View className="flex-row items-center flex-1 mr-2">
-                <View className="w-10 h-10 rounded-full bg-gray-100 items-center justify-center mr-3">
-                  <MaterialIcons name="person" size={24} color="#666" />
-                </View>
-                <View className="flex-1">
-                  <View className="flex-row items-center justify-between">
-                    <Text className="text-base font-medium text-gray-900">
-                      {employee.first_name} {employee.last_name}
-                    </Text>
-                    <View className="flex-row items-center">
-                      <Text
-                        className={`text-xs px-2 py-1 rounded-full ${
-                          employee.status === 'active'
-                            ? 'bg-green-100 text-green-800'
-                            : employee.status === 'inactive'
-                            ? 'bg-red-100 text-red-800'
-                            : employee.status === 'invited'
-                            ? 'bg-yellow-100 text-yellow-800'
-                            : 'bg-gray-100 text-gray-800'
-                        }`}
-                      >
-                        {employee.status}
-                      </Text>
-                      <TouchableOpacity
-                        className="p-2 ml-2"
-                        onPress={() => {
-                          setSelectedEmployee(employee);
-                          setShowDeleteModal(true);
-                        }}
-                      >
-                        <MaterialIcons
-                          name="delete-outline"
-                          size={20}
-                          color="#EF4444"
-                        />
-                      </TouchableOpacity>
-                    </View>
-                  </View>
-                  <Text className="text-sm text-gray-500 mb-1">
-                    {employee.email}
-                  </Text>
-                  <View className="flex-row items-center mt-1">
-                    <View className="flex-row items-center mr-4">
-                      <MaterialIcons
-                        name="card-membership"
-                        size={16}
-                        color="#666"
-                      />
-                      <Text className="text-sm text-gray-600 ml-1">
-                        {employee.membership_id
-                          ? employee.memberships?.plan_type
-                          : 'No Plan'}
-                      </Text>
-                    </View>
-                    <View className="flex-row items-center">
-                      <MaterialIcons
-                        name="restaurant-menu"
-                        size={16}
-                        color="#666"
-                      />
-                      <Text className="text-sm text-gray-600 ml-1">
-                        {employee.meals_per_week
-                          ? `${employee.meals_per_week} meals/week`
-                          : 'No meals'}
-                      </Text>
-                    </View>
-                  </View>
-                </View>
-              </View>
-            </View>
-          ))}
-        </ScrollView>
+          <MaterialIcons name="add" size={24} color="#FFFFFF" />
+        </TouchableOpacity>
       </View>
 
-      {/* Add Button */}
-      <TouchableOpacity
-        className="absolute bottom-8 right-8 bg-[#6B4EFF] h-12 px-4 rounded-full flex-row items-center justify-center shadow-sm"
-        onPress={() => setShowInviteModal(true)}
-        style={{
-          shadowColor: '#6B4EFF',
-          shadowOffset: { width: 0, height: 4 },
-          shadowOpacity: 0.2,
-          shadowRadius: 8,
-          elevation: 5,
-        }}
-      >
-        <MaterialIcons name="add" size={24} color="white" />
-        <Text className="text-white ml-1 font-medium">Add</Text>
-      </TouchableOpacity>
-
-      {/* Invite Modal */}
-      <Modal
-        visible={showInviteModal}
-        transparent
-        animationType="slide"
-        onRequestClose={() => setShowInviteModal(false)}
-      >
-        <View className="flex-1 bg-black/60 justify-end">
-          <View className="bg-white rounded-t-3xl p-6">
-            <View className="flex-row justify-between items-center mb-6">
-              <Text className="text-xl font-semibold text-gray-900">
-                Invite Employee
-              </Text>
-              <TouchableOpacity
-                onPress={() => {
-                  setShowInviteModal(false);
-                  setInviteEmail('');
-                  setFirstName('');
-                  setLastName('');
-                  setSelectedMembership(null);
-                  setMealsPerWeek(3);
-                }}
-                className="p-2"
-              >
-                <MaterialIcons name="close" size={24} color="#4B5563" />
-              </TouchableOpacity>
-            </View>
-
-            <Text className="text-base text-gray-600 mb-4">
-              Enter the details of the employee you want to invite.
-            </Text>
-
-            <Input
-              placeholder="First Name"
-              value={firstName}
-              onChangeText={setFirstName}
-              leftIcon={{
-                type: 'font-awesome',
-                name: 'user',
-                color: '#6B7280',
-                size: 18,
-              }}
-              inputStyle={{ color: '#1F2937', fontSize: 16 }}
-              inputContainerStyle={{
-                borderWidth: 1,
-                borderColor: '#E5E7EB',
-                borderRadius: 8,
-                paddingHorizontal: 12,
-                paddingVertical: 4,
-                marginBottom: 8,
-              }}
-              containerStyle={{ paddingHorizontal: 0 }}
-            />
-
-            <Input
-              placeholder="Last Name"
-              value={lastName}
-              onChangeText={setLastName}
-              leftIcon={{
-                type: 'font-awesome',
-                name: 'user',
-                color: '#6B7280',
-                size: 18,
-              }}
-              inputStyle={{ color: '#1F2937', fontSize: 16 }}
-              inputContainerStyle={{
-                borderWidth: 1,
-                borderColor: '#E5E7EB',
-                borderRadius: 8,
-                paddingHorizontal: 12,
-                paddingVertical: 4,
-                marginBottom: 8,
-              }}
-              containerStyle={{ paddingHorizontal: 0 }}
-            />
-
-            <Input
-              placeholder="employee@company.com"
-              value={inviteEmail}
-              onChangeText={setInviteEmail}
-              autoCapitalize="none"
-              keyboardType="email-address"
-              leftIcon={{
-                type: 'font-awesome',
-                name: 'envelope',
-                color: '#6B7280',
-                size: 18,
-              }}
-              inputStyle={{ color: '#1F2937', fontSize: 16 }}
-              inputContainerStyle={{
-                borderWidth: 1,
-                borderColor: '#E5E7EB',
-                borderRadius: 8,
-                paddingHorizontal: 12,
-                paddingVertical: 4,
-              }}
-              containerStyle={{ paddingHorizontal: 0 }}
-            />
-
-            <View className="mb-4">
-              <Text className="text-sm font-medium text-gray-600 mb-2">
-                Membership Plan
-              </Text>
-              <TouchableOpacity
-                className="flex-row items-center justify-between border border-gray-300 rounded-lg p-3"
-                onPress={() => setShowMembershipDropdown(true)}
-              >
-                <Text className="text-base text-gray-700">
-                  {selectedMembership
-                    ? activeMemberships.find((m) => m.id === selectedMembership)
-                        ?.plan_type
-                    : 'Select a plan'}
-                </Text>
-                <MaterialIcons name="arrow-drop-down" size={24} color="#666" />
-              </TouchableOpacity>
-            </View>
-
-            <View className="mb-6">
-              <Text className="text-sm font-medium text-gray-600 mb-2">
-                Meals per Week
-              </Text>
-              <View className="flex-row items-center justify-between border border-gray-300 rounded-lg p-3">
+      {/* Employees List */}
+      <ScrollView className="flex-1 p-4">
+        {filteredEmployees.map((employee) => (
+          <View
+            key={employee.id}
+            className="flex-row items-start bg-[#2C2C2E] rounded-xl p-4 mb-3"
+          >
+            <View className="flex-1">
+              <View className="flex-row items-start justify-between mb-1">
+                <View className="flex-1 mr-3">
+                  <Text className="text-lg font-semibold text-white mb-1.5">
+                    {employee.first_name} {employee.last_name}
+                  </Text>
+                  <View
+                    className={`self-start px-2.5 py-1 rounded-xl ${
+                      employee.status === 'active'
+                        ? 'bg-[#4CAF50]/20'
+                        : employee.status === 'inactive'
+                        ? 'bg-[#FF453A]/20'
+                        : employee.status === 'invited'
+                        ? 'bg-[#FF9F0A]/20'
+                        : 'bg-[#3C3C3E]'
+                    }`}
+                  >
+                    <Text className="text-xs font-medium text-white">
+                      {(employee.status || 'unknown')?.charAt(0).toUpperCase() +
+                        (employee.status || 'unknown')?.slice(1)}
+                    </Text>
+                  </View>
+                </View>
                 <TouchableOpacity
-                  onPress={() => setMealsPerWeek(Math.max(1, mealsPerWeek - 1))}
-                  className="p-2"
+                  className="p-1 rounded-xl bg-[#3C3C3E]"
+                  onPress={() => {
+                    setSelectedEmployee(employee);
+                    setShowDeleteModal(true);
+                  }}
                 >
-                  <MaterialIcons name="remove" size={24} color="#666" />
-                </TouchableOpacity>
-                <Text className="text-base text-gray-700">{mealsPerWeek}</Text>
-                <TouchableOpacity
-                  onPress={() => setMealsPerWeek(Math.min(5, mealsPerWeek + 1))}
-                  className="p-2"
-                >
-                  <MaterialIcons name="add" size={24} color="#666" />
+                  <MaterialIcons
+                    name="close"
+                    size={20}
+                    color="rgba(255, 255, 255, 0.9)"
+                  />
                 </TouchableOpacity>
               </View>
+              <Text className="text-sm text-white/90 mb-2">
+                {employee.email}
+              </Text>
+              <View className="flex-row items-center gap-4">
+                <View className="flex-row items-center">
+                  <MaterialIcons
+                    name="card-membership"
+                    size={16}
+                    color="rgba(255, 255, 255, 0.9)"
+                  />
+                  <Text className="text-sm text-white/90 ml-1.5">
+                    {employee.membership_id
+                      ? employee.memberships?.plan_type
+                      : 'No Plan'}
+                  </Text>
+                </View>
+                <View className="flex-row items-center">
+                  <MaterialIcons
+                    name="restaurant-menu"
+                    size={16}
+                    color="rgba(255, 255, 255, 0.9)"
+                  />
+                  <Text className="text-sm text-white/90 ml-1.5">
+                    {employee.meals_per_week
+                      ? `${employee.meals_per_week} meals/week`
+                      : 'No meals'}
+                  </Text>
+                </View>
+              </View>
+            </View>
+          </View>
+        ))}
+      </ScrollView>
+
+      {/* Invite Modal */}
+      <Modal visible={showInviteModal} transparent animationType="slide">
+        <View className="flex-1 bg-black/70 justify-center items-center">
+          <View className="bg-[#2C2C2E] rounded-2xl p-6 w-[90%] max-w-[400px]">
+            <Text className="text-2xl font-semibold text-white mb-6">
+              Invite Employee
+            </Text>
+
+            <View className="mb-4">
+              <Text className="text-base font-semibold text-white mb-2">
+                First Name
+              </Text>
+              <TextInput
+                className="h-[50px] bg-[#3C3C3E] rounded-xl px-3 text-white text-base border border-[#2C2C2E]"
+                placeholder="Enter first name"
+                placeholderTextColor="#999999"
+                value={firstName}
+                onChangeText={setFirstName}
+              />
             </View>
 
-            <Button
-              title="Send Invitation"
-              loading={inviting}
-              disabled={inviting || !inviteEmail || !selectedMembership}
-              onPress={handleInviteEmployee}
-              buttonStyle={{
-                backgroundColor: '#6B4EFF',
-                borderRadius: 10,
-                paddingVertical: 14,
-                marginTop: 8,
-              }}
-              titleStyle={{ fontSize: 16, fontWeight: '600' }}
-            />
+            <View className="mb-4">
+              <Text className="text-base font-semibold text-white mb-2">
+                Last Name
+              </Text>
+              <TextInput
+                className="h-[50px] bg-[#3C3C3E] rounded-xl px-3 text-white text-base border border-[#2C2C2E]"
+                placeholder="Enter last name"
+                placeholderTextColor="#999999"
+                value={lastName}
+                onChangeText={setLastName}
+              />
+            </View>
+
+            <View className="mb-4">
+              <Text className="text-base font-semibold text-white mb-2">
+                Email
+              </Text>
+              <TextInput
+                className="h-[50px] bg-[#3C3C3E] rounded-xl px-3 text-white text-base border border-[#2C2C2E]"
+                placeholder="Enter email address"
+                placeholderTextColor="#999999"
+                value={inviteEmail}
+                onChangeText={setInviteEmail}
+                keyboardType="email-address"
+                autoCapitalize="none"
+              />
+            </View>
+
+            <View className="flex-row justify-end mt-6">
+              <TouchableOpacity
+                className="min-w-[100px] rounded-xl py-3 ml-3 bg-[#3C3C3E]"
+                onPress={() => setShowInviteModal(false)}
+              >
+                <Text className="text-base font-semibold text-white text-center">
+                  Cancel
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                className="min-w-[100px] rounded-xl py-3 ml-3 bg-[#4CAF50]"
+                onPress={handleInviteEmployee}
+                disabled={inviting}
+              >
+                <Text className="text-base font-semibold text-white text-center">
+                  {inviting ? 'Sending...' : 'Send Invite'}
+                </Text>
+              </TouchableOpacity>
+            </View>
           </View>
         </View>
       </Modal>
 
-      {renderDropdown(
-        showMembershipDropdown,
-        () => setShowMembershipDropdown(false),
-        activeMemberships
-          .filter((m) => m.plan_type !== null)
-          .map((m) => ({
-            label: m.plan_type as string,
-            value: m.id,
-          })),
-        (value) => setSelectedMembership(value)
-      )}
-
       {/* Delete Confirmation Modal */}
-      <Modal
-        visible={showDeleteModal}
-        transparent
-        animationType="fade"
-        onRequestClose={() => {
-          setShowDeleteModal(false);
-          setSelectedEmployee(null);
-        }}
-      >
-        <View className="flex-1 bg-black/60 justify-center items-center px-6">
-          <View className="bg-white rounded-2xl w-full p-6">
-            <Text className="text-xl font-semibold text-gray-900 mb-4">
+      <Modal visible={showDeleteModal} transparent animationType="fade">
+        <View className="flex-1 bg-black/70 justify-center items-center">
+          <View className="bg-[#2C2C2E] rounded-2xl p-6 w-[90%] max-w-[400px]">
+            <Text className="text-2xl font-semibold text-white mb-6">
               Remove Employee
             </Text>
-
-            <Text className="text-base text-gray-600 mb-6">
-              Are you sure you want to remove {selectedEmployee?.first_name}{' '}
-              {selectedEmployee?.last_name} from the membership plan?
+            <Text className="text-base text-white/90 mb-6">
+              Are you sure you want to remove this employee from membership?
             </Text>
-
-            <View className="flex-row justify-end space-x-4">
+            <View className="flex-row justify-end mt-6">
               <TouchableOpacity
-                className="px-4 py-2 rounded-lg"
-                onPress={() => {
-                  setShowDeleteModal(false);
-                  setSelectedEmployee(null);
-                }}
+                className="min-w-[100px] rounded-xl py-3 ml-3 bg-[#3C3C3E]"
+                onPress={() => setShowDeleteModal(false)}
               >
-                <Text className="text-gray-600 font-medium">Cancel</Text>
+                <Text className="text-base font-semibold text-white text-center">
+                  Cancel
+                </Text>
               </TouchableOpacity>
-
               <TouchableOpacity
-                className="bg-red-500 px-4 py-2 rounded-lg flex-row items-center"
+                className="min-w-[100px] rounded-xl py-3 ml-3 bg-[#FF453A]"
                 onPress={handleDeleteEmployee}
                 disabled={deleting}
               >
-                {deleting ? (
-                  <Text className="text-white font-medium">Removing...</Text>
-                ) : (
-                  <Text className="text-white font-medium">Remove</Text>
-                )}
+                <Text className="text-base font-semibold text-white text-center">
+                  {deleting ? 'Deleting...' : 'Delete'}
+                </Text>
               </TouchableOpacity>
             </View>
           </View>
         </View>
       </Modal>
+
+      {/* Dropdown Modal */}
+      {renderDropdown(
+        showMembershipDropdown,
+        () => setShowMembershipDropdown(false),
+        activeMemberships.map((m) => ({
+          label: `Tier ${m.plan_type}`,
+          value: m.id,
+        })),
+        (value) => setSelectedMembership(value)
+      )}
     </View>
   );
 }

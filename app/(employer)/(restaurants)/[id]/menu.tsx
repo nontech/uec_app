@@ -12,6 +12,7 @@ import { supabase } from '../../../../lib/supabase';
 import { Database } from '../../../../supabase/types';
 import { Ionicons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
+import Colors from '../../../../constants/Colors';
 
 type MenuItem = Database['public']['Tables']['menu_items']['Row'];
 
@@ -77,36 +78,38 @@ export default function Menu() {
 
   if (loading) {
     return (
-      <View className="flex-1 items-center justify-center bg-white">
-        <Text className="text-gray-600">Loading menu...</Text>
+      <View className="flex-1 items-center justify-center bg-[#1C1C1E]">
+        <Text className="text-[#999999] text-base">Loading menu...</Text>
       </View>
     );
   }
 
   return (
-    <ScrollView className="flex-1 bg-white">
+    <ScrollView className="flex-1 bg-[#1C1C1E]">
       <View className="px-4 pt-6 pb-4">
-        <Text className="text-2xl text-center text-gray-700 font-medium">
+        <Text className="text-2xl text-center text-white font-semibold">
           LUNCH SPECIAL
         </Text>
       </View>
 
       <View className="px-4 pb-4">
-        <Text className="text-xl text-center text-gray-800">
+        <Text className="text-xl text-center text-white mb-4">
           {getDayInGerman()}
         </Text>
-        <View className="h-[1px] bg-gray-300 my-4" />
+        <View className="h-[1px] bg-[#2C2C2E]" />
       </View>
 
       <View className="px-4">
         {menuItems.map((item) => (
           <View
             key={item.id}
-            className="flex-row justify-between items-start mb-6 bg-[#FDF7FF] rounded-lg p-4"
+            className="mb-4 bg-[#2C2C2E] rounded-xl p-4 shadow-sm"
           >
             <View className="flex-1 pr-4">
-              <Text className="text-lg font-medium mb-1">{item.name}</Text>
-              <Text className="text-gray-600 text-sm">{item.description}</Text>
+              <Text className="text-lg font-medium text-white mb-1">
+                {item.name}
+              </Text>
+              <Text className="text-sm text-[#999999]">{item.description}</Text>
             </View>
           </View>
         ))}

@@ -1,20 +1,46 @@
 import { Tabs } from 'expo-router';
 import { MaterialIcons } from '@expo/vector-icons';
 import { DrawerToggleButton } from '@react-navigation/drawer';
+import Colors from '../../constants/Colors';
+
+function TabBarIcon(props: {
+  name: React.ComponentProps<typeof MaterialIcons>['name'];
+  color: string;
+  focused?: boolean;
+}) {
+  return (
+    <MaterialIcons
+      size={props.focused ? 32 : 28}
+      style={{ marginBottom: -3 }}
+      {...props}
+    />
+  );
+}
 
 export default function TabLayout() {
   return (
     <Tabs
       screenOptions={{
         headerShown: false,
+        tabBarStyle: {
+          backgroundColor: Colors.background.primary,
+          borderTopColor: Colors.border.primary,
+          paddingBottom: 5,
+        },
+        tabBarLabelStyle: {
+          fontSize: 12,
+          fontWeight: '500',
+        },
+        tabBarActiveTintColor: Colors.text.primary,
+        tabBarInactiveTintColor: Colors.text.secondary,
       }}
     >
       <Tabs.Screen
         name="index"
         options={{
           title: 'Dashboard',
-          tabBarIcon: ({ color, size }) => (
-            <MaterialIcons name="dashboard" size={size} color={color} />
+          tabBarIcon: ({ color, focused }) => (
+            <TabBarIcon name="dashboard" color={color} focused={focused} />
           ),
         }}
       />
@@ -22,8 +48,8 @@ export default function TabLayout() {
         name="(restaurants)"
         options={{
           title: 'Restaurants',
-          tabBarIcon: ({ color, size }) => (
-            <MaterialIcons name="restaurant" size={size} color={color} />
+          tabBarIcon: ({ color, focused }) => (
+            <TabBarIcon name="restaurant" color={color} focused={focused} />
           ),
         }}
       />

@@ -1,5 +1,5 @@
 import { Stack } from 'expo-router';
-import { DrawerToggleButton } from '@react-navigation/drawer';
+import Colors from '../../../constants/Colors';
 
 export default function RestaurantsLayout() {
   return (
@@ -7,6 +7,16 @@ export default function RestaurantsLayout() {
       screenOptions={{
         headerShown: true,
         headerTitleAlign: 'center',
+        headerStyle: {
+          backgroundColor: Colors.background.secondary,
+        },
+        headerTintColor: Colors.text.primary,
+        headerTitleStyle: {
+          fontWeight: '600',
+        },
+        contentStyle: {
+          backgroundColor: Colors.background.primary,
+        },
       }}
     >
       <Stack.Screen

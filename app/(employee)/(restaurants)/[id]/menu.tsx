@@ -8,11 +8,12 @@ import {
   Alert,
 } from 'react-native';
 import { useLocalSearchParams } from 'expo-router';
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { supabase } from '../../../../lib/supabase';
 import { Database } from '../../../../supabase/types';
 import { Ionicons, MaterialIcons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
+import Colors from '../../../../constants/Colors';
 
 type MenuItem = Database['public']['Tables']['menu_items']['Row'];
 type HoursRange = {
@@ -203,16 +204,16 @@ export default function Menu() {
       visible={showCheckout}
       onRequestClose={() => setShowCheckout(false)}
     >
-      <View className="flex-1 bg-white">
+      <View className="flex-1 bg-[#1C1C1E]">
         {/* Header with close button */}
-        <View className="flex-row justify-between items-center p-4 border-b border-gray-200">
+        <View className="flex-row justify-between items-center p-4 border-b border-[#3C3C3E]">
           <TouchableOpacity
             onPress={() => setShowCheckout(false)}
             className="p-2"
           >
-            <Ionicons name="close" size={24} color="black" />
+            <Ionicons name="close" size={24} color={Colors.text.primary} />
           </TouchableOpacity>
-          <Text className="text-xl font-semibold">Checkout</Text>
+          <Text className="text-xl font-semibold text-white">Checkout</Text>
           <View style={{ width: 40 }}>
             <Text> </Text>
           </View>
@@ -220,12 +221,12 @@ export default function Menu() {
 
         {/* Content */}
         <View className="p-6 flex-1">
-          <Text className="text-xl mb-2">Confirm Payment for</Text>
-          <View className="bg-[#FDF7FF] p-4 rounded-lg mb-8">
-            <Text className="text-lg font-medium">
+          <Text className="text-xl mb-2 text-white">Confirm Payment for</Text>
+          <View className="bg-[#2C2C2E] p-4 rounded-lg mb-8">
+            <Text className="text-lg font-medium text-white">
               {selectedItem?.name || ''}
             </Text>
-            <Text className="text-gray-600">
+            <Text className="text-[#999999]">
               {selectedItem?.description || ''}
             </Text>
           </View>
@@ -233,7 +234,7 @@ export default function Menu() {
           {/* Virtual Card Payment Section */}
           <View className="flex-1 max-h-[500px] justify-center items-center">
             <View className="w-full max-w-[300px] aspect-square relative">
-              <View className="absolute inset-0 bg-[#4CAF50] rounded-full justify-center items-center">
+              <View className="absolute inset-0 bg-[#6B4EFF] rounded-full justify-center items-center">
                 <Text className="text-white text-xl mb-8">
                   <Text>TAP NOW TO PAY</Text>
                 </Text>
@@ -259,8 +260,8 @@ export default function Menu() {
 
   if (loading) {
     return (
-      <View className="flex-1 items-center justify-center bg-white">
-        <Text className="text-gray-600">Loading menu...</Text>
+      <View className="flex-1 items-center justify-center bg-[#1C1C1E]">
+        <Text className="text-[#999999]">Loading menu...</Text>
       </View>
     );
   }
@@ -270,9 +271,9 @@ export default function Menu() {
     : false;
 
   return (
-    <ScrollView className="flex-1 bg-white">
+    <ScrollView className="flex-1 bg-[#1C1C1E]">
       <View className="px-4 pt-6 pb-2">
-        <Text className="text-2xl text-center text-gray-800 font-semibold">
+        <Text className="text-2xl text-center text-white font-semibold">
           {restaurant?.name}
         </Text>
       </View>
@@ -304,10 +305,10 @@ export default function Menu() {
           <Text className="text-xl text-center text-[#6B4EFF] font-medium mt-4">
             LUNCH SPECIAL
           </Text>
-          <Text className="text-lg text-center text-gray-700 mt-1">
+          <Text className="text-lg text-center text-white mt-1">
             {getDayInGerman()}
           </Text>
-          <View className="h-[1px] bg-gray-200 my-4" />
+          <View className="h-[1px] bg-[#3C3C3E] my-4" />
         </View>
       )}
 
@@ -315,10 +316,10 @@ export default function Menu() {
         <View
           className={`rounded-lg p-4 flex-row items-center justify-center ${
             isOpen
-              ? 'bg-green-50 border border-green-200'
+              ? 'bg-[#2C2C2E] border border-green-800'
               : isWeekend()
-              ? 'bg-orange-50 border border-orange-200'
-              : 'bg-blue-50 border border-blue-200'
+              ? 'bg-[#2C2C2E] border border-orange-800'
+              : 'bg-[#2C2C2E] border border-[#6B4EFF]'
           }`}
         >
           <MaterialIcons
@@ -326,16 +327,16 @@ export default function Menu() {
               isOpen ? 'check-circle' : isWeekend() ? 'event-busy' : 'schedule'
             }
             size={20}
-            color={isOpen ? '#22C55E' : isWeekend() ? '#F97316' : '#3B82F6'}
+            color={isOpen ? '#22C55E' : isWeekend() ? '#F97316' : '#6B4EFF'}
             style={{ marginRight: 8 }}
           />
           <Text
             className={`text-base font-medium ${
               isOpen
-                ? 'text-green-700'
+                ? 'text-green-500'
                 : isWeekend()
-                ? 'text-orange-700'
-                : 'text-blue-700'
+                ? 'text-orange-500'
+                : 'text-[#6B4EFF]'
             }`}
           >
             {isOpen
@@ -356,7 +357,7 @@ export default function Menu() {
           <TouchableOpacity
             key={item.id}
             className={`mb-6 rounded-lg p-4 ${
-              isOpen ? 'bg-[#FDF7FF]' : 'bg-gray-100'
+              isOpen ? 'bg-[#2C2C2E]' : 'bg-[#3C3C3E]'
             }`}
             onPress={() => handleItemPress(item)}
             disabled={!isOpen}
@@ -365,14 +366,14 @@ export default function Menu() {
               <View className="flex-1 pr-4">
                 <Text
                   className={`text-lg font-medium mb-1 ${
-                    !isOpen ? 'text-gray-500' : 'text-gray-900'
+                    !isOpen ? 'text-[#999999]' : 'text-white'
                   }`}
                 >
                   {item.name}
                 </Text>
                 <Text
                   className={`text-sm ${
-                    !isOpen ? 'text-gray-400' : 'text-gray-600'
+                    !isOpen ? 'text-[#666666]' : 'text-[#999999]'
                   }`}
                 >
                   {item.description}
@@ -381,7 +382,7 @@ export default function Menu() {
               <Ionicons
                 name="chevron-forward"
                 size={20}
-                color={isOpen ? '#666' : '#999'}
+                color={isOpen ? Colors.text.secondary : '#666666'}
               />
             </View>
           </TouchableOpacity>

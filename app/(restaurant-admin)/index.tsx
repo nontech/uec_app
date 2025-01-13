@@ -3,6 +3,7 @@ import { View, Text } from 'react-native';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../lib/AuthContext';
 import { Tables } from '../../supabase/types';
+import Colors from '../../constants/Colors';
 
 type Restaurant = Tables<'restaurants'> & {
   opening_hours_range: Tables<'hours_range'> | null;
@@ -91,36 +92,36 @@ export default function DashboardScreen() {
   };
 
   return (
-    <View className="flex-1 p-4 bg-white">
+    <View className="flex-1 p-4 bg-[#1C1C1E]">
       <View className="mb-6">
-        <Text className="text-2xl font-bold mb-1">
+        <Text className="text-2xl font-bold mb-1 text-white">
           {restaurant?.name || 'Loading...'}
         </Text>
-        <Text className="text-lg text-gray-600">
+        <Text className="text-lg text-[#999999]">
           {restaurant?.cuisine_type}
         </Text>
       </View>
 
-      <View className="bg-gray-50 rounded-xl p-4 mb-4">
-        <Text className="text-xl font-semibold mb-2">About</Text>
-        <Text className="text-base text-gray-700 leading-6">
+      <View className="bg-[#2C2C2E] rounded-xl p-4 mb-4">
+        <Text className="text-xl font-semibold mb-2 text-white">About</Text>
+        <Text className="text-base text-[#999999] leading-6">
           {restaurant?.description || 'No description available'}
         </Text>
       </View>
 
-      <View className="bg-gray-50 rounded-xl p-4 mb-4">
-        <Text className="text-xl font-semibold mb-2">Hours</Text>
-        <Text className="text-base text-gray-700 mb-1">
+      <View className="bg-[#2C2C2E] rounded-xl p-4 mb-4">
+        <Text className="text-xl font-semibold mb-2 text-white">Hours</Text>
+        <Text className="text-base text-[#999999] mb-1">
           Opening Hours: {formatHours(restaurant?.opening_hours_range || null)}
         </Text>
-        <Text className="text-base text-gray-700 mb-1">
+        <Text className="text-base text-[#999999] mb-1">
           Lunch Hours: {formatHours(restaurant?.lunch_hours_range || null)}
         </Text>
       </View>
 
-      <View className="bg-gray-50 rounded-xl p-4 mb-4">
-        <Text className="text-xl font-semibold mb-2">Location</Text>
-        <Text className="text-base text-gray-700">
+      <View className="bg-[#2C2C2E] rounded-xl p-4 mb-4">
+        <Text className="text-xl font-semibold mb-2 text-white">Location</Text>
+        <Text className="text-base text-[#999999]">
           {formatAddress(restaurant?.address_details || null)}
         </Text>
       </View>

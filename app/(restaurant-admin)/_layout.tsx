@@ -1,37 +1,57 @@
 import { Tabs } from 'expo-router/tabs';
-import { useColorScheme } from 'react-native';
 import Colors from '../../constants/Colors';
 import { FontAwesome } from '@expo/vector-icons';
 
 function TabBarIcon(props: {
   name: React.ComponentProps<typeof FontAwesome>['name'];
   color: string;
+  focused?: boolean;
 }) {
-  return <FontAwesome size={28} style={{ marginBottom: -3 }} {...props} />;
+  return (
+    <FontAwesome
+      size={props.focused ? 32 : 28}
+      style={{ marginBottom: -3 }}
+      {...props}
+    />
+  );
 }
 
 export default function TabLayout() {
-  const colorScheme = useColorScheme();
-
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
+        tabBarStyle: {
+          backgroundColor: Colors.background.primary,
+          borderTopColor: Colors.border.primary,
+          paddingBottom: 5,
+        },
+        tabBarLabelStyle: {
+          fontSize: 12,
+          fontWeight: '500',
+        },
+        tabBarActiveTintColor: Colors.text.primary,
+        tabBarInactiveTintColor: Colors.text.secondary,
+        headerStyle: {
+          backgroundColor: Colors.background.primary,
+        },
+        headerTintColor: Colors.text.primary,
       }}
     >
       <Tabs.Screen
         name="index"
         options={{
           title: 'Dashboard',
-          tabBarIcon: ({ color }) => <TabBarIcon name="home" color={color} />,
+          tabBarIcon: ({ color, focused }) => (
+            <TabBarIcon name="home" color={color} focused={focused} />
+          ),
         }}
       />
       <Tabs.Screen
         name="menu"
         options={{
           title: 'Manage Menu',
-          tabBarIcon: ({ color }) => (
-            <TabBarIcon name="cutlery" color={color} />
+          tabBarIcon: ({ color, focused }) => (
+            <TabBarIcon name="cutlery" color={color} focused={focused} />
           ),
         }}
       />
@@ -39,7 +59,9 @@ export default function TabLayout() {
         name="activities"
         options={{
           title: 'Activities',
-          tabBarIcon: ({ color }) => <TabBarIcon name="list" color={color} />,
+          tabBarIcon: ({ color, focused }) => (
+            <TabBarIcon name="list" color={color} focused={focused} />
+          ),
         }}
       />
     </Tabs>

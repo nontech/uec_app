@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { supabase } from '../../lib/supabase';
 import { Database } from '../../supabase/types';
 import { Ionicons } from '@expo/vector-icons';
+import Colors from '../../constants/Colors';
 
 type Address = Database['public']['Tables']['addresses']['Row'];
 type Company = Database['public']['Tables']['companies']['Row'] & {
@@ -12,9 +13,9 @@ type Company = Database['public']['Tables']['companies']['Row'] & {
 type Membership = Database['public']['Tables']['memberships']['Row'];
 
 const TIER_COLORS = {
-  S: 'bg-purple-700',
-  M: 'bg-blue-700',
-  L: 'bg-green-700',
+  S: 'bg-[#7C3AED]',
+  M: 'bg-[#2563EB]',
+  L: 'bg-[#059669]',
 };
 
 const TIER_DESCRIPTIONS = {
@@ -78,8 +79,8 @@ export default function EmployerDashboard() {
 
   if (loading) {
     return (
-      <View className="flex-1 items-center justify-center">
-        <Text>Loading...</Text>
+      <View className="flex-1 items-center justify-center bg-[#1C1C1E]">
+        <Text className="text-white text-base">Loading...</Text>
       </View>
     );
   }
@@ -96,38 +97,43 @@ export default function EmployerDashboard() {
   };
 
   return (
-    <ScrollView className="flex-1 bg-gray-50">
+    <ScrollView className="flex-1 bg-[#1C1C1E]">
       <View className="p-6">
         {/* Company Section */}
-        <View className="bg-white rounded-2xl p-6 shadow-sm mb-6">
-          <Text className="text-3xl font-bold text-gray-900 mb-2">
+        <View className="bg-[#2C2C2E] rounded-2xl p-6 mb-6 shadow-lg shadow-black/25">
+          <Text className="text-2xl font-bold text-white mb-2">
             {company?.name}
           </Text>
-          <Text className="text-gray-600 text-base">{formatAddress()}</Text>
+          <Text className="text-base text-white/90">{formatAddress()}</Text>
         </View>
 
         {/* Memberships Section */}
-        <View className="bg-white rounded-2xl p-6 shadow-sm">
-          <Text className="text-2xl font-semibold mb-6 text-gray-900">
+        <View className="bg-[#2C2C2E] rounded-2xl p-6 mb-6 shadow-lg shadow-black/25">
+          <Text className="text-2xl font-semibold text-white mb-6">
             Active Memberships
           </Text>
-          <ScrollView className="max-h-96" showsVerticalScrollIndicator={false}>
+          <ScrollView
+            className="max-h-[400px]"
+            showsVerticalScrollIndicator={false}
+          >
             <View>
               {memberships.map((membership, index) => (
                 <View
                   key={membership.id}
-                  className={`rounded-2xl p-6 shadow-sm ${
+                  className={`rounded-2xl p-6 shadow-lg shadow-black/25 ${
+                    index > 0 ? 'mt-6' : ''
+                  } ${
                     TIER_COLORS[
                       membership.plan_type as keyof typeof TIER_COLORS
                     ]
-                  } ${index > 0 ? 'mt-6' : ''}`}
+                  }`}
                 >
                   <View className="flex-row justify-between items-center">
                     <View className="flex-1 mr-4">
-                      <Text className="text-white text-xl font-bold mb-2">
+                      <Text className="text-xl font-bold text-white mb-2">
                         Tier {membership.plan_type}
                       </Text>
-                      <Text className="text-white text-base">
+                      <Text className="text-base text-white/90">
                         {
                           TIER_DESCRIPTIONS[
                             membership.plan_type as keyof typeof TIER_DESCRIPTIONS
@@ -135,8 +141,8 @@ export default function EmployerDashboard() {
                         }
                       </Text>
                     </View>
-                    <View className="bg-white/30 rounded-full p-3">
-                      <Ionicons name="star" size={28} color="white" />
+                    <View className="bg-white/20 rounded-full p-3">
+                      <Ionicons name="star" size={28} color="#FFFFFF" />
                     </View>
                   </View>
                 </View>
