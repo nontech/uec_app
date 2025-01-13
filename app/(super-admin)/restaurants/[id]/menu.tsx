@@ -176,7 +176,7 @@ export default function MenuManagement() {
     });
   };
 
-  const DAYS_OF_WEEK = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
+  const DAYS_OF_WEEK = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday'];
 
   if (loading) {
     return (
