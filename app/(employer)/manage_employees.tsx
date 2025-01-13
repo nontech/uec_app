@@ -6,9 +6,10 @@ import {
   TextInput,
   Modal,
   Alert,
+  Platform,
 } from 'react-native';
 import { useAuth } from '../../lib/AuthContext';
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { supabase } from '../../lib/supabase';
 import { Database } from '../../supabase/types';
 import { MaterialIcons } from '@expo/vector-icons';
@@ -289,53 +290,6 @@ export default function ManageEmployees() {
     }
   };
 
-  const renderDropdown = (
-    visible: boolean,
-    onClose: () => void,
-    items: { label: string; value: string }[],
-    onSelect: (value: string) => void
-  ) => {
-    return (
-      <Modal visible={visible} transparent animationType="fade">
-        <TouchableOpacity
-          style={{
-            flex: 1,
-            backgroundColor: 'rgba(0, 0, 0, 0.5)',
-            justifyContent: 'center',
-            alignItems: 'center',
-          }}
-          activeOpacity={1}
-          onPress={onClose}
-        >
-          <View className="bg-white rounded-lg w-[80%] max-h-[50%]">
-            <ScrollView>
-              {items.length === 0 ? (
-                <View className="p-4">
-                  <Text className="text-gray-600">No items available</Text>
-                </View>
-              ) : (
-                items.map((item, index) => (
-                  <TouchableOpacity
-                    key={index}
-                    className="p-4 border-b border-gray-100"
-                    onPress={() => {
-                      onSelect(item.value);
-                      onClose();
-                    }}
-                  >
-                    <Text className="text-base text-gray-700">
-                      {item.label}
-                    </Text>
-                  </TouchableOpacity>
-                ))
-              )}
-            </ScrollView>
-          </View>
-        </TouchableOpacity>
-      </Modal>
-    );
-  };
-
   if (loading) {
     return (
       <View className="flex-1 items-center justify-center">
@@ -570,6 +524,7 @@ export default function ManageEmployees() {
               containerStyle={{ paddingHorizontal: 0 }}
             />
 
+            {/* Membership Plan Selection */}
             <View className="mb-4">
               <Text className="text-sm font-medium text-gray-600 mb-2">
                 Membership Plan
@@ -587,6 +542,88 @@ export default function ManageEmployees() {
                 <MaterialIcons name="arrow-drop-down" size={24} color="#666" />
               </TouchableOpacity>
             </View>
+
+            {/* Membership Dropdown Modal */}
+            <Modal
+              visible={showMembershipDropdown}
+              transparent
+              animationType={Platform.OS === 'ios' ? 'slide' : 'fade'}
+              onRequestClose={() => setShowMembershipDropdown(false)}
+            >
+              <TouchableOpacity
+                style={{
+                  flex: 1,
+                  backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                  justifyContent: Platform.OS === 'ios' ? 'flex-end' : 'center',
+                }}
+                activeOpacity={1}
+                onPress={() => setShowMembershipDropdown(false)}
+              >
+                <View
+                  style={{
+                    backgroundColor: 'white',
+                    borderRadius: Platform.OS === 'ios' ? 20 : 10,
+                    marginHorizontal: Platform.OS === 'ios' ? 0 : 20,
+                    borderTopLeftRadius: Platform.OS === 'ios' ? 20 : 10,
+                    borderTopRightRadius: Platform.OS === 'ios' ? 20 : 10,
+                  }}
+                >
+                  <View
+                    style={{
+                      borderBottomWidth: 1,
+                      borderBottomColor: '#E5E7EB',
+                      padding: 16,
+                      flexDirection: 'row',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                    }}
+                  >
+                    <Text
+                      style={{
+                        fontSize: 18,
+                        fontWeight: '600',
+                        color: '#111827',
+                      }}
+                    >
+                      Select Plan
+                    </Text>
+                    <TouchableOpacity
+                      onPress={() => setShowMembershipDropdown(false)}
+                    >
+                      <MaterialIcons name="close" size={24} color="#4B5563" />
+                    </TouchableOpacity>
+                  </View>
+                  <ScrollView style={{ maxHeight: 300 }}>
+                    {activeMemberships.length === 0 ? (
+                      <View style={{ padding: 16 }}>
+                        <Text style={{ color: '#6B7280' }}>
+                          No plans available
+                        </Text>
+                      </View>
+                    ) : (
+                      activeMemberships.map((membership) => (
+                        <TouchableOpacity
+                          key={membership.id}
+                          style={{
+                            padding: 16,
+                            borderBottomWidth: 1,
+                            borderBottomColor: '#E5E7EB',
+                          }}
+                          onPress={() => {
+                            setSelectedMembership(membership.id);
+                            setShowMembershipDropdown(false);
+                          }}
+                        >
+                          <Text style={{ fontSize: 16, color: '#374151' }}>
+                            {membership.plan_type || 'Unknown Plan'}
+                          </Text>
+                        </TouchableOpacity>
+                      ))
+                    )}
+                  </ScrollView>
+                </View>
+              </TouchableOpacity>
+            </Modal>
 
             <View className="mb-6">
               <Text className="text-sm font-medium text-gray-600 mb-2">
@@ -625,18 +662,6 @@ export default function ManageEmployees() {
           </View>
         </View>
       </Modal>
-
-      {renderDropdown(
-        showMembershipDropdown,
-        () => setShowMembershipDropdown(false),
-        activeMemberships
-          .filter((m) => m.plan_type !== null)
-          .map((m) => ({
-            label: m.plan_type as string,
-            value: m.id,
-          })),
-        (value) => setSelectedMembership(value)
-      )}
 
       {/* Delete Confirmation Modal */}
       <Modal
