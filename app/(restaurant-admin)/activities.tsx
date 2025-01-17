@@ -69,26 +69,29 @@ export default function ActivitiesScreen() {
   };
 
   return (
-    <ScrollView className="flex-1 p-4 bg-[#1C1C1E]">
-      <Text className="text-2xl font-bold mb-5 text-white">
+    <ScrollView className="flex-1 p-4 bg-white">
+      <Text className="text-2xl font-bold mb-5 text-gray-900">
         Transaction History
       </Text>
       <View className="space-y-3">
         {transactions.map((transaction) => (
-          <View key={transaction.id} className="bg-[#2C2C2E] rounded-lg p-4">
+          <View
+            key={transaction.id}
+            className="bg-white rounded-lg p-4 shadow-sm border border-gray-200"
+          >
             <View className="flex-row justify-between mb-2">
-              <Text className="text-sm text-[#999999]">
+              <Text className="text-sm text-gray-500">
                 {formatDate(transaction.transaction_date)}
               </Text>
-              <Text className="text-sm font-medium text-white">
+              <Text className="text-sm font-medium text-gray-900">
                 Status: {transaction.payment_status}
               </Text>
             </View>
             <View className="space-y-1">
-              <Text className="text-base font-medium text-white">
+              <Text className="text-base font-medium text-gray-900">
                 Item: {transaction.menu_items?.name}
               </Text>
-              <Text className="text-sm text-[#999999]">
+              <Text className="text-sm text-gray-500">
                 Employee: {transaction.app_users?.first_name}{' '}
                 {transaction.app_users?.last_name}
                 {transaction.app_users?.companies?.name &&
@@ -97,7 +100,7 @@ export default function ActivitiesScreen() {
               <Text className="text-base font-bold text-[#6B4EFF]">
                 Amount: €{transaction.amount?.toFixed(2)}
               </Text>
-              <Text className="text-sm text-[#999999]">
+              <Text className="text-sm text-gray-500">
                 Payment Method: {transaction.payment_method}
               </Text>
             </View>

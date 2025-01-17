@@ -260,8 +260,8 @@ export default function Menu() {
 
   if (loading) {
     return (
-      <View className="flex-1 items-center justify-center bg-[#1C1C1E]">
-        <Text className="text-[#999999]">Loading menu...</Text>
+      <View className="flex-1 items-center justify-center bg-white">
+        <Text className="text-gray-500">Loading menu...</Text>
       </View>
     );
   }
@@ -271,9 +271,9 @@ export default function Menu() {
     : false;
 
   return (
-    <ScrollView className="flex-1 bg-[#1C1C1E]">
+    <ScrollView className="flex-1 bg-white">
       <View className="px-4 pt-6 pb-2">
-        <Text className="text-2xl text-center text-white font-semibold">
+        <Text className="text-2xl text-center text-gray-900 font-semibold">
           {restaurant?.name}
         </Text>
       </View>
@@ -305,10 +305,10 @@ export default function Menu() {
           <Text className="text-xl text-center text-[#6B4EFF] font-medium mt-4">
             LUNCH SPECIAL
           </Text>
-          <Text className="text-lg text-center text-white mt-1">
+          <Text className="text-lg text-center text-gray-900 mt-1">
             {getDayInGerman()}
           </Text>
-          <View className="h-[1px] bg-[#3C3C3E] my-4" />
+          <View className="h-[1px] bg-gray-200 my-4" />
         </View>
       )}
 
@@ -316,10 +316,10 @@ export default function Menu() {
         <View
           className={`rounded-lg p-4 flex-row items-center justify-center ${
             isOpen
-              ? 'bg-[#2C2C2E] border border-green-800'
+              ? 'bg-white border border-green-500'
               : isWeekend()
-              ? 'bg-[#2C2C2E] border border-orange-800'
-              : 'bg-[#2C2C2E] border border-[#6B4EFF]'
+              ? 'bg-white border border-orange-500'
+              : 'bg-white border border-[#6B4EFF]'
           }`}
         >
           <MaterialIcons
@@ -333,7 +333,7 @@ export default function Menu() {
           <Text
             className={`text-base font-medium ${
               isOpen
-                ? 'text-green-500'
+                ? 'text-green-600'
                 : isWeekend()
                 ? 'text-orange-500'
                 : 'text-[#6B4EFF]'
@@ -357,7 +357,7 @@ export default function Menu() {
           <TouchableOpacity
             key={item.id}
             className={`mb-6 rounded-lg p-4 ${
-              isOpen ? 'bg-[#2C2C2E]' : 'bg-[#3C3C3E]'
+              isOpen ? 'bg-white border border-gray-200' : 'bg-gray-50'
             }`}
             onPress={() => handleItemPress(item)}
             disabled={!isOpen}
@@ -366,14 +366,14 @@ export default function Menu() {
               <View className="flex-1 pr-4">
                 <Text
                   className={`text-lg font-medium mb-1 ${
-                    !isOpen ? 'text-[#999999]' : 'text-white'
+                    !isOpen ? 'text-gray-400' : 'text-gray-900'
                   }`}
                 >
                   {item.name}
                 </Text>
                 <Text
                   className={`text-sm ${
-                    !isOpen ? 'text-[#666666]' : 'text-[#999999]'
+                    !isOpen ? 'text-gray-400' : 'text-gray-600'
                   }`}
                 >
                   {item.description}
@@ -382,14 +382,77 @@ export default function Menu() {
               <Ionicons
                 name="chevron-forward"
                 size={20}
-                color={isOpen ? Colors.text.secondary : '#666666'}
+                color={isOpen ? Colors.text.secondary : '#9CA3AF'}
               />
             </View>
           </TouchableOpacity>
         ))}
       </View>
 
-      <CheckoutModal />
+      {showCheckout && (
+        <Modal
+          animationType="slide"
+          transparent={true}
+          visible={showCheckout}
+          onRequestClose={() => setShowCheckout(false)}
+        >
+          <View className="flex-1 bg-white">
+            {/* Header with close button */}
+            <View className="flex-row justify-between items-center p-4 border-b border-gray-200">
+              <TouchableOpacity
+                onPress={() => setShowCheckout(false)}
+                className="p-2"
+              >
+                <Ionicons name="close" size={24} color={Colors.text.primary} />
+              </TouchableOpacity>
+              <Text className="text-xl font-semibold text-gray-900">
+                Checkout
+              </Text>
+              <View style={{ width: 40 }}>
+                <Text> </Text>
+              </View>
+            </View>
+
+            {/* Content */}
+            <View className="p-6 flex-1">
+              <Text className="text-xl mb-2 text-gray-900">
+                Confirm Payment for
+              </Text>
+              <View className="bg-gray-50 p-4 rounded-lg mb-8">
+                <Text className="text-lg font-medium text-gray-900">
+                  {selectedItem?.name || ''}
+                </Text>
+                <Text className="text-gray-600">
+                  {selectedItem?.description || ''}
+                </Text>
+              </View>
+
+              {/* Virtual Card Payment Section */}
+              <View className="flex-1 max-h-[500px] justify-center items-center">
+                <View className="w-full max-w-[300px] aspect-square relative">
+                  <View className="absolute inset-0 bg-[#6B4EFF] rounded-full justify-center items-center">
+                    <Text className="text-white text-xl mb-8">
+                      <Text>TAP NOW TO PAY</Text>
+                    </Text>
+                    <View className="border-2 border-white rounded-full p-6">
+                      <Ionicons name="wifi" size={48} color="white" />
+                    </View>
+                  </View>
+                </View>
+
+                {/* Payment Methods */}
+                <View className="mt-8">
+                  <Image
+                    source="https://res.cloudinary.com/dc0tfxkph/image/upload/v1703963191/uec_app/payment-methods.png"
+                    style={{ width: 200, height: 30 }}
+                    contentFit="contain"
+                  />
+                </View>
+              </View>
+            </View>
+          </View>
+        </Modal>
+      )}
     </ScrollView>
   );
 }

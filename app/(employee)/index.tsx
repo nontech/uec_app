@@ -129,7 +129,7 @@ export default function Dashboard() {
               cx={size / 2}
               cy={size / 2}
               r={radius}
-              stroke="#F3F0FF"
+              stroke="#EDE9FE"
               strokeWidth={strokeWidth}
               fill="transparent"
             />
@@ -162,30 +162,28 @@ export default function Dashboard() {
               style={{
                 fontSize: 24,
                 fontWeight: 'bold',
-                color: Colors.text.primary,
+                color: '#1F2937',
               }}
             >
               {Math.floor(value)}
             </Text>
           </View>
         </View>
-        <Text style={{ marginTop: 8, color: Colors.text.secondary }}>
-          {text}
-        </Text>
+        <Text style={{ marginTop: 8, color: '#6B7280' }}>{text}</Text>
       </View>
     );
   };
 
   const Card = ({ children }: { children: React.ReactNode }) => (
-    <View className="bg-[#2C2C2E] rounded-2xl p-6 shadow-sm mb-4 border border-[#3C3C3E]">
+    <View className="bg-white rounded-2xl p-6 shadow-sm mb-4 border border-[#E0E0E0]">
       {children}
     </View>
   );
 
   if (loading) {
     return (
-      <View className="flex-1 items-center justify-center bg-[#1C1C1E]">
-        <Text className="text-[#999999]">Loading...</Text>
+      <View className="flex-1 items-center justify-center bg-white">
+        <Text className="text-gray-500">Loading...</Text>
       </View>
     );
   }
@@ -202,7 +200,7 @@ export default function Dashboard() {
       : 0;
 
   return (
-    <ScrollView className="flex-1 bg-[#1C1C1E]">
+    <ScrollView className="flex-1 bg-white">
       <View className="p-4">
         {/* Profile Card */}
         <Card>
@@ -213,10 +211,10 @@ export default function Dashboard() {
               </Text>
             </View>
             <View>
-              <Text className="text-white text-xl font-semibold">
+              <Text className="text-gray-900 text-xl font-semibold">
                 {userDetails?.first_name} {userDetails?.last_name}
               </Text>
-              <Text className="text-[#999999]">{userDetails?.email}</Text>
+              <Text className="text-gray-600">{userDetails?.email}</Text>
             </View>
           </View>
         </Card>
@@ -224,18 +222,20 @@ export default function Dashboard() {
         {/* Company & Membership Info Card */}
         <Card>
           <View className="space-y-4">
-            <View className="flex-row justify-between items-center pb-4 border-b border-[#3C3C3E]">
-              <Text className="text-[#999999] font-medium">Company</Text>
-              <Text className="text-white font-semibold">{company?.name}</Text>
+            <View className="flex-row justify-between items-center pb-4 border-b border-gray-200">
+              <Text className="text-gray-600 font-medium">Company</Text>
+              <Text className="text-gray-900 font-semibold">
+                {company?.name}
+              </Text>
             </View>
             {membership && (
               <View className="flex-row justify-between items-center">
-                <Text className="text-[#999999] font-medium">Membership</Text>
+                <Text className="text-gray-600 font-medium">Membership</Text>
                 <View
                   className={`${
                     PLAN_COLORS[
                       membership.plan_type as keyof typeof PLAN_COLORS
-                    ] || 'bg-[#3C3C3E]'
+                    ] || 'bg-gray-200'
                   } px-3 py-1 rounded-full`}
                 >
                   <Text className="text-white font-medium">
@@ -259,8 +259,8 @@ export default function Dashboard() {
               text="This week"
               size={160}
             />
-            <View className="mt-6 bg-[#3C3C3E] px-4 py-3 rounded-lg">
-              <Text className="text-white text-center">
+            <View className="mt-6 border border-[#3C3C3E] px-4 py-3 rounded-lg">
+              <Text className="text-[#3C3C3E] text-center">
                 {weeklyMeals} of {userDetails?.meals_per_week} meals available
               </Text>
             </View>

@@ -205,9 +205,9 @@ export default function RestaurantsHome() {
       />
       <View className="px-1">
         <View className="flex-row items-center justify-between mb-1">
-          <Text className="text-xl font-bold text-white">{item.name}</Text>
-          <View className="bg-[#3C3C3E] px-3 py-1 rounded-full">
-            <Text className="text-white text-sm" numberOfLines={1}>
+          <Text className="text-xl font-bold text-gray-900">{item.name}</Text>
+          <View className="bg-gray-100 px-3 py-1 rounded-full">
+            <Text className="text-gray-700 text-sm" numberOfLines={1}>
               {item.cuisine_type}
             </Text>
           </View>
@@ -219,7 +219,7 @@ export default function RestaurantsHome() {
               size={16}
               color={Colors.text.secondary}
             />
-            <Text className="text-[#999999] ml-1">
+            <Text className="text-gray-600 ml-1">
               {formatLunchHours(item.hours_range_lunch)}
             </Text>
           </View>
@@ -229,7 +229,7 @@ export default function RestaurantsHome() {
               size={16}
               color={Colors.text.secondary}
             />
-            <Text className="text-[#999999] ml-1">
+            <Text className="text-gray-600 ml-1">
               {item.allowed_restaurants?.[0]?.distance_km != null
                 ? `${item.allowed_restaurants[0].distance_km.toFixed(1)} km`
                 : '-'}
@@ -242,22 +242,20 @@ export default function RestaurantsHome() {
 
   if (loading) {
     return (
-      <View className="flex-1 items-center justify-center bg-[#1C1C1E]">
-        <Text className="text-[#999999]">Loading restaurants...</Text>
+      <View className="flex-1 items-center justify-center bg-white">
+        <Text className="text-gray-500">Loading restaurants...</Text>
       </View>
     );
   }
 
   return (
-    <View className="flex-1 bg-[#1C1C1E]">
-      <Text className="text-2xl font-bold px-4 py-6 text-white">
-        Nearby Restaurants
-      </Text>
+    <View className="flex-1 bg-white">
       <FlatList
         data={restaurants}
         renderItem={renderRestaurant}
-        keyExtractor={(item) => item.id.toString()}
+        keyExtractor={(item) => item.id}
         contentContainerStyle={{ padding: 16 }}
+        showsVerticalScrollIndicator={false}
       />
     </View>
   );

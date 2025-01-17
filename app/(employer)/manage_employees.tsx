@@ -293,26 +293,26 @@ export default function ManageEmployees() {
 
   if (loading) {
     return (
-      <View className="flex-1 items-center justify-center bg-[#1C1C1E]">
-        <Text className="text-white">Loading...</Text>
+      <View className="flex-1 items-center justify-center bg-white">
+        <Text className="text-gray-500">Loading...</Text>
       </View>
     );
   }
 
   return (
-    <View className="flex-1 bg-[#1C1C1E]">
+    <View className="flex-1 bg-white">
       <View className="p-6 flex-1">
-        <Text className="text-2xl font-semibold mb-6 text-white">
+        <Text className="text-2xl font-semibold mb-6 text-gray-900">
           Employees
         </Text>
 
         {/* Search Bar */}
-        <View className="flex-row items-center bg-[#2C2C2E] rounded-full px-4 py-3 mb-8">
-          <MaterialIcons name="search" size={24} color="#999999" />
+        <View className="flex-row items-center bg-gray-100 rounded-full px-4 py-3 mb-8">
+          <MaterialIcons name="search" size={24} color="#6B7280" />
           <TextInput
             placeholder="Search Employee"
-            className="flex-1 ml-2 text-base text-white"
-            placeholderTextColor="#999999"
+            className="flex-1 ml-2 text-base text-gray-900"
+            placeholderTextColor="#6B7280"
             value={searchQuery}
             onChangeText={setSearchQuery}
           />
@@ -320,7 +320,7 @@ export default function ManageEmployees() {
 
         {/* Header */}
         <View className="flex-row justify-between items-center mb-4 px-2">
-          <Text className="text-sm font-medium text-[#999999]">
+          <Text className="text-sm font-medium text-gray-500">
             Employees ({employees.length})
           </Text>
         </View>
@@ -334,27 +334,27 @@ export default function ManageEmployees() {
           {filteredEmployees.map((employee) => (
             <View
               key={employee.id}
-              className="flex-row items-center justify-between py-3 px-2 border-b border-[#2C2C2E]"
+              className="flex-row items-center justify-between py-3 px-2 border-b border-gray-200"
             >
               <View className="flex-row items-center flex-1 mr-2">
-                <View className="w-10 h-10 rounded-full bg-[#2C2C2E] items-center justify-center mr-3">
-                  <MaterialIcons name="person" size={24} color="#999999" />
+                <View className="w-10 h-10 rounded-full bg-gray-100 items-center justify-center mr-3">
+                  <MaterialIcons name="person" size={24} color="#6B7280" />
                 </View>
                 <View className="flex-1">
                   <View className="flex-row items-center justify-between">
-                    <Text className="text-base font-medium text-white">
+                    <Text className="text-base font-medium text-gray-900">
                       {employee.first_name} {employee.last_name}
                     </Text>
                     <View className="flex-row items-center">
                       <Text
                         className={`text-xs px-2 py-1 rounded-full ${
                           employee.status === 'active'
-                            ? 'bg-[#4CAF50]/20 text-[#4CAF50]'
+                            ? 'bg-green-100 text-green-600'
                             : employee.status === 'inactive'
-                            ? 'bg-[#FF453A]/20 text-[#FF453A]'
+                            ? 'bg-red-100 text-red-600'
                             : employee.status === 'invited'
-                            ? 'bg-[#FF9F0A]/20 text-[#FF9F0A]'
-                            : 'bg-[#3C3C3E] text-[#999999]'
+                            ? 'bg-orange-100 text-orange-600'
+                            : 'bg-gray-100 text-gray-600'
                         }`}
                       >
                         {employee.status}
@@ -366,11 +366,11 @@ export default function ManageEmployees() {
                           setShowDeleteModal(true);
                         }}
                       >
-                        <MaterialIcons name="close" size={20} color="#FF453A" />
+                        <MaterialIcons name="close" size={20} color="#EF4444" />
                       </TouchableOpacity>
                     </View>
                   </View>
-                  <Text className="text-sm text-[#999999] mb-1">
+                  <Text className="text-sm text-gray-500 mb-1">
                     {employee.email}
                   </Text>
                   <View className="flex-row items-center mt-1">
@@ -378,9 +378,9 @@ export default function ManageEmployees() {
                       <MaterialIcons
                         name="card-membership"
                         size={16}
-                        color="#999999"
+                        color="#6B7280"
                       />
-                      <Text className="text-sm text-[#999999] ml-1">
+                      <Text className="text-sm text-gray-500 ml-1">
                         {employee.membership_id
                           ? employee.memberships?.plan_type
                           : 'No Plan'}
@@ -390,9 +390,9 @@ export default function ManageEmployees() {
                       <MaterialIcons
                         name="restaurant-menu"
                         size={16}
-                        color="#999999"
+                        color="#6B7280"
                       />
-                      <Text className="text-sm text-[#999999] ml-1">
+                      <Text className="text-sm text-gray-500 ml-1">
                         {employee.meals_per_week
                           ? `${employee.meals_per_week} meals/week`
                           : 'No meals'}
@@ -408,7 +408,7 @@ export default function ManageEmployees() {
 
       {/* Add Button */}
       <TouchableOpacity
-        className="absolute bottom-8 right-8 bg-[#0A84FF] h-12 px-4 rounded-full flex-row items-center justify-center shadow-sm"
+        className="absolute bottom-8 right-8 bg-[#6B4EFF] h-12 px-4 rounded-full flex-row items-center justify-center shadow-sm"
         onPress={() => setShowInviteModal(true)}
         style={{
           shadowColor: '#000000',
@@ -429,10 +429,10 @@ export default function ManageEmployees() {
         animationType="slide"
         onRequestClose={() => setShowInviteModal(false)}
       >
-        <View className="flex-1 bg-black/70 justify-end">
-          <View className="bg-[#1C1C1E] rounded-t-3xl p-6">
+        <View className="flex-1 bg-black/50 justify-end">
+          <View className="bg-white rounded-t-3xl p-6">
             <View className="flex-row justify-between items-center mb-6">
-              <Text className="text-xl font-semibold text-white">
+              <Text className="text-xl font-semibold text-gray-900">
                 Invite Employee
               </Text>
               <TouchableOpacity
@@ -446,11 +446,11 @@ export default function ManageEmployees() {
                 }}
                 className="p-2"
               >
-                <MaterialIcons name="close" size={24} color="#999999" />
+                <MaterialIcons name="close" size={24} color="#6B7280" />
               </TouchableOpacity>
             </View>
 
-            <Text className="text-base text-[#999999] mb-4">
+            <Text className="text-base text-gray-500 mb-4">
               Enter the details of the employee you want to invite.
             </Text>
 
@@ -461,21 +461,21 @@ export default function ManageEmployees() {
               leftIcon={{
                 type: 'font-awesome',
                 name: 'user',
-                color: '#999999',
+                color: '#6B7280',
                 size: 18,
               }}
-              inputStyle={{ color: 'white', fontSize: 16 }}
+              inputStyle={{ color: '#1F2937', fontSize: 16 }}
               inputContainerStyle={{
                 borderWidth: 1,
-                borderColor: '#2C2C2E',
+                borderColor: '#E5E7EB',
                 borderRadius: 8,
                 paddingHorizontal: 12,
                 paddingVertical: 4,
                 marginBottom: 8,
-                backgroundColor: '#2C2C2E',
+                backgroundColor: '#F9FAFB',
               }}
               containerStyle={{ paddingHorizontal: 0 }}
-              placeholderTextColor="#999999"
+              placeholderTextColor="#6B7280"
             />
 
             <Input
@@ -485,21 +485,21 @@ export default function ManageEmployees() {
               leftIcon={{
                 type: 'font-awesome',
                 name: 'user',
-                color: '#999999',
+                color: '#6B7280',
                 size: 18,
               }}
-              inputStyle={{ color: 'white', fontSize: 16 }}
+              inputStyle={{ color: '#1F2937', fontSize: 16 }}
               inputContainerStyle={{
                 borderWidth: 1,
-                borderColor: '#2C2C2E',
+                borderColor: '#E5E7EB',
                 borderRadius: 8,
                 paddingHorizontal: 12,
                 paddingVertical: 4,
                 marginBottom: 8,
-                backgroundColor: '#2C2C2E',
+                backgroundColor: '#F9FAFB',
               }}
               containerStyle={{ paddingHorizontal: 0 }}
-              placeholderTextColor="#999999"
+              placeholderTextColor="#6B7280"
             />
 
             <Input
@@ -511,32 +511,32 @@ export default function ManageEmployees() {
               leftIcon={{
                 type: 'font-awesome',
                 name: 'envelope',
-                color: '#999999',
+                color: '#6B7280',
                 size: 18,
               }}
-              inputStyle={{ color: 'white', fontSize: 16 }}
+              inputStyle={{ color: '#1F2937', fontSize: 16 }}
               inputContainerStyle={{
                 borderWidth: 1,
-                borderColor: '#2C2C2E',
+                borderColor: '#E5E7EB',
                 borderRadius: 8,
                 paddingHorizontal: 12,
                 paddingVertical: 4,
-                backgroundColor: '#2C2C2E',
+                backgroundColor: '#F9FAFB',
               }}
               containerStyle={{ paddingHorizontal: 0 }}
-              placeholderTextColor="#999999"
+              placeholderTextColor="#6B7280"
             />
 
             {/* Membership Plan Selection */}
             <View className="mb-4">
-              <Text className="text-sm font-medium text-[#999999] mb-2">
+              <Text className="text-sm font-medium text-gray-700 mb-2">
                 Membership Plan
               </Text>
               <TouchableOpacity
-                className="flex-row items-center justify-between border border-[#2C2C2E] rounded-lg p-3 bg-[#2C2C2E]"
+                className="flex-row items-center justify-between border border-gray-200 rounded-lg p-3 bg-gray-50"
                 onPress={() => setShowMembershipDropdown(true)}
               >
-                <Text className="text-base text-white">
+                <Text className="text-base text-gray-900">
                   {selectedMembership
                     ? activeMemberships.find((m) => m.id === selectedMembership)
                         ?.plan_type
@@ -545,7 +545,7 @@ export default function ManageEmployees() {
                 <MaterialIcons
                   name="arrow-drop-down"
                   size={24}
-                  color="#999999"
+                  color="#6B7280"
                 />
               </TouchableOpacity>
             </View>
@@ -560,7 +560,7 @@ export default function ManageEmployees() {
               <TouchableOpacity
                 style={{
                   flex: 1,
-                  backgroundColor: 'rgba(0, 0, 0, 0.7)',
+                  backgroundColor: 'rgba(0, 0, 0, 0.5)',
                   justifyContent: Platform.OS === 'ios' ? 'flex-end' : 'center',
                 }}
                 activeOpacity={1}
@@ -568,7 +568,7 @@ export default function ManageEmployees() {
               >
                 <View
                   style={{
-                    backgroundColor: '#1C1C1E',
+                    backgroundColor: 'white',
                     borderRadius: Platform.OS === 'ios' ? 20 : 10,
                     marginHorizontal: Platform.OS === 'ios' ? 0 : 20,
                     borderTopLeftRadius: Platform.OS === 'ios' ? 20 : 10,
@@ -578,7 +578,7 @@ export default function ManageEmployees() {
                   <View
                     style={{
                       borderBottomWidth: 1,
-                      borderBottomColor: '#2C2C2E',
+                      borderBottomColor: '#E5E7EB',
                       padding: 16,
                       flexDirection: 'row',
                       justifyContent: 'space-between',
@@ -589,7 +589,7 @@ export default function ManageEmployees() {
                       style={{
                         fontSize: 18,
                         fontWeight: '600',
-                        color: 'white',
+                        color: '#1F2937',
                       }}
                     >
                       Select Plan
@@ -597,13 +597,13 @@ export default function ManageEmployees() {
                     <TouchableOpacity
                       onPress={() => setShowMembershipDropdown(false)}
                     >
-                      <MaterialIcons name="close" size={24} color="#999999" />
+                      <MaterialIcons name="close" size={24} color="#6B7280" />
                     </TouchableOpacity>
                   </View>
                   <ScrollView style={{ maxHeight: 300 }}>
                     {activeMemberships.length === 0 ? (
                       <View style={{ padding: 16 }}>
-                        <Text style={{ color: '#999999' }}>
+                        <Text style={{ color: '#6B7280' }}>
                           No plans available
                         </Text>
                       </View>
@@ -614,14 +614,14 @@ export default function ManageEmployees() {
                           style={{
                             padding: 16,
                             borderBottomWidth: 1,
-                            borderBottomColor: '#2C2C2E',
+                            borderBottomColor: '#E5E7EB',
                           }}
                           onPress={() => {
                             setSelectedMembership(membership.id);
                             setShowMembershipDropdown(false);
                           }}
                         >
-                          <Text style={{ fontSize: 16, color: 'white' }}>
+                          <Text style={{ fontSize: 16, color: '#1F2937' }}>
                             {membership.plan_type || 'Unknown Plan'}
                           </Text>
                         </TouchableOpacity>
@@ -633,22 +633,22 @@ export default function ManageEmployees() {
             </Modal>
 
             <View className="mb-6">
-              <Text className="text-sm font-medium text-[#999999] mb-2">
+              <Text className="text-sm font-medium text-gray-700 mb-2">
                 Meals per Week
               </Text>
-              <View className="flex-row items-center justify-between border border-[#2C2C2E] rounded-lg p-3 bg-[#2C2C2E]">
+              <View className="flex-row items-center justify-between border border-gray-200 rounded-lg p-3 bg-gray-50">
                 <TouchableOpacity
                   onPress={() => setMealsPerWeek(Math.max(1, mealsPerWeek - 1))}
                   className="p-2"
                 >
-                  <MaterialIcons name="remove" size={24} color="#999999" />
+                  <MaterialIcons name="remove" size={24} color="#6B7280" />
                 </TouchableOpacity>
-                <Text className="text-base text-white">{mealsPerWeek}</Text>
+                <Text className="text-base text-gray-900">{mealsPerWeek}</Text>
                 <TouchableOpacity
                   onPress={() => setMealsPerWeek(Math.min(5, mealsPerWeek + 1))}
                   className="p-2"
                 >
-                  <MaterialIcons name="add" size={24} color="#999999" />
+                  <MaterialIcons name="add" size={24} color="#6B7280" />
                 </TouchableOpacity>
               </View>
             </View>
@@ -659,7 +659,7 @@ export default function ManageEmployees() {
               disabled={inviting || !inviteEmail || !selectedMembership}
               onPress={handleInviteEmployee}
               buttonStyle={{
-                backgroundColor: '#0A84FF',
+                backgroundColor: '#6B4EFF',
                 borderRadius: 10,
                 paddingVertical: 14,
                 marginTop: 8,
@@ -680,13 +680,13 @@ export default function ManageEmployees() {
           setSelectedEmployee(null);
         }}
       >
-        <View className="flex-1 bg-black/70 justify-center items-center px-6">
-          <View className="bg-[#1C1C1E] rounded-2xl w-full p-6">
-            <Text className="text-xl font-semibold text-white mb-4">
+        <View className="flex-1 bg-black/50 justify-center items-center px-6">
+          <View className="bg-white rounded-2xl w-full p-6">
+            <Text className="text-xl font-semibold text-gray-900 mb-4">
               Remove Employee
             </Text>
 
-            <Text className="text-base text-[#999999] mb-6">
+            <Text className="text-base text-gray-500 mb-6">
               Are you sure you want to remove {selectedEmployee?.first_name}{' '}
               {selectedEmployee?.last_name} from the membership plan?
             </Text>
@@ -699,11 +699,11 @@ export default function ManageEmployees() {
                   setSelectedEmployee(null);
                 }}
               >
-                <Text className="text-[#999999] font-medium">Cancel</Text>
+                <Text className="text-gray-500 font-medium">Cancel</Text>
               </TouchableOpacity>
 
               <TouchableOpacity
-                className="bg-[#FF453A] px-4 py-2 rounded-lg flex-row items-center"
+                className="bg-red-500 px-4 py-2 rounded-lg flex-row items-center"
                 onPress={handleDeleteEmployee}
                 disabled={deleting}
               >

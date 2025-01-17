@@ -78,38 +78,38 @@ export default function Menu() {
 
   if (loading) {
     return (
-      <View className="flex-1 items-center justify-center bg-[#1C1C1E]">
-        <Text className="text-[#999999] text-base">Loading menu...</Text>
+      <View className="flex-1 items-center justify-center bg-white">
+        <Text className="text-gray-500 text-base">Loading menu...</Text>
       </View>
     );
   }
 
   return (
-    <ScrollView className="flex-1 bg-[#1C1C1E]">
+    <ScrollView className="flex-1 bg-white">
       <View className="px-4 pt-6 pb-4">
-        <Text className="text-2xl text-center text-white font-semibold">
+        <Text className="text-2xl text-center text-gray-900 font-semibold">
           LUNCH SPECIAL
         </Text>
       </View>
 
       <View className="px-4 pb-4">
-        <Text className="text-xl text-center text-white mb-4">
+        <Text className="text-xl text-center text-gray-900 mb-4">
           {getDayInGerman()}
         </Text>
-        <View className="h-[1px] bg-[#2C2C2E]" />
+        <View className="h-[1px] bg-gray-200" />
       </View>
 
       <View className="px-4">
         {menuItems.map((item) => (
           <View
             key={item.id}
-            className="mb-4 bg-[#2C2C2E] rounded-xl p-4 shadow-sm"
+            className="mb-4 bg-white rounded-xl p-4 shadow-sm border border-gray-200"
           >
             <View className="flex-1 pr-4">
-              <Text className="text-lg font-medium text-white mb-1">
+              <Text className="text-lg font-medium text-gray-900 mb-1">
                 {item.name}
               </Text>
-              <Text className="text-sm text-[#999999]">{item.description}</Text>
+              <Text className="text-sm text-gray-600">{item.description}</Text>
             </View>
           </View>
         ))}

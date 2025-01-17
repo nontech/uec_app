@@ -1,38 +1,38 @@
 export default {
   // Primary Background Colors
   background: {
-    primary: '#1C1C1E', // Main app background
-    secondary: '#2C2C2E', // Secondary elements (inputs, headers)
-    tertiary: '#3C3C3E', // Buttons, borders
+    primary: '#FFFFFF', // Main app background
+    secondary: '#F5F5F5', // Secondary elements (inputs, headers)
+    tertiary: '#007AFF', // Buttons, borders
   },
 
   // Text Colors
   text: {
-    primary: '#FFFFFF', // Primary text
-    secondary: 'rgba(255, 255, 255, 0.9)', // Secondary text
-    placeholder: '#999999', // Placeholder text
+    primary: '#000000', // Primary text
+    secondary: 'rgba(0, 0, 0, 0.8)', // Secondary text
+    placeholder: '#757575', // Placeholder text
   },
 
   // Border Colors
   border: {
-    primary: '#2C2C2E',
-    secondary: '#3C3C3E',
+    primary: '#E0E0E0',
+    secondary: '#EEEEEE',
   },
 
   // Overlay Colors
-  overlay: 'rgba(0, 0, 0, 0.7)',
+  overlay: 'rgba(0, 0, 0, 0.5)',
 
   // Status Colors
   status: {
-    success: '#4CAF50',
-    error: '#FF453A',
-    warning: '#FF9F0A',
-    info: '#0A84FF',
+    success: '#34C759',
+    error: '#FF3B30',
+    warning: '#FF9500',
+    info: '#007AFF',
   },
 
   // Shadow
   shadow: {
     color: '#000000',
-    opacity: 0.25,
+    opacity: 0.1,
   },
 } as const;

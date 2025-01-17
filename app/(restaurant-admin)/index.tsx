@@ -4,6 +4,7 @@ import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../lib/AuthContext';
 import { Tables } from '../../supabase/types';
 import Colors from '../../constants/Colors';
+import { FontAwesome } from '@expo/vector-icons';
 
 type Restaurant = Tables<'restaurants'> & {
   opening_hours_range: Tables<'hours_range'> | null;
@@ -92,36 +93,60 @@ export default function DashboardScreen() {
   };
 
   return (
-    <View className="flex-1 p-4 bg-[#1C1C1E]">
-      <View className="mb-6">
+    <View className="flex-1 p-4 bg-gray-50">
+      <View className="bg-[#6B4EFF] rounded-2xl p-6 mb-6 shadow-sm">
         <Text className="text-2xl font-bold mb-1 text-white">
           {restaurant?.name || 'Loading...'}
         </Text>
-        <Text className="text-lg text-[#999999]">
+        <Text className="text-lg text-white/80">
           {restaurant?.cuisine_type}
         </Text>
       </View>
 
-      <View className="bg-[#2C2C2E] rounded-xl p-4 mb-4">
-        <Text className="text-xl font-semibold mb-2 text-white">About</Text>
-        <Text className="text-base text-[#999999] leading-6">
+      <View className="bg-white rounded-2xl p-6 mb-6 shadow-sm border border-gray-100">
+        <View className="flex-row items-center mb-3">
+          <View className="w-8 h-8 rounded-full bg-purple-100 items-center justify-center mr-3">
+            <FontAwesome name="info" size={20} color="#6B4EFF" />
+          </View>
+          <Text className="text-xl font-semibold text-gray-900">About</Text>
+        </View>
+        <Text className="text-base text-gray-600 leading-6">
           {restaurant?.description || 'No description available'}
         </Text>
       </View>
 
-      <View className="bg-[#2C2C2E] rounded-xl p-4 mb-4">
-        <Text className="text-xl font-semibold mb-2 text-white">Hours</Text>
-        <Text className="text-base text-[#999999] mb-1">
-          Opening Hours: {formatHours(restaurant?.opening_hours_range || null)}
-        </Text>
-        <Text className="text-base text-[#999999] mb-1">
-          Lunch Hours: {formatHours(restaurant?.lunch_hours_range || null)}
-        </Text>
+      <View className="bg-white rounded-2xl p-6 mb-6 shadow-sm border border-gray-100">
+        <View className="flex-row items-center mb-3">
+          <View className="w-8 h-8 rounded-full bg-purple-100 items-center justify-center mr-3">
+            <FontAwesome name="clock-o" size={20} color="#6B4EFF" />
+          </View>
+          <Text className="text-xl font-semibold text-gray-900">Hours</Text>
+        </View>
+        <View className="space-y-3">
+          <View className="flex-row items-center">
+            <View className="w-3 h-3 rounded-full bg-green-400 mr-2" />
+            <Text className="text-base text-gray-600">
+              Opening Hours:{' '}
+              {formatHours(restaurant?.opening_hours_range || null)}
+            </Text>
+          </View>
+          <View className="flex-row items-center">
+            <View className="w-3 h-3 rounded-full bg-blue-400 mr-2" />
+            <Text className="text-base text-gray-600">
+              Lunch Hours: {formatHours(restaurant?.lunch_hours_range || null)}
+            </Text>
+          </View>
+        </View>
       </View>
 
-      <View className="bg-[#2C2C2E] rounded-xl p-4 mb-4">
-        <Text className="text-xl font-semibold mb-2 text-white">Location</Text>
-        <Text className="text-base text-[#999999]">
+      <View className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+        <View className="flex-row items-center mb-3">
+          <View className="w-8 h-8 rounded-full bg-purple-100 items-center justify-center mr-3">
+            <FontAwesome name="map-marker" size={20} color="#6B4EFF" />
+          </View>
+          <Text className="text-xl font-semibold text-gray-900">Location</Text>
+        </View>
+        <Text className="text-base text-gray-600">
           {formatAddress(restaurant?.address_details || null)}
         </Text>
       </View>

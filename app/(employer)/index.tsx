@@ -79,8 +79,8 @@ export default function EmployerDashboard() {
 
   if (loading) {
     return (
-      <View className="flex-1 items-center justify-center bg-[#1C1C1E]">
-        <Text className="text-white text-base">Loading...</Text>
+      <View className="flex-1 items-center justify-center bg-white">
+        <Text className="text-gray-500 text-base">Loading...</Text>
       </View>
     );
   }
@@ -97,19 +97,19 @@ export default function EmployerDashboard() {
   };
 
   return (
-    <ScrollView className="flex-1 bg-[#1C1C1E]">
+    <ScrollView className="flex-1 bg-white">
       <View className="p-6">
         {/* Company Section */}
-        <View className="bg-[#2C2C2E] rounded-2xl p-6 mb-6 shadow-lg shadow-black/25">
-          <Text className="text-2xl font-bold text-white mb-2">
+        <View className="bg-white rounded-2xl p-6 mb-6 shadow-sm border border-gray-200">
+          <Text className="text-2xl font-bold text-gray-900 mb-2">
             {company?.name}
           </Text>
-          <Text className="text-base text-white/90">{formatAddress()}</Text>
+          <Text className="text-base text-gray-600">{formatAddress()}</Text>
         </View>
 
         {/* Memberships Section */}
-        <View className="bg-[#2C2C2E] rounded-2xl p-6 mb-6 shadow-lg shadow-black/25">
-          <Text className="text-2xl font-semibold text-white mb-6">
+        <View className="bg-white rounded-2xl p-6 mb-6 shadow-sm border border-gray-200">
+          <Text className="text-2xl font-semibold text-gray-900 mb-6">
             Active Memberships
           </Text>
           <ScrollView
@@ -120,7 +120,7 @@ export default function EmployerDashboard() {
               {memberships.map((membership, index) => (
                 <View
                   key={membership.id}
-                  className={`rounded-2xl p-6 shadow-lg shadow-black/25 ${
+                  className={`rounded-2xl p-6 shadow-sm ${
                     index > 0 ? 'mt-6' : ''
                   } ${
                     TIER_COLORS[

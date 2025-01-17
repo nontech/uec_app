@@ -624,7 +624,7 @@ const styles = StyleSheet.create({
   buttonText: {
     fontSize: 18,
     fontWeight: '600',
-    color: Colors.text.primary,
+    color: '#FFFFFF',
   },
   switchButton: {
     marginTop: 20,
