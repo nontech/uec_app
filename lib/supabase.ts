@@ -3,14 +3,20 @@ import 'react-native-url-polyfill/auto';
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const supabaseAnonKey =
-  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0';
+let supabaseAnonKey = '';
+let supabaseURL = '';
 
-const supabaseUrl = Platform.select({
-  ios: 'http://127.0.0.1:44321',
-  android: 'http://10.0.2.2:44321',
-  default: 'http://127.0.0.1:44321',
-});
+if (__DEV__) {
+  supabaseAnonKey = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY_DEV || '';
+  supabaseURL = Platform.select({
+    ios: 'http://127.0.0.1:44321',
+    android: 'http://10.0.2.2:44321',
+    default: 'http://127.0.0.1:44321',
+  });
+} else {
+  supabaseAnonKey = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY || '';
+  supabaseURL = process.env.EXPO_PUBLIC_SUPABASE_URL || '';
+}
 
 // Memory fallback storage for SSR
 const memoryStorage: { [key: string]: string } = {};
@@ -89,7 +95,7 @@ const customStorage = {
 let supabaseInstance: SupabaseClient | null = null;
 
 const initSupabase = async () => {
-  const client = createClient(supabaseUrl, supabaseAnonKey, {
+  const client = createClient(supabaseURL, supabaseAnonKey, {
     auth: {
       storage: customStorage,
       autoRefreshToken: true,
