@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "uec-app",
-    "slug": "uec-app",
+    "slug": "urban-eats-club",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
@@ -38,6 +38,15 @@
     ],
     "experiments": {
       "typedRoutes": true
-    }
+    },
+    "extra": {
+      "router": {
+        "origin": false
+      },
+      "eas": {
+        "projectId": "2371d93a-b85f-4c24-9026-a5fc8db831fa"
+      }
+    },
+    "owner": "uec"
   }
 }
