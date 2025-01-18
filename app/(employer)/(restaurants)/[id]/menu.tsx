@@ -12,6 +12,7 @@ import { supabase } from '../../../../lib/supabase';
 import { Database } from '../../../../supabase/types';
 import { Ionicons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
+import Colors from '../../../../constants/Colors';
 
 type MenuItem = Database['public']['Tables']['menu_items']['Row'];
 
@@ -61,7 +62,7 @@ export default function Menu() {
         .from('menu_items')
         .select('*')
         .eq('restaurant_id', restaurantId)
-        .eq('day', currentDay)
+        .contains('days', [currentDay])
         .order('category');
 
       if (error) throw error;
@@ -78,7 +79,7 @@ export default function Menu() {
   if (loading) {
     return (
       <View className="flex-1 items-center justify-center bg-white">
-        <Text className="text-gray-600">Loading menu...</Text>
+        <Text className="text-gray-500 text-base">Loading menu...</Text>
       </View>
     );
   }
@@ -86,27 +87,29 @@ export default function Menu() {
   return (
     <ScrollView className="flex-1 bg-white">
       <View className="px-4 pt-6 pb-4">
-        <Text className="text-2xl text-center text-gray-700 font-medium">
+        <Text className="text-2xl text-center text-gray-900 font-semibold">
           LUNCH SPECIAL
         </Text>
       </View>
 
       <View className="px-4 pb-4">
-        <Text className="text-xl text-center text-gray-800">
+        <Text className="text-xl text-center text-gray-900 mb-4">
           {getDayInGerman()}
         </Text>
-        <View className="h-[1px] bg-gray-300 my-4" />
+        <View className="h-[1px] bg-gray-200" />
       </View>
 
       <View className="px-4">
         {menuItems.map((item) => (
           <View
             key={item.id}
-            className="flex-row justify-between items-start mb-6 bg-[#FDF7FF] rounded-lg p-4"
+            className="mb-4 bg-white rounded-xl p-4 shadow-sm border border-gray-200"
           >
             <View className="flex-1 pr-4">
-              <Text className="text-lg font-medium mb-1">{item.name}</Text>
-              <Text className="text-gray-600 text-sm">{item.description}</Text>
+              <Text className="text-lg font-medium text-gray-900 mb-1">
+                {item.name}
+              </Text>
+              <Text className="text-sm text-gray-600">{item.description}</Text>
             </View>
           </View>
         ))}

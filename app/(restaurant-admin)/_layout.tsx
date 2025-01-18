@@ -1,15 +1,14 @@
-import { Tabs } from 'expo-router';
-import { MaterialIcons } from '@expo/vector-icons';
-import { DrawerToggleButton } from '@react-navigation/drawer';
+import { Tabs } from 'expo-router/tabs';
 import Colors from '../../constants/Colors';
+import { FontAwesome } from '@expo/vector-icons';
 
 function TabBarIcon(props: {
-  name: React.ComponentProps<typeof MaterialIcons>['name'];
+  name: React.ComponentProps<typeof FontAwesome>['name'];
   color: string;
   focused?: boolean;
 }) {
   return (
-    <MaterialIcons
+    <FontAwesome
       size={props.focused ? 32 : 28}
       style={{ marginBottom: -3 }}
       {...props}
@@ -21,7 +20,6 @@ export default function TabLayout() {
   return (
     <Tabs
       screenOptions={{
-        headerShown: false,
         tabBarStyle: {
           backgroundColor: '#1C1C1E',
           borderTopColor: '#2C2C2E',
@@ -33,6 +31,10 @@ export default function TabLayout() {
         },
         tabBarActiveTintColor: '#FFFFFF',
         tabBarInactiveTintColor: '#999999',
+        headerStyle: {
+          backgroundColor: 'white',
+        },
+        headerTintColor: '#1F2937',
       }}
     >
       <Tabs.Screen
@@ -40,16 +42,25 @@ export default function TabLayout() {
         options={{
           title: 'Dashboard',
           tabBarIcon: ({ color, focused }) => (
-            <TabBarIcon name="dashboard" color={color} focused={focused} />
+            <TabBarIcon name="home" color={color} focused={focused} />
           ),
         }}
       />
       <Tabs.Screen
-        name="(restaurants)"
+        name="menu"
         options={{
-          title: 'Restaurants',
+          title: 'Manage Menu',
           tabBarIcon: ({ color, focused }) => (
-            <TabBarIcon name="restaurant" color={color} focused={focused} />
+            <TabBarIcon name="cutlery" color={color} focused={focused} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="activities"
+        options={{
+          title: 'Activities',
+          tabBarIcon: ({ color, focused }) => (
+            <TabBarIcon name="list" color={color} focused={focused} />
           ),
         }}
       />

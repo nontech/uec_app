@@ -6,14 +6,16 @@ import {
   TextInput,
   Modal,
   Alert,
+  Platform,
 } from 'react-native';
 import { useAuth } from '../../lib/AuthContext';
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { supabase } from '../../lib/supabase';
 import { Database } from '../../supabase/types';
 import { MaterialIcons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { Input, Button } from '@rneui/themed';
+import Colors from '../../constants/Colors';
 
 type AppUser = Database['public']['Tables']['app_users']['Row'] & {
   memberships?: Database['public']['Tables']['memberships']['Row'];
@@ -289,57 +291,10 @@ export default function ManageEmployees() {
     }
   };
 
-  const renderDropdown = (
-    visible: boolean,
-    onClose: () => void,
-    items: { label: string; value: string }[],
-    onSelect: (value: string) => void
-  ) => {
-    return (
-      <Modal visible={visible} transparent animationType="fade">
-        <TouchableOpacity
-          style={{
-            flex: 1,
-            backgroundColor: 'rgba(0, 0, 0, 0.5)',
-            justifyContent: 'center',
-            alignItems: 'center',
-          }}
-          activeOpacity={1}
-          onPress={onClose}
-        >
-          <View className="bg-white rounded-lg w-[80%] max-h-[50%]">
-            <ScrollView>
-              {items.length === 0 ? (
-                <View className="p-4">
-                  <Text className="text-gray-600">No items available</Text>
-                </View>
-              ) : (
-                items.map((item, index) => (
-                  <TouchableOpacity
-                    key={index}
-                    className="p-4 border-b border-gray-100"
-                    onPress={() => {
-                      onSelect(item.value);
-                      onClose();
-                    }}
-                  >
-                    <Text className="text-base text-gray-700">
-                      {item.label}
-                    </Text>
-                  </TouchableOpacity>
-                ))
-              )}
-            </ScrollView>
-          </View>
-        </TouchableOpacity>
-      </Modal>
-    );
-  };
-
   if (loading) {
     return (
-      <View className="flex-1 items-center justify-center">
-        <Text>Loading...</Text>
+      <View className="flex-1 items-center justify-center bg-white">
+        <Text className="text-gray-500">Loading...</Text>
       </View>
     );
   }
@@ -352,12 +307,12 @@ export default function ManageEmployees() {
         </Text>
 
         {/* Search Bar */}
-        <View className="flex-row items-center bg-[#F3F0FF] rounded-full px-4 py-3 mb-8">
-          <MaterialIcons name="search" size={24} color="#666" />
+        <View className="flex-row items-center bg-gray-100 rounded-full px-4 py-3 mb-8">
+          <MaterialIcons name="search" size={24} color="#6B7280" />
           <TextInput
             placeholder="Search Employee"
             className="flex-1 ml-2 text-base text-gray-900"
-            placeholderTextColor="#666"
+            placeholderTextColor="#6B7280"
             value={searchQuery}
             onChangeText={setSearchQuery}
           />
@@ -365,7 +320,7 @@ export default function ManageEmployees() {
 
         {/* Header */}
         <View className="flex-row justify-between items-center mb-4 px-2">
-          <Text className="text-sm font-medium text-gray-600">
+          <Text className="text-sm font-medium text-gray-500">
             Employees ({employees.length})
           </Text>
         </View>
@@ -379,11 +334,11 @@ export default function ManageEmployees() {
           {filteredEmployees.map((employee) => (
             <View
               key={employee.id}
-              className="flex-row items-center justify-between py-3 px-2 border-b border-gray-100"
+              className="flex-row items-center justify-between py-3 px-2 border-b border-gray-200"
             >
               <View className="flex-row items-center flex-1 mr-2">
                 <View className="w-10 h-10 rounded-full bg-gray-100 items-center justify-center mr-3">
-                  <MaterialIcons name="person" size={24} color="#666" />
+                  <MaterialIcons name="person" size={24} color="#6B7280" />
                 </View>
                 <View className="flex-1">
                   <View className="flex-row items-center justify-between">
@@ -394,12 +349,12 @@ export default function ManageEmployees() {
                       <Text
                         className={`text-xs px-2 py-1 rounded-full ${
                           employee.status === 'active'
-                            ? 'bg-green-100 text-green-800'
+                            ? 'bg-green-100 text-green-600'
                             : employee.status === 'inactive'
-                            ? 'bg-red-100 text-red-800'
+                            ? 'bg-red-100 text-red-600'
                             : employee.status === 'invited'
-                            ? 'bg-yellow-100 text-yellow-800'
-                            : 'bg-gray-100 text-gray-800'
+                            ? 'bg-orange-100 text-orange-600'
+                            : 'bg-gray-100 text-gray-600'
                         }`}
                       >
                         {employee.status}
@@ -411,11 +366,7 @@ export default function ManageEmployees() {
                           setShowDeleteModal(true);
                         }}
                       >
-                        <MaterialIcons
-                          name="delete-outline"
-                          size={20}
-                          color="#EF4444"
-                        />
+                        <MaterialIcons name="close" size={20} color="#EF4444" />
                       </TouchableOpacity>
                     </View>
                   </View>
@@ -427,9 +378,9 @@ export default function ManageEmployees() {
                       <MaterialIcons
                         name="card-membership"
                         size={16}
-                        color="#666"
+                        color="#6B7280"
                       />
-                      <Text className="text-sm text-gray-600 ml-1">
+                      <Text className="text-sm text-gray-500 ml-1">
                         {employee.membership_id
                           ? employee.memberships?.plan_type
                           : 'No Plan'}
@@ -439,9 +390,9 @@ export default function ManageEmployees() {
                       <MaterialIcons
                         name="restaurant-menu"
                         size={16}
-                        color="#666"
+                        color="#6B7280"
                       />
-                      <Text className="text-sm text-gray-600 ml-1">
+                      <Text className="text-sm text-gray-500 ml-1">
                         {employee.meals_per_week
                           ? `${employee.meals_per_week} meals/week`
                           : 'No meals'}
@@ -460,9 +411,9 @@ export default function ManageEmployees() {
         className="absolute bottom-8 right-8 bg-[#6B4EFF] h-12 px-4 rounded-full flex-row items-center justify-center shadow-sm"
         onPress={() => setShowInviteModal(true)}
         style={{
-          shadowColor: '#6B4EFF',
+          shadowColor: '#000000',
           shadowOffset: { width: 0, height: 4 },
-          shadowOpacity: 0.2,
+          shadowOpacity: 0.25,
           shadowRadius: 8,
           elevation: 5,
         }}
@@ -478,7 +429,7 @@ export default function ManageEmployees() {
         animationType="slide"
         onRequestClose={() => setShowInviteModal(false)}
       >
-        <View className="flex-1 bg-black/60 justify-end">
+        <View className="flex-1 bg-black/50 justify-end">
           <View className="bg-white rounded-t-3xl p-6">
             <View className="flex-row justify-between items-center mb-6">
               <Text className="text-xl font-semibold text-gray-900">
@@ -495,11 +446,11 @@ export default function ManageEmployees() {
                 }}
                 className="p-2"
               >
-                <MaterialIcons name="close" size={24} color="#4B5563" />
+                <MaterialIcons name="close" size={24} color="#6B7280" />
               </TouchableOpacity>
             </View>
 
-            <Text className="text-base text-gray-600 mb-4">
+            <Text className="text-base text-gray-500 mb-4">
               Enter the details of the employee you want to invite.
             </Text>
 
@@ -521,8 +472,10 @@ export default function ManageEmployees() {
                 paddingHorizontal: 12,
                 paddingVertical: 4,
                 marginBottom: 8,
+                backgroundColor: '#F9FAFB',
               }}
               containerStyle={{ paddingHorizontal: 0 }}
+              placeholderTextColor="#6B7280"
             />
 
             <Input
@@ -543,8 +496,10 @@ export default function ManageEmployees() {
                 paddingHorizontal: 12,
                 paddingVertical: 4,
                 marginBottom: 8,
+                backgroundColor: '#F9FAFB',
               }}
               containerStyle={{ paddingHorizontal: 0 }}
+              placeholderTextColor="#6B7280"
             />
 
             <Input
@@ -566,45 +521,134 @@ export default function ManageEmployees() {
                 borderRadius: 8,
                 paddingHorizontal: 12,
                 paddingVertical: 4,
+                backgroundColor: '#F9FAFB',
               }}
               containerStyle={{ paddingHorizontal: 0 }}
+              placeholderTextColor="#6B7280"
             />
 
+            {/* Membership Plan Selection */}
             <View className="mb-4">
-              <Text className="text-sm font-medium text-gray-600 mb-2">
+              <Text className="text-sm font-medium text-gray-700 mb-2">
                 Membership Plan
               </Text>
               <TouchableOpacity
-                className="flex-row items-center justify-between border border-gray-300 rounded-lg p-3"
+                className="flex-row items-center justify-between border border-gray-200 rounded-lg p-3 bg-gray-50"
                 onPress={() => setShowMembershipDropdown(true)}
               >
-                <Text className="text-base text-gray-700">
+                <Text className="text-base text-gray-900">
                   {selectedMembership
                     ? activeMemberships.find((m) => m.id === selectedMembership)
                         ?.plan_type
                     : 'Select a plan'}
                 </Text>
-                <MaterialIcons name="arrow-drop-down" size={24} color="#666" />
+                <MaterialIcons
+                  name="arrow-drop-down"
+                  size={24}
+                  color="#6B7280"
+                />
               </TouchableOpacity>
             </View>
 
+            {/* Membership Dropdown Modal */}
+            <Modal
+              visible={showMembershipDropdown}
+              transparent
+              animationType={Platform.OS === 'ios' ? 'slide' : 'fade'}
+              onRequestClose={() => setShowMembershipDropdown(false)}
+            >
+              <TouchableOpacity
+                style={{
+                  flex: 1,
+                  backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                  justifyContent: Platform.OS === 'ios' ? 'flex-end' : 'center',
+                }}
+                activeOpacity={1}
+                onPress={() => setShowMembershipDropdown(false)}
+              >
+                <View
+                  style={{
+                    backgroundColor: 'white',
+                    borderRadius: Platform.OS === 'ios' ? 20 : 10,
+                    marginHorizontal: Platform.OS === 'ios' ? 0 : 20,
+                    borderTopLeftRadius: Platform.OS === 'ios' ? 20 : 10,
+                    borderTopRightRadius: Platform.OS === 'ios' ? 20 : 10,
+                  }}
+                >
+                  <View
+                    style={{
+                      borderBottomWidth: 1,
+                      borderBottomColor: '#E5E7EB',
+                      padding: 16,
+                      flexDirection: 'row',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                    }}
+                  >
+                    <Text
+                      style={{
+                        fontSize: 18,
+                        fontWeight: '600',
+                        color: '#1F2937',
+                      }}
+                    >
+                      Select Plan
+                    </Text>
+                    <TouchableOpacity
+                      onPress={() => setShowMembershipDropdown(false)}
+                    >
+                      <MaterialIcons name="close" size={24} color="#6B7280" />
+                    </TouchableOpacity>
+                  </View>
+                  <ScrollView style={{ maxHeight: 300 }}>
+                    {activeMemberships.length === 0 ? (
+                      <View style={{ padding: 16 }}>
+                        <Text style={{ color: '#6B7280' }}>
+                          No plans available
+                        </Text>
+                      </View>
+                    ) : (
+                      activeMemberships.map((membership) => (
+                        <TouchableOpacity
+                          key={membership.id}
+                          style={{
+                            padding: 16,
+                            borderBottomWidth: 1,
+                            borderBottomColor: '#E5E7EB',
+                          }}
+                          onPress={() => {
+                            setSelectedMembership(membership.id);
+                            setShowMembershipDropdown(false);
+                          }}
+                        >
+                          <Text style={{ fontSize: 16, color: '#1F2937' }}>
+                            {membership.plan_type || 'Unknown Plan'}
+                          </Text>
+                        </TouchableOpacity>
+                      ))
+                    )}
+                  </ScrollView>
+                </View>
+              </TouchableOpacity>
+            </Modal>
+
             <View className="mb-6">
-              <Text className="text-sm font-medium text-gray-600 mb-2">
+              <Text className="text-sm font-medium text-gray-700 mb-2">
                 Meals per Week
               </Text>
-              <View className="flex-row items-center justify-between border border-gray-300 rounded-lg p-3">
+              <View className="flex-row items-center justify-between border border-gray-200 rounded-lg p-3 bg-gray-50">
                 <TouchableOpacity
                   onPress={() => setMealsPerWeek(Math.max(1, mealsPerWeek - 1))}
                   className="p-2"
                 >
-                  <MaterialIcons name="remove" size={24} color="#666" />
+                  <MaterialIcons name="remove" size={24} color="#6B7280" />
                 </TouchableOpacity>
-                <Text className="text-base text-gray-700">{mealsPerWeek}</Text>
+                <Text className="text-base text-gray-900">{mealsPerWeek}</Text>
                 <TouchableOpacity
                   onPress={() => setMealsPerWeek(Math.min(5, mealsPerWeek + 1))}
                   className="p-2"
                 >
-                  <MaterialIcons name="add" size={24} color="#666" />
+                  <MaterialIcons name="add" size={24} color="#6B7280" />
                 </TouchableOpacity>
               </View>
             </View>
@@ -626,18 +670,6 @@ export default function ManageEmployees() {
         </View>
       </Modal>
 
-      {renderDropdown(
-        showMembershipDropdown,
-        () => setShowMembershipDropdown(false),
-        activeMemberships
-          .filter((m) => m.plan_type !== null)
-          .map((m) => ({
-            label: m.plan_type as string,
-            value: m.id,
-          })),
-        (value) => setSelectedMembership(value)
-      )}
-
       {/* Delete Confirmation Modal */}
       <Modal
         visible={showDeleteModal}
@@ -648,13 +680,13 @@ export default function ManageEmployees() {
           setSelectedEmployee(null);
         }}
       >
-        <View className="flex-1 bg-black/60 justify-center items-center px-6">
+        <View className="flex-1 bg-black/50 justify-center items-center px-6">
           <View className="bg-white rounded-2xl w-full p-6">
             <Text className="text-xl font-semibold text-gray-900 mb-4">
               Remove Employee
             </Text>
 
-            <Text className="text-base text-gray-600 mb-6">
+            <Text className="text-base text-gray-500 mb-6">
               Are you sure you want to remove {selectedEmployee?.first_name}{' '}
               {selectedEmployee?.last_name} from the membership plan?
             </Text>
@@ -667,7 +699,7 @@ export default function ManageEmployees() {
                   setSelectedEmployee(null);
                 }}
               >
-                <Text className="text-gray-600 font-medium">Cancel</Text>
+                <Text className="text-gray-500 font-medium">Cancel</Text>
               </TouchableOpacity>
 
               <TouchableOpacity

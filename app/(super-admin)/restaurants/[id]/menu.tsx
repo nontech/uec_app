@@ -9,6 +9,7 @@ import {
   Portal,
   TextInput,
   SegmentedButtons,
+  Chip,
 } from 'react-native-paper';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Database } from '../../../../supabase/types';
@@ -35,7 +36,7 @@ export default function MenuManagement() {
     description: '',
     price: null,
     category: '',
-    day: null,
+    days: [],
     is_available: true,
   });
 
@@ -136,7 +137,7 @@ export default function MenuManagement() {
       description: '',
       price: null,
       category: '',
-      day: null,
+      days: [],
       is_available: true,
     });
   };
@@ -154,7 +155,7 @@ export default function MenuManagement() {
       description: menuItem.description || '',
       price: menuItem.price,
       category: menuItem.category || '',
-      day: menuItem.day,
+      days: menuItem.days || [],
       is_available: menuItem.is_available ?? true,
     });
     setVisible(true);
@@ -164,6 +165,18 @@ export default function MenuManagement() {
     setItemToDelete(id);
     setDeleteConfirmVisible(true);
   };
+
+  const handleDayToggle = (day: string) => {
+    setFormData((prev) => {
+      const currentDays = prev.days || [];
+      const newDays = currentDays.includes(day)
+        ? currentDays.filter((d) => d !== day)
+        : [...currentDays, day];
+      return { ...prev, days: newDays };
+    });
+  };
+
+  const DAYS_OF_WEEK = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday'];
 
   if (loading) {
     return (
@@ -202,7 +215,7 @@ export default function MenuManagement() {
             <Text className="text-sm font-medium text-gray-600">Category</Text>
           </DataTable.Title>
           <DataTable.Title>
-            <Text className="text-sm font-medium text-gray-600">Day</Text>
+            <Text className="text-sm font-medium text-gray-600">Days</Text>
           </DataTable.Title>
           <DataTable.Title numeric>
             <Text className="text-sm font-medium text-gray-600">Price</Text>
@@ -225,7 +238,9 @@ export default function MenuManagement() {
               <Text className="text-sm text-gray-800">{item.category}</Text>
             </DataTable.Cell>
             <DataTable.Cell>
-              <Text className="text-sm text-gray-800">{item.day || '-'}</Text>
+              <Text className="text-sm text-gray-800">
+                {item.days?.join(', ') || '-'}
+              </Text>
             </DataTable.Cell>
             <DataTable.Cell numeric>
               <Text className="text-sm text-gray-800">€{item.price}</Text>
@@ -303,15 +318,21 @@ export default function MenuManagement() {
               mode="flat"
             />
 
-            <TextInput
-              label="Day"
-              value={formData.day ?? ''}
-              onChangeText={(text: string) =>
-                setFormData({ ...formData, day: text || null })
-              }
-              className="mb-4"
-              mode="flat"
-            />
+            <Text className="text-sm font-medium text-gray-600 mb-2">
+              Available Days
+            </Text>
+            <View className="flex-row flex-wrap gap-2 mb-4">
+              {DAYS_OF_WEEK.map((day) => (
+                <Chip
+                  key={day}
+                  selected={formData.days?.includes(day)}
+                  onPress={() => handleDayToggle(day)}
+                  className={formData.days?.includes(day) ? 'bg-blue-100' : ''}
+                >
+                  {day}
+                </Chip>
+              ))}
+            </View>
 
             <TextInput
               label="Price"

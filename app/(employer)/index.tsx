@@ -4,14 +4,18 @@ import { useEffect, useState } from 'react';
 import { supabase } from '../../lib/supabase';
 import { Database } from '../../supabase/types';
 import { Ionicons } from '@expo/vector-icons';
+import Colors from '../../constants/Colors';
 
-type Company = Database['public']['Tables']['companies']['Row'];
+type Address = Database['public']['Tables']['addresses']['Row'];
+type Company = Database['public']['Tables']['companies']['Row'] & {
+  addresses?: Address;
+};
 type Membership = Database['public']['Tables']['memberships']['Row'];
 
 const TIER_COLORS = {
-  S: 'bg-purple-500',
-  M: 'bg-blue-500',
-  L: 'bg-green-500',
+  S: 'bg-[#7C3AED]',
+  M: 'bg-[#2563EB]',
+  L: 'bg-[#059669]',
 };
 
 const TIER_DESCRIPTIONS = {
@@ -44,10 +48,10 @@ export default function EmployerDashboard() {
       if (userError) throw userError;
 
       if (userData?.company_id) {
-        // Fetch company details
+        // Fetch company details with address
         const { data: companyData, error: companyError } = await supabase
           .from('companies')
-          .select('*')
+          .select('*, addresses(*)')
           .eq('id', userData.company_id)
           .single();
 
@@ -75,46 +79,76 @@ export default function EmployerDashboard() {
 
   if (loading) {
     return (
-      <View className="flex-1 items-center justify-center">
-        <Text>Loading...</Text>
+      <View className="flex-1 items-center justify-center bg-white">
+        <Text className="text-gray-500 text-base">Loading...</Text>
       </View>
     );
   }
 
+  const formatAddress = () => {
+    if (!company?.addresses) return '';
+    const addr = company.addresses;
+    const parts = [
+      addr.address,
+      addr.city,
+      addr.postal_code?.toString(),
+    ].filter(Boolean);
+    return parts.join(', ');
+  };
+
   return (
-    <ScrollView className="flex-1">
+    <ScrollView className="flex-1 bg-white">
       <View className="p-6">
-        <Text className="text-3xl font-bold mb-8">{company?.name}</Text>
+        {/* Company Section */}
+        <View className="bg-white rounded-2xl p-6 mb-6 shadow-sm border border-gray-200">
+          <Text className="text-2xl font-bold text-gray-900 mb-2">
+            {company?.name}
+          </Text>
+          <Text className="text-base text-gray-600">{formatAddress()}</Text>
+        </View>
 
         {/* Memberships Section */}
-        <Text className="text-2xl font-semibold mb-4">Active Memberships</Text>
-        <View className="space-y-4">
-          {memberships.map((membership) => (
-            <View
-              key={membership.id}
-              className={`rounded-3xl p-6 ${
-                TIER_COLORS[membership.plan_type as keyof typeof TIER_COLORS]
-              }`}
-            >
-              <View className="flex-row justify-between items-center">
-                <View className="flex-1 mr-4">
-                  <Text className="text-white text-lg font-semibold">
-                    Tier {membership.plan_type}
-                  </Text>
-                  <Text className="text-white opacity-80 mt-1">
-                    {
-                      TIER_DESCRIPTIONS[
-                        membership.plan_type as keyof typeof TIER_DESCRIPTIONS
-                      ]
-                    }
-                  </Text>
+        <View className="bg-white rounded-2xl p-6 mb-6 shadow-sm border border-gray-200">
+          <Text className="text-2xl font-semibold text-gray-900 mb-6">
+            Active Memberships
+          </Text>
+          <ScrollView
+            className="max-h-[400px]"
+            showsVerticalScrollIndicator={false}
+          >
+            <View>
+              {memberships.map((membership, index) => (
+                <View
+                  key={membership.id}
+                  className={`rounded-2xl p-6 shadow-sm ${
+                    index > 0 ? 'mt-6' : ''
+                  } ${
+                    TIER_COLORS[
+                      membership.plan_type as keyof typeof TIER_COLORS
+                    ]
+                  }`}
+                >
+                  <View className="flex-row justify-between items-center">
+                    <View className="flex-1 mr-4">
+                      <Text className="text-xl font-bold text-white mb-2">
+                        Tier {membership.plan_type}
+                      </Text>
+                      <Text className="text-base text-white/90">
+                        {
+                          TIER_DESCRIPTIONS[
+                            membership.plan_type as keyof typeof TIER_DESCRIPTIONS
+                          ]
+                        }
+                      </Text>
+                    </View>
+                    <View className="bg-white/20 rounded-full p-3">
+                      <Ionicons name="star" size={28} color="#FFFFFF" />
+                    </View>
+                  </View>
                 </View>
-                <View className="bg-white/20 rounded-full p-2">
-                  <Ionicons name="star" size={24} color="white" />
-                </View>
-              </View>
+              ))}
             </View>
-          ))}
+          </ScrollView>
         </View>
       </View>
     </ScrollView>

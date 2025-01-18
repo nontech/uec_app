@@ -1,9 +1,16 @@
-import { View, Text } from 'react-native';
+import { View, Text, ScrollView } from 'react-native';
 import { useEffect, useState } from 'react';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../lib/AuthContext';
 import { Database } from '../../supabase/types';
 import { Svg, Circle } from 'react-native-svg';
+import Colors from '../../constants/Colors';
+
+const PLAN_COLORS = {
+  S: 'bg-[#7C3AED]',
+  M: 'bg-[#2563EB]',
+  L: 'bg-[#059669]',
+};
 
 type AppUser = Database['public']['Tables']['app_users']['Row'];
 type Company = Database['public']['Tables']['companies']['Row'];
@@ -122,7 +129,7 @@ export default function Dashboard() {
               cx={size / 2}
               cy={size / 2}
               r={radius}
-              stroke="#F3F0FF"
+              stroke="#EDE9FE"
               strokeWidth={strokeWidth}
               fill="transparent"
             />
@@ -151,20 +158,32 @@ export default function Dashboard() {
               alignItems: 'center',
             }}
           >
-            <Text style={{ fontSize: 24, fontWeight: 'bold' }}>
+            <Text
+              style={{
+                fontSize: 24,
+                fontWeight: 'bold',
+                color: '#1F2937',
+              }}
+            >
               {Math.floor(value)}
             </Text>
           </View>
         </View>
-        <Text style={{ marginTop: 8, color: '#666' }}>{text}</Text>
+        <Text style={{ marginTop: 8, color: '#6B7280' }}>{text}</Text>
       </View>
     );
   };
 
+  const Card = ({ children }: { children: React.ReactNode }) => (
+    <View className="bg-white rounded-2xl p-6 shadow-sm mb-4 border border-[#E0E0E0]">
+      {children}
+    </View>
+  );
+
   if (loading) {
     return (
-      <View className="flex-1 items-center justify-center">
-        <Text>Loading...</Text>
+      <View className="flex-1 items-center justify-center bg-white">
+        <Text className="text-gray-500">Loading...</Text>
       </View>
     );
   }
@@ -181,49 +200,73 @@ export default function Dashboard() {
       : 0;
 
   return (
-    <View className="flex-1 bg-white">
-      {/* User Info Section */}
-      <View className="p-6">
-        <View className="flex-row items-center mb-6">
-          <View className="w-16 h-16 bg-[#6B4EFF] rounded-full mr-4 items-center justify-center">
-            <Text className="text-white text-2xl font-semibold">
-              {userDetails?.first_name?.[0]?.toUpperCase() || ''}
-            </Text>
+    <ScrollView className="flex-1 bg-white">
+      <View className="p-4">
+        {/* Profile Card */}
+        <Card>
+          <View className="flex-row items-center">
+            <View className="w-16 h-16 bg-[#6B4EFF] rounded-full mr-4 items-center justify-center">
+              <Text className="text-white text-2xl font-semibold">
+                {userDetails?.first_name?.[0]?.toUpperCase() || ''}
+              </Text>
+            </View>
+            <View>
+              <Text className="text-gray-900 text-xl font-semibold">
+                {userDetails?.first_name} {userDetails?.last_name}
+              </Text>
+              <Text className="text-gray-600">{userDetails?.email}</Text>
+            </View>
           </View>
-          <View>
-            <Text className="text-xl font-semibold">
-              {userDetails?.first_name} {userDetails?.last_name}
-            </Text>
-            <Text className="text-gray-600">{userDetails?.email}</Text>
+        </Card>
+
+        {/* Company & Membership Info Card */}
+        <Card>
+          <View className="space-y-4">
+            <View className="flex-row justify-between items-center pb-4 border-b border-gray-200">
+              <Text className="text-gray-600 font-medium">Company</Text>
+              <Text className="text-gray-900 font-semibold">
+                {company?.name}
+              </Text>
+            </View>
+            {membership && (
+              <View className="flex-row justify-between items-center">
+                <Text className="text-gray-600 font-medium">Membership</Text>
+                <View
+                  className={`${
+                    PLAN_COLORS[
+                      membership.plan_type as keyof typeof PLAN_COLORS
+                    ] || 'bg-gray-200'
+                  } px-3 py-1 rounded-full`}
+                >
+                  <Text className="text-white font-medium">
+                    Plan {membership.plan_type}
+                  </Text>
+                </View>
+              </View>
+            )}
           </View>
-        </View>
+        </Card>
 
-        {/* Company Info */}
-        <View className="flex-row justify-between items-center mb-8">
-          <Text className="text-gray-600">Company</Text>
-          <Text className="text-lg">{company?.name}</Text>
-        </View>
-
-        {/* Membership Info */}
-        {membership && (
-          <View className="flex-row justify-between items-center mb-8">
-            <Text className="text-gray-600">Membership</Text>
-            <Text className="text-lg">Plan {membership.plan_type}</Text>
-          </View>
-        )}
-
-        {/* Meals Section */}
-        <View className="mt-8">
-          <Text className="text-xl font-semibold mb-6">Meals Remaining</Text>
-          <View className="flex-row justify-center">
+        {/* Meals Progress Card */}
+        <Card>
+          <Text className="text-white text-xl font-semibold mb-6">
+            Meals Remaining
+          </Text>
+          <View className="items-center">
             <CircularProgress
               value={weeklyMeals}
               maxValue={userDetails?.meals_per_week || 0}
               text="This week"
+              size={160}
             />
+            <View className="mt-6 border border-[#3C3C3E] px-4 py-3 rounded-lg">
+              <Text className="text-[#3C3C3E] text-center">
+                {weeklyMeals} of {userDetails?.meals_per_week} meals available
+              </Text>
+            </View>
           </View>
-        </View>
+        </Card>
       </View>
-    </View>
+    </ScrollView>
   );
 }

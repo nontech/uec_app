@@ -6,6 +6,7 @@ import { Image } from 'expo-image';
 import { Ionicons } from '@expo/vector-icons';
 import { Database } from '../../../supabase/types';
 import { useAuth } from '../../../lib/AuthContext';
+import Colors from '../../../constants/Colors';
 
 type Restaurant = Database['public']['Tables']['restaurants']['Row'] & {
   hours_range_lunch?: {
@@ -31,7 +32,7 @@ const PLACEHOLDER_IMAGE =
 
 // Format lunch hours into a readable string
 const formatLunchHours = (hours?: { from: string; to: string }) => {
-  if (!hours) return 'Lunch: 12 pm - 2 pm'; // Default hours
+  if (!hours) return '12 pm - 2 pm'; // Default hours
 
   // Format time from HH:MM to 12-hour format
   const formatTime = (timeStr: string) => {
@@ -42,7 +43,7 @@ const formatLunchHours = (hours?: { from: string; to: string }) => {
     return `${hour12}${minutes ? `:${minutes}` : ''} ${ampm}`;
   };
 
-  return `Lunch: ${formatTime(hours.from)} - ${formatTime(hours.to)}`;
+  return `${formatTime(hours.from)} - ${formatTime(hours.to)}`;
 };
 
 export default function RestaurantsHome() {
@@ -203,26 +204,36 @@ export default function RestaurantsHome() {
         }}
       />
       <View className="px-1">
-        <Text className="text-xl font-bold mb-1">{item.name}</Text>
-        <View className="flex-row items-center justify-between">
-          <View className="flex-row items-center">
-            <View className="flex-row items-center">
-              <Ionicons name="time-outline" size={16} color="#666" />
-              <Text className="text-gray-600 ml-1">
-                {formatLunchHours(item.hours_range_lunch)}
-              </Text>
-            </View>
-            <View className="flex-row items-center ml-6">
-              <Ionicons name="walk-outline" size={16} color="#666" />
-              <Text className="text-gray-600 ml-1">
-                {item.allowed_restaurants?.[0]?.distance_km != null
-                  ? `${item.allowed_restaurants[0].distance_km.toFixed(1)} km`
-                  : '-'}
-              </Text>
-            </View>
-          </View>
+        <View className="flex-row items-center justify-between mb-1">
+          <Text className="text-xl font-bold text-gray-900">{item.name}</Text>
           <View className="bg-gray-100 px-3 py-1 rounded-full">
-            <Text className="text-gray-600">{item.cuisine_type}</Text>
+            <Text className="text-gray-700 text-sm" numberOfLines={1}>
+              {item.cuisine_type}
+            </Text>
+          </View>
+        </View>
+        <View className="flex-row items-center gap-6">
+          <View className="flex-row items-center">
+            <Ionicons
+              name="time-outline"
+              size={16}
+              color={Colors.text.secondary}
+            />
+            <Text className="text-gray-600 ml-1">
+              {formatLunchHours(item.hours_range_lunch)}
+            </Text>
+          </View>
+          <View className="flex-row items-center">
+            <Ionicons
+              name="walk-outline"
+              size={16}
+              color={Colors.text.secondary}
+            />
+            <Text className="text-gray-600 ml-1">
+              {item.allowed_restaurants?.[0]?.distance_km != null
+                ? `${item.allowed_restaurants[0].distance_km.toFixed(1)} km`
+                : '-'}
+            </Text>
           </View>
         </View>
       </View>
@@ -232,19 +243,19 @@ export default function RestaurantsHome() {
   if (loading) {
     return (
       <View className="flex-1 items-center justify-center bg-white">
-        <Text className="text-gray-600">Loading restaurants...</Text>
+        <Text className="text-gray-500">Loading restaurants...</Text>
       </View>
     );
   }
 
   return (
     <View className="flex-1 bg-white">
-      <Text className="text-2xl font-bold px-4 py-6">Nearby Restaurants</Text>
       <FlatList
         data={restaurants}
         renderItem={renderRestaurant}
-        keyExtractor={(item) => item.id.toString()}
+        keyExtractor={(item) => item.id}
         contentContainerStyle={{ padding: 16 }}
+        showsVerticalScrollIndicator={false}
       />
     </View>
   );

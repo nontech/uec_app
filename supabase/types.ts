@@ -121,6 +121,7 @@ export type Database = {
           membership_id: string | null
           personal_email: string | null
           profile_image_url: string | null
+          restaurant_id: string | null
           status: string | null
           type: string
           updated_at: string
@@ -136,6 +137,7 @@ export type Database = {
           membership_id?: string | null
           personal_email?: string | null
           profile_image_url?: string | null
+          restaurant_id?: string | null
           status?: string | null
           type: string
           updated_at?: string
@@ -151,6 +153,7 @@ export type Database = {
           membership_id?: string | null
           personal_email?: string | null
           profile_image_url?: string | null
+          restaurant_id?: string | null
           status?: string | null
           type?: string
           updated_at?: string
@@ -168,6 +171,13 @@ export type Database = {
             columns: ["membership_id"]
             isOneToOne: false
             referencedRelation: "memberships"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "app_users_restaurant_id_fkey"
+            columns: ["restaurant_id"]
+            isOneToOne: false
+            referencedRelation: "restaurants"
             referencedColumns: ["id"]
           },
         ]
@@ -329,7 +339,7 @@ export type Database = {
         Row: {
           category: string | null
           created_at: string | null
-          day: string | null
+          days: string[] | null
           description: string | null
           id: string
           is_available: boolean | null
@@ -341,7 +351,7 @@ export type Database = {
         Insert: {
           category?: string | null
           created_at?: string | null
-          day?: string | null
+          days?: string[] | null
           description?: string | null
           id?: string
           is_available?: boolean | null
@@ -353,7 +363,7 @@ export type Database = {
         Update: {
           category?: string | null
           created_at?: string | null
-          day?: string | null
+          days?: string[] | null
           description?: string | null
           id?: string
           is_available?: boolean | null
