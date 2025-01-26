@@ -3,9 +3,9 @@ import { corsHeaders } from '../_shared/cors.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.39.3';
 
 // @ts-ignore: allow Deno types
-const supabaseUrl = Deno.env.get('DB_URL')!;
+const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
 // @ts-ignore: allow Deno types
-const supabaseServiceKey = Deno.env.get('SERVICE_ROLE_KEY')!;
+const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
 
 const supabase = createClient(supabaseUrl, supabaseServiceKey);
 

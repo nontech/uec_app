@@ -101,7 +101,10 @@ export default function MembershipsManagement() {
 
   const handleCreate = async () => {
     try {
-      const { error } = await supabase.from('memberships').insert([formData]);
+      const { showCompanyMenu, ...dataToInsert } = formData;
+      const { error } = await supabase
+        .from('memberships')
+        .insert([dataToInsert]);
 
       if (error) throw error;
 
@@ -117,9 +120,10 @@ export default function MembershipsManagement() {
     if (!selectedMembership?.id) return;
 
     try {
+      const { showCompanyMenu, ...dataToUpdate } = formData;
       const { error } = await supabase
         .from('memberships')
-        .update(formData)
+        .update(dataToUpdate)
         .eq('id', selectedMembership.id);
 
       if (error) throw error;
