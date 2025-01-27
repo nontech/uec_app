@@ -1,8 +1,9 @@
 # Learn more https://docs.github.com/en/get-started/getting-started-with-git/ignoring-files
 
 # dependencies
+!assets/node_modules/ # Don't ignore node_modules inside any assets directory
 node_modules/
-!**/assets/**/node_modules/  # Don't ignore node_modules inside any assets directory
+
 
 # Expo
 .expo/
