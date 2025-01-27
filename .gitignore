@@ -2,6 +2,7 @@
 
 # dependencies
 node_modules/
+!**/assets/**/node_modules/  # Don't ignore node_modules inside any assets directory
 
 # Expo
 .expo/
