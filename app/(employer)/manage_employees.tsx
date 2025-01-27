@@ -430,243 +430,262 @@ export default function ManageEmployees() {
         onRequestClose={() => setShowInviteModal(false)}
       >
         <View className="flex-1 bg-black/50 justify-end">
-          <View className="bg-white rounded-t-3xl p-6">
-            <View className="flex-row justify-between items-center mb-6">
-              <Text className="text-xl font-semibold text-gray-900">
-                Invite Employee
-              </Text>
-              <TouchableOpacity
-                onPress={() => {
-                  setShowInviteModal(false);
-                  setInviteEmail('');
-                  setFirstName('');
-                  setLastName('');
-                  setSelectedMembership(null);
-                  setMealsPerWeek(3);
-                }}
-                className="p-2"
-              >
-                <MaterialIcons name="close" size={24} color="#6B7280" />
-              </TouchableOpacity>
-            </View>
-
-            <Text className="text-base text-gray-500 mb-4">
-              Enter the details of the employee you want to invite.
-            </Text>
-
-            <Input
-              placeholder="First Name"
-              value={firstName}
-              onChangeText={setFirstName}
-              leftIcon={{
-                type: 'font-awesome',
-                name: 'user',
-                color: '#6B7280',
-                size: 18,
-              }}
-              inputStyle={{ color: '#1F2937', fontSize: 16 }}
-              inputContainerStyle={{
-                borderWidth: 1,
-                borderColor: '#E5E7EB',
-                borderRadius: 8,
-                paddingHorizontal: 12,
-                paddingVertical: 4,
-                marginBottom: 8,
-                backgroundColor: '#F9FAFB',
-              }}
-              containerStyle={{ paddingHorizontal: 0 }}
-              placeholderTextColor="#6B7280"
-            />
-
-            <Input
-              placeholder="Last Name"
-              value={lastName}
-              onChangeText={setLastName}
-              leftIcon={{
-                type: 'font-awesome',
-                name: 'user',
-                color: '#6B7280',
-                size: 18,
-              }}
-              inputStyle={{ color: '#1F2937', fontSize: 16 }}
-              inputContainerStyle={{
-                borderWidth: 1,
-                borderColor: '#E5E7EB',
-                borderRadius: 8,
-                paddingHorizontal: 12,
-                paddingVertical: 4,
-                marginBottom: 8,
-                backgroundColor: '#F9FAFB',
-              }}
-              containerStyle={{ paddingHorizontal: 0 }}
-              placeholderTextColor="#6B7280"
-            />
-
-            <Input
-              placeholder="employee@company.com"
-              value={inviteEmail}
-              onChangeText={setInviteEmail}
-              autoCapitalize="none"
-              keyboardType="email-address"
-              leftIcon={{
-                type: 'font-awesome',
-                name: 'envelope',
-                color: '#6B7280',
-                size: 18,
-              }}
-              inputStyle={{ color: '#1F2937', fontSize: 16 }}
-              inputContainerStyle={{
-                borderWidth: 1,
-                borderColor: '#E5E7EB',
-                borderRadius: 8,
-                paddingHorizontal: 12,
-                paddingVertical: 4,
-                backgroundColor: '#F9FAFB',
-              }}
-              containerStyle={{ paddingHorizontal: 0 }}
-              placeholderTextColor="#6B7280"
-            />
-
-            {/* Membership Plan Selection */}
-            <View className="mb-4">
-              <Text className="text-sm font-medium text-gray-700 mb-2">
-                Membership Plan
-              </Text>
-              <TouchableOpacity
-                className="flex-row items-center justify-between border border-gray-200 rounded-lg p-3 bg-gray-50"
-                onPress={() => setShowMembershipDropdown(true)}
-              >
-                <Text className="text-base text-gray-900">
-                  {selectedMembership
-                    ? activeMemberships.find((m) => m.id === selectedMembership)
-                        ?.plan_type
-                    : 'Select a plan'}
+          <ScrollView>
+            <View className="bg-white rounded-t-3xl p-6">
+              <View className="flex-row justify-between items-center mb-6">
+                <Text className="text-xl font-semibold text-gray-900">
+                  Invite Employee
                 </Text>
-                <MaterialIcons
-                  name="arrow-drop-down"
-                  size={24}
-                  color="#6B7280"
-                />
-              </TouchableOpacity>
-            </View>
-
-            {/* Membership Dropdown Modal */}
-            <Modal
-              visible={showMembershipDropdown}
-              transparent
-              animationType={Platform.OS === 'ios' ? 'slide' : 'fade'}
-              onRequestClose={() => setShowMembershipDropdown(false)}
-            >
-              <TouchableOpacity
-                style={{
-                  flex: 1,
-                  backgroundColor: 'rgba(0, 0, 0, 0.5)',
-                  justifyContent: Platform.OS === 'ios' ? 'flex-end' : 'center',
-                }}
-                activeOpacity={1}
-                onPress={() => setShowMembershipDropdown(false)}
-              >
-                <View
-                  style={{
-                    backgroundColor: 'white',
-                    borderRadius: Platform.OS === 'ios' ? 20 : 10,
-                    marginHorizontal: Platform.OS === 'ios' ? 0 : 20,
-                    borderTopLeftRadius: Platform.OS === 'ios' ? 20 : 10,
-                    borderTopRightRadius: Platform.OS === 'ios' ? 20 : 10,
+                <TouchableOpacity
+                  onPress={() => {
+                    setShowInviteModal(false);
+                    setInviteEmail('');
+                    setFirstName('');
+                    setLastName('');
+                    setSelectedMembership(null);
+                    setMealsPerWeek(3);
                   }}
-                >
-                  <View
-                    style={{
-                      borderBottomWidth: 1,
-                      borderBottomColor: '#E5E7EB',
-                      padding: 16,
-                      flexDirection: 'row',
-                      justifyContent: 'space-between',
-                      alignItems: 'center',
-                    }}
-                  >
-                    <Text
-                      style={{
-                        fontSize: 18,
-                        fontWeight: '600',
-                        color: '#1F2937',
-                      }}
-                    >
-                      Select Plan
-                    </Text>
-                    <TouchableOpacity
-                      onPress={() => setShowMembershipDropdown(false)}
-                    >
-                      <MaterialIcons name="close" size={24} color="#6B7280" />
-                    </TouchableOpacity>
-                  </View>
-                  <ScrollView style={{ maxHeight: 300 }}>
-                    {activeMemberships.length === 0 ? (
-                      <View style={{ padding: 16 }}>
-                        <Text style={{ color: '#6B7280' }}>
-                          No plans available
-                        </Text>
-                      </View>
-                    ) : (
-                      activeMemberships.map((membership) => (
-                        <TouchableOpacity
-                          key={membership.id}
-                          style={{
-                            padding: 16,
-                            borderBottomWidth: 1,
-                            borderBottomColor: '#E5E7EB',
-                          }}
-                          onPress={() => {
-                            setSelectedMembership(membership.id);
-                            setShowMembershipDropdown(false);
-                          }}
-                        >
-                          <Text style={{ fontSize: 16, color: '#1F2937' }}>
-                            {membership.plan_type || 'Unknown Plan'}
-                          </Text>
-                        </TouchableOpacity>
-                      ))
-                    )}
-                  </ScrollView>
-                </View>
-              </TouchableOpacity>
-            </Modal>
-
-            <View className="mb-6">
-              <Text className="text-sm font-medium text-gray-700 mb-2">
-                Meals per Week
-              </Text>
-              <View className="flex-row items-center justify-between border border-gray-200 rounded-lg p-3 bg-gray-50">
-                <TouchableOpacity
-                  onPress={() => setMealsPerWeek(Math.max(1, mealsPerWeek - 1))}
                   className="p-2"
                 >
-                  <MaterialIcons name="remove" size={24} color="#6B7280" />
-                </TouchableOpacity>
-                <Text className="text-base text-gray-900">{mealsPerWeek}</Text>
-                <TouchableOpacity
-                  onPress={() => setMealsPerWeek(Math.min(5, mealsPerWeek + 1))}
-                  className="p-2"
-                >
-                  <MaterialIcons name="add" size={24} color="#6B7280" />
+                  <MaterialIcons name="close" size={24} color="#6B7280" />
                 </TouchableOpacity>
               </View>
-            </View>
 
-            <Button
-              title="Send Invitation"
-              loading={inviting}
-              disabled={inviting || !inviteEmail || !selectedMembership}
-              onPress={handleInviteEmployee}
-              buttonStyle={{
-                backgroundColor: '#6B4EFF',
-                borderRadius: 10,
-                paddingVertical: 14,
-                marginTop: 8,
-              }}
-              titleStyle={{ fontSize: 16, fontWeight: '600' }}
-            />
-          </View>
+              <ScrollView
+                showsVerticalScrollIndicator={false}
+                contentContainerStyle={{ paddingBottom: 20 }}
+              >
+                <Text className="text-base text-gray-500 mb-4">
+                  Enter the details of the employee you want to invite.
+                </Text>
+
+                <Input
+                  placeholder="First Name"
+                  value={firstName}
+                  onChangeText={setFirstName}
+                  leftIcon={{
+                    type: 'font-awesome',
+                    name: 'user',
+                    color: '#6B7280',
+                    size: 18,
+                  }}
+                  inputStyle={{ color: '#1F2937', fontSize: 16 }}
+                  inputContainerStyle={{
+                    borderWidth: 1,
+                    borderColor: '#E5E7EB',
+                    borderRadius: 8,
+                    paddingHorizontal: 12,
+                    paddingVertical: 4,
+                    marginBottom: 8,
+                    backgroundColor: '#F9FAFB',
+                  }}
+                  containerStyle={{ paddingHorizontal: 0 }}
+                  placeholderTextColor="#6B7280"
+                />
+
+                <Input
+                  placeholder="Last Name"
+                  value={lastName}
+                  onChangeText={setLastName}
+                  leftIcon={{
+                    type: 'font-awesome',
+                    name: 'user',
+                    color: '#6B7280',
+                    size: 18,
+                  }}
+                  inputStyle={{ color: '#1F2937', fontSize: 16 }}
+                  inputContainerStyle={{
+                    borderWidth: 1,
+                    borderColor: '#E5E7EB',
+                    borderRadius: 8,
+                    paddingHorizontal: 12,
+                    paddingVertical: 4,
+                    marginBottom: 8,
+                    backgroundColor: '#F9FAFB',
+                  }}
+                  containerStyle={{ paddingHorizontal: 0 }}
+                  placeholderTextColor="#6B7280"
+                />
+
+                <Input
+                  placeholder="employee@company.com"
+                  value={inviteEmail}
+                  onChangeText={setInviteEmail}
+                  autoCapitalize="none"
+                  keyboardType="email-address"
+                  leftIcon={{
+                    type: 'font-awesome',
+                    name: 'envelope',
+                    color: '#6B7280',
+                    size: 18,
+                  }}
+                  inputStyle={{ color: '#1F2937', fontSize: 16 }}
+                  inputContainerStyle={{
+                    borderWidth: 1,
+                    borderColor: '#E5E7EB',
+                    borderRadius: 8,
+                    paddingHorizontal: 12,
+                    paddingVertical: 4,
+                    backgroundColor: '#F9FAFB',
+                  }}
+                  containerStyle={{ paddingHorizontal: 0 }}
+                  placeholderTextColor="#6B7280"
+                />
+
+                {/* Membership Plan Selection */}
+                <View className="mb-4">
+                  <Text className="text-sm font-medium text-gray-700 mb-2">
+                    Membership Plan
+                  </Text>
+                  <TouchableOpacity
+                    className="flex-row items-center justify-between border border-gray-200 rounded-lg p-3 bg-gray-50"
+                    onPress={() => setShowMembershipDropdown(true)}
+                  >
+                    <Text className="text-base text-gray-900">
+                      {selectedMembership
+                        ? activeMemberships.find(
+                            (m) => m.id === selectedMembership
+                          )?.plan_type
+                        : 'Select a plan'}
+                    </Text>
+                    <MaterialIcons
+                      name="arrow-drop-down"
+                      size={24}
+                      color="#6B7280"
+                    />
+                  </TouchableOpacity>
+                </View>
+
+                {/* Membership Dropdown Modal */}
+                <Modal
+                  visible={showMembershipDropdown}
+                  transparent
+                  animationType={Platform.OS === 'ios' ? 'slide' : 'fade'}
+                  onRequestClose={() => setShowMembershipDropdown(false)}
+                >
+                  <TouchableOpacity
+                    style={{
+                      flex: 1,
+                      backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                      justifyContent:
+                        Platform.OS === 'ios' ? 'flex-end' : 'center',
+                    }}
+                    activeOpacity={1}
+                    onPress={() => setShowMembershipDropdown(false)}
+                  >
+                    <View
+                      style={{
+                        backgroundColor: 'white',
+                        borderRadius: Platform.OS === 'ios' ? 20 : 10,
+                        marginHorizontal: Platform.OS === 'ios' ? 0 : 20,
+                        borderTopLeftRadius: Platform.OS === 'ios' ? 20 : 10,
+                        borderTopRightRadius: Platform.OS === 'ios' ? 20 : 10,
+                      }}
+                    >
+                      <View
+                        style={{
+                          borderBottomWidth: 1,
+                          borderBottomColor: '#E5E7EB',
+                          padding: 16,
+                          flexDirection: 'row',
+                          justifyContent: 'space-between',
+                          alignItems: 'center',
+                        }}
+                      >
+                        <Text
+                          style={{
+                            fontSize: 18,
+                            fontWeight: '600',
+                            color: '#1F2937',
+                          }}
+                        >
+                          Select Plan
+                        </Text>
+                        <TouchableOpacity
+                          onPress={() => setShowMembershipDropdown(false)}
+                        >
+                          <MaterialIcons
+                            name="close"
+                            size={24}
+                            color="#6B7280"
+                          />
+                        </TouchableOpacity>
+                      </View>
+                      <ScrollView style={{ maxHeight: 300 }}>
+                        {activeMemberships.length === 0 ? (
+                          <View style={{ padding: 16 }}>
+                            <Text style={{ color: '#6B7280' }}>
+                              No plans available
+                            </Text>
+                          </View>
+                        ) : (
+                          activeMemberships.map((membership) => (
+                            <TouchableOpacity
+                              key={membership.id}
+                              style={{
+                                padding: 16,
+                                borderBottomWidth: 1,
+                                borderBottomColor: '#E5E7EB',
+                              }}
+                              onPress={() => {
+                                setSelectedMembership(membership.id);
+                                setShowMembershipDropdown(false);
+                              }}
+                            >
+                              <Text style={{ fontSize: 16, color: '#1F2937' }}>
+                                {membership.plan_type || 'Unknown Plan'}
+                              </Text>
+                            </TouchableOpacity>
+                          ))
+                        )}
+                      </ScrollView>
+                    </View>
+                  </TouchableOpacity>
+                </Modal>
+
+                <View className="mb-6">
+                  <Text className="text-sm font-medium text-gray-700 mb-2">
+                    Meals per Week
+                  </Text>
+                  <View className="flex-row items-center justify-between border border-gray-200 rounded-lg p-3 bg-gray-50">
+                    <TouchableOpacity
+                      onPress={() =>
+                        setMealsPerWeek(Math.max(1, mealsPerWeek - 1))
+                      }
+                      className="p-2"
+                    >
+                      <MaterialIcons name="remove" size={24} color="#6B7280" />
+                    </TouchableOpacity>
+                    <Text className="text-base text-gray-900">
+                      {mealsPerWeek}
+                    </Text>
+                    <TouchableOpacity
+                      onPress={() =>
+                        setMealsPerWeek(Math.min(5, mealsPerWeek + 1))
+                      }
+                      className="p-2"
+                    >
+                      <MaterialIcons name="add" size={24} color="#6B7280" />
+                    </TouchableOpacity>
+                  </View>
+                </View>
+
+                <Button
+                  title="Send Invitation"
+                  loading={inviting}
+                  disabled={inviting || !inviteEmail || !selectedMembership}
+                  onPress={handleInviteEmployee}
+                  buttonStyle={{
+                    backgroundColor: '#6B4EFF',
+                    borderRadius: 10,
+                    paddingVertical: 14,
+                    marginTop: 8,
+                  }}
+                  titleStyle={{ fontSize: 16, fontWeight: '600' }}
+                />
+              </ScrollView>
+            </View>
+          </ScrollView>
         </View>
       </Modal>
 

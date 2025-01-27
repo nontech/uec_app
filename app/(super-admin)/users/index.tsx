@@ -18,24 +18,28 @@ import { Alert } from 'react-native';
 type AppUser = Database['public']['Tables']['app_users']['Row'];
 type Company = Database['public']['Tables']['companies']['Row'];
 type Membership = Database['public']['Tables']['memberships']['Row'];
+type Restaurant = Database['public']['Tables']['restaurants']['Row'];
 
 type AppUserWithDetails = AppUser & {
   companies?: Company;
   memberships?: Membership;
   personal_email: string;
   meals_per_week: number;
+  restaurants?: Restaurant;
 };
 
 type UserFormData = {
   first_name: string;
   last_name: string;
-  type: 'super_admin' | 'company_admin' | 'employee';
+  type: 'super_admin' | 'company_admin' | 'employee' | 'restaurant_admin';
   company_id: string | null;
   membership_id: string | null;
+  restaurant_id: string | null;
   status: 'active' | 'inactive';
   personal_email: string;
   meals_per_week: number;
   showCompanyMenu?: boolean;
+  showRestaurantMenu?: boolean;
   email: string;
 };
 
@@ -43,6 +47,7 @@ export default function UsersManagement() {
   const [users, setUsers] = useState<AppUserWithDetails[]>([]);
   const [companies, setCompanies] = useState<Company[]>([]);
   const [memberships, setMemberships] = useState<Membership[]>([]);
+  const [restaurants, setRestaurants] = useState<Restaurant[]>([]);
   const [loading, setLoading] = useState(true);
   const [visible, setVisible] = useState(false);
   const [deleteConfirmVisible, setDeleteConfirmVisible] = useState(false);
@@ -59,6 +64,7 @@ export default function UsersManagement() {
     type: 'employee',
     company_id: null,
     membership_id: null,
+    restaurant_id: null,
     status: 'active',
     personal_email: '',
     meals_per_week: 0,
@@ -69,6 +75,7 @@ export default function UsersManagement() {
     fetchUsers();
     fetchCompanies();
     fetchMemberships();
+    fetchRestaurants();
   }, []);
 
   const fetchUsers = async () => {
@@ -79,7 +86,8 @@ export default function UsersManagement() {
           `
           *,
           companies (*),
-          memberships (*)
+          memberships (*),
+          restaurants (*)
         `
         )
         .order('created_at', { ascending: false })
@@ -122,6 +130,20 @@ export default function UsersManagement() {
     }
   };
 
+  const fetchRestaurants = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('restaurants')
+        .select('*')
+        .order('name');
+
+      if (error) throw error;
+      setRestaurants(data || []);
+    } catch (error) {
+      console.error('Error fetching restaurants:', error);
+    }
+  };
+
   const handleInviteUser = async () => {
     try {
       const { data, error } = await supabase.functions.invoke('invite-user', {
@@ -132,6 +154,7 @@ export default function UsersManagement() {
           type: formData.type,
           company_id: formData.company_id,
           membership_id: formData.membership_id,
+          restaurant_id: formData.restaurant_id,
           meals_per_week: formData.meals_per_week,
         },
       });
@@ -160,6 +183,7 @@ export default function UsersManagement() {
           type: formData.type,
           company_id: formData.company_id,
           membership_id: formData.membership_id,
+          restaurant_id: formData.restaurant_id,
           status: formData.status,
           personal_email: formData.personal_email,
           meals_per_week: formData.meals_per_week,
@@ -185,6 +209,7 @@ export default function UsersManagement() {
       type: 'employee',
       company_id: null,
       membership_id: null,
+      restaurant_id: null,
       status: 'active',
       personal_email: '',
       meals_per_week: 0,
@@ -204,9 +229,14 @@ export default function UsersManagement() {
     setFormData({
       first_name: user.first_name || '',
       last_name: user.last_name || '',
-      type: user.type as 'super_admin' | 'company_admin' | 'employee',
+      type: user.type as
+        | 'super_admin'
+        | 'company_admin'
+        | 'employee'
+        | 'restaurant_admin',
       company_id: user.company_id,
       membership_id: user.membership_id,
+      restaurant_id: user.restaurant_id,
       status: user.status as 'active' | 'inactive',
       personal_email: user.personal_email || '',
       meals_per_week: user.meals_per_week || 0,
@@ -379,6 +409,34 @@ export default function UsersManagement() {
                 {isInviteMode ? 'Invite New User' : 'Edit User'}
               </Text>
 
+              <Text className="text-sm font-medium text-gray-600 mb-2">
+                Role
+              </Text>
+              <SegmentedButtons
+                value={formData.type}
+                onValueChange={(value) =>
+                  setFormData({
+                    ...formData,
+                    type: value as
+                      | 'super_admin'
+                      | 'company_admin'
+                      | 'employee'
+                      | 'restaurant_admin',
+                    company_id:
+                      value === 'super_admin' ? null : formData.company_id,
+                    membership_id:
+                      value === 'super_admin' ? null : formData.membership_id,
+                  })
+                }
+                buttons={[
+                  { value: 'super_admin', label: 'Super Admin' },
+                  { value: 'company_admin', label: 'Company Admin' },
+                  { value: 'employee', label: 'Employee' },
+                  { value: 'restaurant_admin', label: 'Restaurant Admin' },
+                ]}
+                style={{ marginBottom: 16 }}
+              />
+
               {isInviteMode && (
                 <TextInput
                   label="Email"
@@ -456,29 +514,6 @@ export default function UsersManagement() {
                   keyboardType="numeric"
                 />
               )}
-
-              <Text className="text-sm font-medium text-gray-600 mb-2">
-                Role
-              </Text>
-              <SegmentedButtons
-                value={formData.type}
-                onValueChange={(value) =>
-                  setFormData({
-                    ...formData,
-                    type: value as 'super_admin' | 'company_admin' | 'employee',
-                    company_id:
-                      value === 'super_admin' ? null : formData.company_id,
-                    membership_id:
-                      value === 'super_admin' ? null : formData.membership_id,
-                  })
-                }
-                buttons={[
-                  { value: 'super_admin', label: 'Super Admin' },
-                  { value: 'company_admin', label: 'Company Admin' },
-                  { value: 'employee', label: 'Employee' },
-                ]}
-                style={{ marginBottom: 16 }}
-              />
 
               {formData.type !== 'super_admin' && (
                 <>
@@ -582,6 +617,50 @@ export default function UsersManagement() {
                     </View>
                   </>
                 )}
+
+              {formData.type === 'restaurant_admin' && (
+                <>
+                  <Text className="text-sm font-medium text-gray-600 mb-2">
+                    Restaurant
+                  </Text>
+                  <Menu
+                    visible={!!formData.showRestaurantMenu}
+                    onDismiss={() =>
+                      setFormData({ ...formData, showRestaurantMenu: false })
+                    }
+                    anchor={
+                      <Button
+                        mode="outlined"
+                        onPress={() =>
+                          setFormData({ ...formData, showRestaurantMenu: true })
+                        }
+                        className="border-gray-300 w-full justify-start mb-4"
+                        textColor="#4b5563"
+                      >
+                        {formData.restaurant_id
+                          ? restaurants.find(
+                              (r) => r.id === formData.restaurant_id
+                            )?.name || 'Select a restaurant'
+                          : 'Select a restaurant'}
+                      </Button>
+                    }
+                  >
+                    {restaurants.map((restaurant) => (
+                      <Menu.Item
+                        key={restaurant.id}
+                        onPress={() => {
+                          setFormData({
+                            ...formData,
+                            restaurant_id: restaurant.id,
+                            showRestaurantMenu: false,
+                          });
+                        }}
+                        title={restaurant.name}
+                      />
+                    ))}
+                  </Menu>
+                </>
+              )}
 
               {!isInviteMode && (
                 <>
