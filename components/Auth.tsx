@@ -316,11 +316,7 @@ export default function Auth() {
             <View style={styles.header}>
               <Text style={styles.title}>Urban Eats Club</Text>
               <Text style={styles.subtitle}>
-                {isInvitedUser
-                  ? 'Complete Your Account Setup'
-                  : isSignUp
-                  ? 'Join Our Community'
-                  : 'Welcome Back'}
+                {isInvitedUser ? 'Complete Your Account Setup' : 'Welcome Back'}
               </Text>
             </View>
 
@@ -439,17 +435,11 @@ export default function Auth() {
 
             <View style={[styles.inputWrapper, styles.mt20]}>
               <Button
-                title={
-                  isInvitedUser
-                    ? 'Complete Setup'
-                    : isSignUp
-                    ? 'Create Account'
-                    : 'Sign In'
-                }
+                title={isInvitedUser ? 'Complete Setup' : 'Sign In'}
                 disabled={loading}
                 onPress={async () => {
                   try {
-                    if (isSignUp || isInvitedUser) {
+                    if (isInvitedUser) {
                       await signUpWithEmail();
                     } else {
                       await signInWithEmail();
@@ -471,19 +461,6 @@ export default function Auth() {
                 containerStyle={styles.buttonContainer}
               />
             </View>
-
-            {!isInvitedUser && (
-              <TouchableOpacity
-                style={styles.switchButton}
-                onPress={() => setIsSignUp(!isSignUp)}
-              >
-                <Text style={styles.switchButtonText}>
-                  {isSignUp
-                    ? 'Already have an account? Sign in'
-                    : "Don't have an account? Sign up"}
-                </Text>
-              </TouchableOpacity>
-            )}
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
@@ -625,16 +602,6 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: '600',
     color: '#FFFFFF',
-  },
-  switchButton: {
-    marginTop: 20,
-    marginBottom: 30,
-    alignItems: 'center',
-  },
-  switchButtonText: {
-    color: Colors.text.primary,
-    fontSize: 16,
-    fontWeight: '600',
   },
   mt20: {
     marginTop: 20,
