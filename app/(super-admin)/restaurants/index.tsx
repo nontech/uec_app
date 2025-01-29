@@ -1,4 +1,4 @@
-import { View, TouchableOpacity } from 'react-native';
+import { View, TouchableOpacity, Image } from 'react-native';
 import { Text } from 'react-native';
 import { useState, useEffect } from 'react';
 import { supabase } from '../../../lib/supabase';
@@ -9,10 +9,13 @@ import {
   Portal,
   TextInput,
   SegmentedButtons,
+  IconButton,
 } from 'react-native-paper';
 import { Database } from '../../../supabase/types';
 import { useRouter } from 'expo-router';
 import { ScrollView } from 'react-native';
+import * as ImagePicker from 'expo-image-picker';
+import { decode } from 'base64-arraybuffer';
 
 type HoursRange = {
   id: string;
@@ -45,6 +48,7 @@ type RestaurantInput = {
   cuisine_type: string | null;
   tier: string | null;
   image_url: string | null;
+  image_local_uri?: string | null;
 };
 
 type AddressInput = {
@@ -306,6 +310,104 @@ export default function RestaurantsManagement() {
     setDeleteConfirmVisible(true);
   };
 
+  const pickImage = async () => {
+    try {
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        aspect: [16, 9],
+        quality: 0.8,
+        base64: true,
+      });
+
+      if (!result.canceled) {
+        const base64FileData = result.assets[0].base64;
+        if (!base64FileData) {
+          throw new Error('No base64 data found in image');
+        }
+
+        // Update local preview immediately for better UX
+        setFormData({
+          ...formData,
+          restaurant: {
+            ...formData.restaurant,
+            image_local_uri: result.assets[0].uri,
+          },
+        });
+
+        // Delete old image if exists
+        if (formData.restaurant.image_url) {
+          const oldImagePath = formData.restaurant.image_url.split('/').pop();
+          if (oldImagePath) {
+            const { error: deleteError } = await supabase.storage
+              .from('restaurants')
+              .remove([oldImagePath]);
+            if (deleteError) {
+              console.error('Error deleting old image:', deleteError);
+            }
+          }
+        }
+
+        // Upload new image
+        const fileName = `restaurant-${Date.now()}.jpg`;
+        const { data, error } = await supabase.storage
+          .from('restaurants')
+          .upload(fileName, decode(base64FileData), {
+            contentType: 'image/jpeg',
+            upsert: true,
+          });
+
+        if (error) throw error;
+
+        // Get public URL
+        const {
+          data: { publicUrl },
+        } = supabase.storage.from('restaurants').getPublicUrl(fileName);
+
+        // Update form data with the public URL
+        setFormData({
+          ...formData,
+          restaurant: {
+            ...formData.restaurant,
+            image_url: publicUrl,
+            image_local_uri: result.assets[0].uri,
+          },
+        });
+      }
+    } catch (error) {
+      console.error('Error uploading image:', error);
+      alert('Error uploading image. Please try again.');
+    }
+  };
+
+  const removeImage = async () => {
+    try {
+      if (formData.restaurant.image_url) {
+        const imagePath = formData.restaurant.image_url.split('/').pop();
+        if (imagePath) {
+          const { error: deleteError } = await supabase.storage
+            .from('restaurants')
+            .remove([imagePath]);
+          if (deleteError) {
+            console.error('Error deleting image:', deleteError);
+          }
+        }
+      }
+
+      setFormData({
+        ...formData,
+        restaurant: {
+          ...formData.restaurant,
+          image_url: null,
+          image_local_uri: null,
+        },
+      });
+    } catch (error) {
+      console.error('Error removing image:', error);
+      alert('Error removing image. Please try again.');
+    }
+  };
+
   if (loading) {
     return (
       <View className="flex-1 p-5 bg-white">
@@ -404,6 +506,44 @@ export default function RestaurantsManagement() {
                 {selectedRestaurant ? 'Edit Restaurant' : 'Add Restaurant'}
               </Text>
 
+              {/* Image Upload Section */}
+              <View className="mb-6">
+                <Text className="text-sm font-medium text-gray-600 mb-2">
+                  Restaurant Image
+                </Text>
+                {formData.restaurant.image_url ||
+                formData.restaurant.image_local_uri ? (
+                  <View className="relative">
+                    <Image
+                      source={{
+                        uri:
+                          formData.restaurant.image_local_uri ||
+                          formData.restaurant.image_url ||
+                          '',
+                      }}
+                      className="w-full h-48 rounded-lg"
+                      resizeMode="cover"
+                    />
+                    <IconButton
+                      icon="close"
+                      size={20}
+                      className="absolute top-2 right-2 bg-white rounded-full"
+                      onPress={removeImage}
+                    />
+                  </View>
+                ) : (
+                  <TouchableOpacity
+                    onPress={pickImage}
+                    className="border-2 border-dashed border-gray-300 rounded-lg p-4 items-center justify-center h-48"
+                  >
+                    <IconButton icon="camera" size={32} />
+                    <Text className="text-gray-600 mt-2">
+                      Tap to upload image
+                    </Text>
+                  </TouchableOpacity>
+                )}
+              </View>
+
               <TextInput
                 label="Name"
                 value={formData.restaurant.name}
@@ -450,19 +590,6 @@ export default function RestaurantsManagement() {
                   setFormData({
                     ...formData,
                     restaurant: { ...formData.restaurant, tier: text },
-                  })
-                }
-                className="mb-4"
-                mode="flat"
-              />
-
-              <TextInput
-                label="Image URL"
-                value={formData.restaurant.image_url || ''}
-                onChangeText={(text) =>
-                  setFormData({
-                    ...formData,
-                    restaurant: { ...formData.restaurant, image_url: text },
                   })
                 }
                 className="mb-4"
