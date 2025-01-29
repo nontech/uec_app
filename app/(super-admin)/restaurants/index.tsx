@@ -500,14 +500,14 @@ export default function RestaurantsManagement() {
 
       <Portal>
         <Modal visible={visible} onDismiss={() => setVisible(false)}>
-          <View className="mx-5 my-8 bg-white rounded-lg max-w-lg self-center w-full max-h-[80%]">
+          <View className="mx-5 my-8 pb-12 pt-12 bg-white rounded-lg max-w-lg self-center w-full max-h-[80%]">
             <ScrollView className="p-6">
-              <Text className="text-xl font-semibold text-gray-800 mb-6">
+              <Text className="text-xl font-semibold text-gray-800 mb-2">
                 {selectedRestaurant ? 'Edit Restaurant' : 'Add Restaurant'}
               </Text>
 
               {/* Image Upload Section */}
-              <View className="mb-6">
+              <View className="mb-1">
                 <Text className="text-sm font-medium text-gray-600 mb-2">
                   Restaurant Image
                 </Text>
@@ -521,7 +521,7 @@ export default function RestaurantsManagement() {
                           formData.restaurant.image_url ||
                           '',
                       }}
-                      className="w-full h-48 rounded-lg"
+                      className="w-full h-32 rounded-lg"
                       resizeMode="cover"
                     />
                     <IconButton
@@ -534,7 +534,7 @@ export default function RestaurantsManagement() {
                 ) : (
                   <TouchableOpacity
                     onPress={pickImage}
-                    className="border-2 border-dashed border-gray-300 rounded-lg p-4 items-center justify-center h-48"
+                    className="border-2 border-dashed border-gray-300 rounded-lg p-4 items-center justify-center h-32"
                   >
                     <IconButton icon="camera" size={32} />
                     <Text className="text-gray-600 mt-2">
