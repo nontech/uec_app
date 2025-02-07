@@ -131,11 +131,7 @@ export default function Dashboard() {
               cx={size / 2}
               cy={size / 2}
               r={radius}
-<<<<<<< HEAD
-              stroke="#EDE9FE"
-=======
-              stroke='#F3F0FF'
->>>>>>> 60ccffe (Add translation in employee dashboard)
+              stroke='#EDE9FE'
               strokeWidth={strokeWidth}
               fill='transparent'
             />
@@ -181,7 +177,7 @@ export default function Dashboard() {
   };
 
   const Card = ({ children }: { children: React.ReactNode }) => (
-    <View className="bg-white rounded-2xl p-6 shadow-sm mb-4 border border-[#E0E0E0]">
+    <View className='bg-white rounded-2xl p-6 shadow-sm mb-4 border border-[#E0E0E0]'>
       {children}
     </View>
   );
@@ -206,37 +202,37 @@ export default function Dashboard() {
       : 0;
 
   return (
-    <ScrollView className="flex-1 bg-white">
-      <View className="p-4">
+    <ScrollView className='flex-1 bg-white'>
+      <View className='p-4'>
         {/* Profile Card */}
         <Card>
-          <View className="flex-row items-center">
-            <View className="w-16 h-16 bg-[#6B4EFF] rounded-full mr-4 items-center justify-center">
-              <Text className="text-white text-2xl font-semibold">
+          <View className='flex-row items-center'>
+            <View className='w-16 h-16 bg-[#6B4EFF] rounded-full mr-4 items-center justify-center'>
+              <Text className='text-white text-2xl font-semibold'>
                 {userDetails?.first_name?.[0]?.toUpperCase() || ''}
               </Text>
             </View>
             <View>
-              <Text className="text-gray-900 text-xl font-semibold">
+              <Text className='text-gray-900 text-xl font-semibold'>
                 {userDetails?.first_name} {userDetails?.last_name}
               </Text>
-              <Text className="text-gray-600">{userDetails?.email}</Text>
+              <Text className='text-gray-600'>{userDetails?.email}</Text>
             </View>
           </View>
         </Card>
 
         {/* Company & Membership Info Card */}
         <Card>
-          <View className="space-y-4">
-            <View className="flex-row justify-between items-center pb-4 border-b border-gray-200">
-              <Text className="text-gray-600 font-medium">Company</Text>
-              <Text className="text-gray-900 font-semibold">
+          <View className='space-y-4'>
+            <View className='flex-row justify-between items-center pb-4 border-b border-gray-200'>
+              <Text className='text-gray-600 font-medium'>Company</Text>
+              <Text className='text-gray-900 font-semibold'>
                 {company?.name}
               </Text>
             </View>
             {membership && (
-              <View className="flex-row justify-between items-center">
-                <Text className="text-gray-600 font-medium">Membership</Text>
+              <View className='flex-row justify-between items-center'>
+                <Text className='text-gray-600 font-medium'>Membership</Text>
                 <View
                   className={`${
                     PLAN_COLORS[
@@ -244,7 +240,7 @@ export default function Dashboard() {
                     ] || 'bg-gray-200'
                   } px-3 py-1 rounded-full`}
                 >
-                  <Text className="text-white font-medium">
+                  <Text className='text-white font-medium'>
                     Plan {membership.plan_type}
                   </Text>
                 </View>
@@ -255,18 +251,18 @@ export default function Dashboard() {
 
         {/* Meals Progress Card */}
         <Card>
-          <Text className="text-white text-xl font-semibold mb-6">
+          <Text className='text-white text-xl font-semibold mb-6'>
             Meals Remaining
           </Text>
-          <View className="items-center">
+          <View className='items-center'>
             <CircularProgress
               value={weeklyMeals}
               maxValue={userDetails?.meals_per_week || 0}
-              text="This week"
+              text='This week'
               size={160}
             />
-            <View className="mt-6 border border-[#3C3C3E] px-4 py-3 rounded-lg">
-              <Text className="text-[#3C3C3E] text-center">
+            <View className='mt-6 border border-[#3C3C3E] px-4 py-3 rounded-lg'>
+              <Text className='text-[#3C3C3E] text-center'>
                 {weeklyMeals} of {userDetails?.meals_per_week} meals available
               </Text>
             </View>
