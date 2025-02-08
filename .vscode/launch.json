@@ -1,0 +1,25 @@
+{
+    "configurations": [
+        {
+            "name": "Debug Android Hermes",
+            "request": "launch",
+            "type": "reactnativedirect",
+            "cwd": "${workspaceFolder}",
+            "platform": "android"
+        },
+        {
+            "name": "Debug iOS Hermes",
+            "request": "launch",
+            "type": "reactnativedirect",
+            "cwd": "${workspaceFolder}",
+            "platform": "ios"
+        },
+        {
+            "name": "Debug Windows Hermes",
+            "request": "launch",
+            "type": "reactnativedirect",
+            "cwd": "${workspaceFolder}",
+            "platform": "windows"
+        }
+    ]
+}
