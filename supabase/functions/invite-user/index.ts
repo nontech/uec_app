@@ -45,12 +45,31 @@ Deno.serve(async (req) => {
       throw new Error('User with this email already exists');
     }
 
+    // Fetch company name and membership details
+    const [{ data: companyData }, { data: membershipData }] = await Promise.all(
+      [
+        supabase.from('companies').select('name').eq('id', company_id).single(),
+        supabase
+          .from('memberships')
+          .select('plan_type')
+          .eq('id', membership_id)
+          .single(),
+      ]
+    );
+
+    if (!companyData) throw new Error('Company not found');
+    if (!membershipData) throw new Error('Membership not found');
+
     // Invite user through auth system
     const { data: authUser, error: authError } =
       await supabase.auth.admin.inviteUserByEmail(email, {
         data: {
-          first_name,
-          last_name,
+          first_name: first_name,
+          last_name: last_name,
+          type: type || 'employee',
+          company_name: companyData.name,
+          membership: membershipData.name,
+          meals_per_week: meals_per_week,
         },
         // @ts-ignore: allow Deno types
         redirectTo: `${Deno.env.get('SITE_URL')}`,

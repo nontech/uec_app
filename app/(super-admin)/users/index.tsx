@@ -14,6 +14,7 @@ import {
 import { Database } from '../../../supabase/types';
 import { ScrollView } from 'react-native';
 import { Alert } from 'react-native';
+import React from 'react';
 
 type AppUser = Database['public']['Tables']['app_users']['Row'];
 type Company = Database['public']['Tables']['companies']['Row'];

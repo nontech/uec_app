@@ -10,6 +10,7 @@ import { supabase } from '../lib/supabase';
 import { PaperProvider } from 'react-native-paper';
 import Colors from '../constants/Colors';
 import '../global.css';
+import React from 'react';
 import { initI18n } from '../lib/i18n';
 import { LanguageSwitcher } from '../components/LanguageSwitcher';
 
@@ -125,7 +126,7 @@ const CustomDrawerContent = ({
           <MaterialIcons name='logout' size={size} color={color} />
         )}
         onPress={handleSignOut}
-        style={{ backgroundColor: '#ffffff' , marginTop: 20 }}
+        style={{ backgroundColor: '#ffffff', marginTop: 20 }}
       />
     </DrawerContentScrollView>
   );
