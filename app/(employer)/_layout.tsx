@@ -19,7 +19,7 @@ function TabBarIcon(props: {
 
 export default function TabLayout() {
   return (
-    <View style={{ flex: 1, paddingBottom: 65 }}>
+    <View style={{ flex: 1 }}>
       <Tabs
         screenOptions={{
           headerShown: false,
@@ -27,10 +27,6 @@ export default function TabLayout() {
             backgroundColor: '#1C1C1E',
             borderTopColor: '#2C2C2E',
             height: 65,
-            position: 'fixed',
-            bottom: 0,
-            left: 0,
-            right: 0,
             paddingVertical: 8,
           },
           tabBarLabelStyle: {
@@ -43,29 +39,29 @@ export default function TabLayout() {
         }}
       >
         <Tabs.Screen
-          name="index"
+          name='index'
           options={{
             title: 'Dashboard',
             tabBarIcon: ({ color, focused }) => (
-              <TabBarIcon name="dashboard" color={color} focused={focused} />
+              <TabBarIcon name='dashboard' color={color} focused={focused} />
             ),
           }}
         />
         <Tabs.Screen
-          name="manage_employees"
+          name='manage_employees'
           options={{
             title: 'Employees',
             tabBarIcon: ({ color, focused }) => (
-              <TabBarIcon name="people" color={color} focused={focused} />
+              <TabBarIcon name='people' color={color} focused={focused} />
             ),
           }}
         />
         <Tabs.Screen
-          name="(restaurants)"
+          name='(restaurants)'
           options={{
             title: 'Restaurants',
             tabBarIcon: ({ color, focused }) => (
-              <TabBarIcon name="restaurant" color={color} focused={focused} />
+              <TabBarIcon name='restaurant' color={color} focused={focused} />
             ),
           }}
         />

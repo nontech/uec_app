@@ -22,7 +22,7 @@ export default function TabLayout() {
   const { t } = useTranslation();
 
   return (
-    <View style={{ flex: 1, paddingBottom: 65 }}>
+    <View style={{ flex: 1 }}>
       <Tabs
         screenOptions={{
           headerShown: false,
@@ -30,10 +30,6 @@ export default function TabLayout() {
             backgroundColor: '#1C1C1E',
             borderTopColor: '#2C2C2E',
             height: 65,
-            position: 'fixed',
-            bottom: 0,
-            left: 0,
-            right: 0,
             paddingVertical: 8,
           },
           tabBarLabelStyle: {
