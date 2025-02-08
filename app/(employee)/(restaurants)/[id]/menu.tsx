@@ -26,33 +26,6 @@ type Restaurant = Database['public']['Tables']['restaurants']['Row'] & {
   lunch_hours: HoursRange | null;
 };
 
-const getDayInGerman = () => {
-  const days = [
-    'SONNTAG',
-    'MONTAG',
-    'DIENSTAG',
-    'MITTWOCH',
-    'DONNERSTAG',
-    'FREITAG',
-    'SAMSTAG',
-  ];
-  const today = new Date().getDay();
-  return days[today];
-};
-
-const getCurrentDay = () => {
-  const days = [
-    'sunday',
-    'monday',
-    'tuesday',
-    'wednesday',
-    'thursday',
-    'friday',
-    'saturday',
-  ];
-  return days[new Date().getDay()];
-};
-
 const isWeekend = () => {
   const day = new Date().getDay();
   return day === 0 || day === 6; // 0 is Sunday, 6 is Saturday
@@ -99,7 +72,7 @@ const formatTime = (time: string | null) => {
 };
 
 export default function Menu() {
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   const params = useLocalSearchParams();
   const restaurantId = params.id as string;
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
@@ -198,67 +171,6 @@ export default function Menu() {
     setShowCheckout(true);
   };
 
-  const CheckoutModal = () => (
-    <Modal
-      animationType='slide'
-      transparent={true}
-      visible={showCheckout}
-      onRequestClose={() => setShowCheckout(false)}
-    >
-      <View className='flex-1 bg-[#1C1C1E]'>
-        {/* Header with close button */}
-        <View className='flex-row justify-between items-center p-4 border-b border-[#3C3C3E]'>
-          <TouchableOpacity
-            onPress={() => setShowCheckout(false)}
-            className='p-2'
-          >
-            <Ionicons name='close' size={24} color={Colors.text.primary} />
-          </TouchableOpacity>
-          <Text className='text-xl font-semibold text-white'>Checkout</Text>
-          <View style={{ width: 40 }}>
-            <Text> </Text>
-          </View>
-        </View>
-
-        {/* Content */}
-        <View className='p-6 flex-1'>
-          <Text className='text-xl mb-2 text-white'>Confirm Payment for</Text>
-          <View className='bg-[#2C2C2E] p-4 rounded-lg mb-8'>
-            <Text className='text-lg font-medium text-white'>
-              {selectedItem?.name || ''}
-            </Text>
-            <Text className='text-[#999999]'>
-              {selectedItem?.description || ''}
-            </Text>
-          </View>
-
-          {/* Virtual Card Payment Section */}
-          <View className='flex-1 max-h-[500px] justify-center items-center'>
-            <View className='w-full max-w-[300px] aspect-square relative'>
-              <View className='absolute inset-0 bg-[#6B4EFF] rounded-full justify-center items-center'>
-                <Text className='text-white text-xl mb-8'>
-                  <Text>TAP NOW TO PAY</Text>
-                </Text>
-                <View className='border-2 border-white rounded-full p-6'>
-                  <Ionicons name='wifi' size={48} color='white' />
-                </View>
-              </View>
-            </View>
-
-            {/* Payment Methods */}
-            <View className='mt-8'>
-              <Image
-                source='https://res.cloudinary.com/dc0tfxkph/image/upload/v1703963191/uec_app/payment-methods.png'
-                style={{ width: 200, height: 30 }}
-                contentFit='contain'
-              />
-            </View>
-          </View>
-        </View>
-      </View>
-    </Modal>
-  );
-
   const getCurrentDay = () => {
     const days = [
       'sunday',
@@ -326,7 +238,7 @@ export default function Menu() {
             LUNCH SPECIAL
           </Text>
           <Text className='text-lg text-center text-gray-900 mt-1'>
-            {getDayInGerman()}
+            {getTranslatedDay()}
           </Text>
           <View className='h-[1px] bg-gray-200 my-4' />
         </View>

@@ -98,7 +98,7 @@ const CustomDrawerContent = ({
               <MaterialIcons name='restaurant' size={size} color={color} />
             )}
             onPress={() => router.push('/(super-admin)/restaurants' as any)}
-            style={{ backgroundColor: '#1C1C1E' }}
+            style={{ backgroundColor: '#ffffff', marginBottom: 20 }}
           />
           <DrawerItem
             label='Companies'
@@ -106,7 +106,7 @@ const CustomDrawerContent = ({
               <MaterialIcons name='business' size={size} color={color} />
             )}
             onPress={() => router.push('/(super-admin)/companies' as any)}
-            style={{ backgroundColor: '#1C1C1E' }}
+            style={{ backgroundColor: '#ffffff', marginBottom: 20 }}
           />
           <DrawerItem
             label='Memberships'
@@ -114,7 +114,7 @@ const CustomDrawerContent = ({
               <MaterialIcons name='card-membership' size={size} color={color} />
             )}
             onPress={() => router.push('/(super-admin)/memberships' as any)}
-            style={{ backgroundColor: '#1C1C1E' }}
+            style={{ backgroundColor: '#ffffff' }}
           />
         </>
       )}
