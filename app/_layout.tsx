@@ -125,7 +125,7 @@ const CustomDrawerContent = ({
           <MaterialIcons name='logout' size={size} color={color} />
         )}
         onPress={handleSignOut}
-        style={{ backgroundColor: '#1C1C1E' }}
+        style={{ backgroundColor: '#ffffff' , marginTop: 20 }}
       />
     </DrawerContentScrollView>
   );

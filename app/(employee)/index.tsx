@@ -263,7 +263,7 @@ export default function Dashboard() {
             />
             <View className='mt-6 border border-[#3C3C3E] px-4 py-3 rounded-lg'>
               <Text className='text-[#3C3C3E] text-center'>
-                {weeklyMeals} of {userDetails?.meals_per_week} meals available
+                {weeklyMeals}  {t('common.of')} {userDetails?.meals_per_week} {t('dashboard.meals')} {t('common.available')}
               </Text>
             </View>
           </View>

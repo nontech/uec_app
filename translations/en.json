@@ -20,7 +20,9 @@
     "create": "Create",
     "confirm": "Confirm",
     "actions": "Actions",
-    "employees": "Employees"
+    "employees": "Employees",
+    "available": "Available",
+    "of": "of"
   },
   "menu": {
     "lunchSpecial": "LUNCH SPECIAL",
@@ -60,6 +62,7 @@
     "error": "Error during sign in"
   },
   "dashboard": {
+    "meals": "Meals",
     "mealsRemaining": "Meals Remaining",
     "thisWeek": "This week",
     "inMonth": "In {{month}}"

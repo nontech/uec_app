@@ -20,7 +20,9 @@
     "create": "Erstellen",
     "confirm": "Bestätigen",
     "actions": "Aktionen",
-    "employees": "Mitarbeiter"
+    "employees": "Mitarbeiter",
+    "available": "Verfügbar",
+    "of": "von"
   },
   "menu": {
     "lunchSpecial": "MITTAGSANGEBOT",
@@ -60,6 +62,7 @@
     "error": "Fehler bei der Anmeldung"
   },
   "dashboard": {
+    "meals": "Mahlzeiten",
     "mealsRemaining": "Verbleibende Mahlzeiten",
     "thisWeek": "Diese Woche",
     "inMonth": "Im {{month}}"
