@@ -13,42 +13,35 @@ import { Database } from '../../../../supabase/types';
 import { Ionicons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
 import Colors from '../../../../constants/Colors';
+import { useTranslation } from 'react-i18next';
 
 type MenuItem = Database['public']['Tables']['menu_items']['Row'];
 
-const getDayInGerman = () => {
-  const days = [
-    'SONNTAG',
-    'MONTAG',
-    'DIENSTAG',
-    'MITTWOCH',
-    'DONNERSTAG',
-    'FREITAG',
-    'SAMSTAG',
-  ];
-  const today = new Date().getDay();
-  return days[today];
-};
-
-const getCurrentDay = () => {
-  const days = [
-    'sunday',
-    'monday',
-    'tuesday',
-    'wednesday',
-    'thursday',
-    'friday',
-    'saturday',
-  ];
-  return days[new Date().getDay()];
-};
-
 export default function Menu() {
+  const { t } = useTranslation();
   const params = useLocalSearchParams();
   const restaurantId = params.id as string;
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
   const [loading, setLoading] = useState(true);
+  
+  const getCurrentDay = () => {
+    const days = [
+      'sunday',
+      'monday',
+      'tuesday',
+      'wednesday',
+      'thursday',
+      'friday',
+      'saturday',
+    ];
+    return days[new Date().getDay()];
+  };
+  
   const currentDay = getCurrentDay();
+  
+  const getTranslatedDay = () => {
+    return t(`days.${currentDay}`);
+  };
 
   useEffect(() => {
     if (restaurantId) {
@@ -94,7 +87,7 @@ export default function Menu() {
 
       <View className="px-4 pb-4">
         <Text className="text-xl text-center text-gray-900 mb-4">
-          {getDayInGerman()}
+        {getTranslatedDay()}
         </Text>
         <View className="h-[1px] bg-gray-200" />
       </View>

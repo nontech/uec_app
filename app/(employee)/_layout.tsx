@@ -2,6 +2,7 @@ import { Tabs } from 'expo-router';
 import { MaterialIcons } from '@expo/vector-icons';
 import { View } from 'react-native';
 import Colors from '../../constants/Colors';
+import { useTranslation } from 'react-i18next';
 
 function TabBarIcon(props: {
   name: React.ComponentProps<typeof MaterialIcons>['name'];
@@ -18,6 +19,8 @@ function TabBarIcon(props: {
 }
 
 export default function TabLayout() {
+  const { t } = useTranslation();
+
   return (
     <View style={{ flex: 1, paddingBottom: 65 }}>
       <Tabs
@@ -43,20 +46,20 @@ export default function TabLayout() {
         }}
       >
         <Tabs.Screen
-          name="index"
+          name='index'
           options={{
             title: 'Dashboard',
             tabBarIcon: ({ color, focused }) => (
-              <TabBarIcon name="dashboard" color={color} focused={focused} />
+              <TabBarIcon name='dashboard' color={color} focused={focused} />
             ),
           }}
         />
         <Tabs.Screen
-          name="(restaurants)"
+          name='(restaurants)'
           options={{
             title: 'Restaurants',
             tabBarIcon: ({ color, focused }) => (
-              <TabBarIcon name="restaurant" color={color} focused={focused} />
+              <TabBarIcon name='restaurant' color={color} focused={focused} />
             ),
           }}
         />

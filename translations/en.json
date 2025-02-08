@@ -1,0 +1,70 @@
+{
+  "common": {
+    "signOut": "Sign Out",
+    "loading": "Loading...",
+    "restaurants": "Restaurants",
+    "companies": "Companies",
+    "memberships": "Memberships",
+    "adminPanel": "Admin Panel",
+    "employer": "Employer",
+    "employee": "Employee",
+    "language": "Language",
+    "english": "English",
+    "german": "German",
+    "dashboard": "Dashboard",
+    "menu": "Menu",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "save": "Save Changes",
+    "create": "Create",
+    "confirm": "Confirm",
+    "actions": "Actions",
+    "employees": "Employees",
+    "available": "Available",
+    "of": "of"
+  },
+  "menu": {
+    "lunchSpecial": "LUNCH SPECIAL",
+    "selectToOrder": "Select to confirm order",
+    "loading": "Loading menu...",
+    "checkout": "Checkout",
+    "confirmPayment": "Confirm Payment for",
+    "tapToPay": "TAP NOW TO PAY"
+  },
+  "restaurants": {
+    "title": "Restaurants Management",
+    "addRestaurant": "Add Restaurant",
+    "editRestaurant": "Edit Restaurant",
+    "createRestaurant": "Create Restaurant",
+    "confirmDelete": "Confirm Restaurant Deletion",
+    "deleteWarning": "This will also delete all menu items associated with this restaurant. This action cannot be undone.",
+    "deleteConfirm": "Are you sure you want to delete the restaurant"
+  },
+  "days": {
+    "monday": "MONDAY",
+    "tuesday": "TUESDAY",
+    "wednesday": "WEDNESDAY",
+    "thursday": "THURSDAY",
+    "friday": "FRIDAY",
+    "saturday": "SATURDAY",
+    "sunday": "SUNDAY"
+  },
+  "auth": {
+    "welcome": "Welcome",
+    "signIn": "Sign In",
+    "email": "Email",
+    "password": "Password",
+    "enterEmail": "Enter your email",
+    "enterPassword": "Enter your password",
+    "invalidEmail": "Invalid email address",
+    "requiredField": "This field is required",
+    "error": "Error during sign in"
+  },
+  "dashboard": {
+    "meals": "Meals",
+    "mealsRemaining": "Meals Remaining",
+    "thisWeek": "This week",
+    "inMonth": "In {{month}}"
+  }
+}
