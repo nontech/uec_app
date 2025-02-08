@@ -184,7 +184,7 @@ export default function RestaurantsHome() {
 
   const renderRestaurant = ({ item }: { item: Restaurant }) => (
     <TouchableOpacity
-      className="mb-10"
+      className='mb-10'
       onPress={() =>
         router.push({
           pathname: '/[id]/menu',
@@ -194,7 +194,7 @@ export default function RestaurantsHome() {
     >
       <Image
         source={item.image_url || PLACEHOLDER_IMAGE}
-        contentFit="cover"
+        contentFit='cover'
         onError={(error) => console.log('Image error:', error)}
         style={{
           width: '100%',
@@ -203,33 +203,33 @@ export default function RestaurantsHome() {
           marginBottom: 10,
         }}
       />
-      <View className="px-1">
-        <View className="flex-row items-center justify-between mb-1">
-          <Text className="text-xl font-bold text-gray-900">{item.name}</Text>
-          <View className="bg-gray-100 px-3 py-1 rounded-full">
-            <Text className="text-gray-700 text-sm" numberOfLines={1}>
+      <View className='px-1'>
+        <View className='flex-row items-center justify-between mb-1'>
+          <Text className='text-xl font-bold text-gray-900'>{item.name}</Text>
+          <View className='bg-gray-100 px-3 py-1 rounded-full'>
+            <Text className='text-gray-700 text-sm' numberOfLines={1}>
               {item.cuisine_type}
             </Text>
           </View>
         </View>
-        <View className="flex-row items-center gap-6">
-          <View className="flex-row items-center">
+        <View className='flex-row items-center gap-6'>
+          <View className='flex-row items-center'>
             <Ionicons
-              name="time-outline"
+              name='time-outline'
               size={16}
               color={Colors.text.secondary}
             />
-            <Text className="text-gray-600 ml-1">
+            <Text className='text-gray-600 ml-1'>
               {formatLunchHours(item.hours_range_lunch)}
             </Text>
           </View>
-          <View className="flex-row items-center">
+          <View className='flex-row items-center'>
             <Ionicons
-              name="walk-outline"
+              name='walk-outline'
               size={16}
               color={Colors.text.secondary}
             />
-            <Text className="text-gray-600 ml-1">
+            <Text className='text-gray-600 ml-1'>
               {item.allowed_restaurants?.[0]?.distance_km != null
                 ? `${item.allowed_restaurants[0].distance_km.toFixed(1)} km`
                 : '-'}
@@ -242,14 +242,14 @@ export default function RestaurantsHome() {
 
   if (loading) {
     return (
-      <View className="flex-1 items-center justify-center bg-white">
-        <Text className="text-gray-500">Loading restaurants...</Text>
+      <View className='flex-1 items-center justify-center bg-white'>
+        <Text className='text-gray-500'>Loading restaurants...</Text>
       </View>
     );
   }
 
   return (
-    <View className="flex-1 bg-white">
+    <View className='flex-1 bg-white'>
       <FlatList
         data={restaurants}
         renderItem={renderRestaurant}
