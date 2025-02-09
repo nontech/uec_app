@@ -4,9 +4,15 @@
     "loading": "Wird geladen...",
     "restaurants": "Restaurants",
     "companies": "Unternehmen",
+    "company": "Unternehmen",
+    "active": "Aktiv",
+    "tier": "Stufe",
+    "invite": "Einladen",
     "memberships": "Mitgliedschaften",
+    "membership": "Mitgliedschaft",
     "adminPanel": "Admin-Panel",
     "employer": "Arbeitgeber",
+    "search": "Suchen",
     "employee": "Mitarbeiter",
     "language": "Sprache",
     "english": "Englisch",
@@ -22,7 +28,20 @@
     "actions": "Aktionen",
     "employees": "Mitarbeiter",
     "available": "Verfügbar",
-    "of": "von"
+    "unavailable": "Nicht verfügbar",
+    "of": "von",
+    "on": "am",
+    "add": "Hinzufügen",
+    "plan": "Planen",
+    "this": "Diese",
+    "week": "Woche",
+    "closed": "Geschlossen",
+    "weekend": "Wochenende",
+    "weekends": "Wochenenden",
+    "orders": "Bestellungen",
+    "select_meal": "Einen Mahlzeiten auswählen",
+    "lunch_hours_not_available": "Mittagessen nicht verfügbar",
+    "open_now": "Jetzt offen"
   },
   "menu": {
     "lunchSpecial": "MITTAGSANGEBOT",
@@ -66,5 +85,29 @@
     "mealsRemaining": "Verbleibende Mahlzeiten",
     "thisWeek": "Diese Woche",
     "inMonth": "Im {{month}}"
+  },
+  "descriptions": {
+    "premium_tier": "Premium-Stufe mit Zugang zu exklusiven S-Stufe-Restaurants",
+    "advanced_tier": "Advanced-Stufe mit Zugang zu S- und M-Stufe-Restaurants",
+    "complete_tier": "Complete-Stufe mit Zugang zu allen Restaurant-Stufen"
+  },
+  "form": {
+    "description": "Geben Sie die Details des Mitarbeiters ein, den Sie einladen möchten.",
+    "firstName": "Vorname",
+    "lastName": "Nachname",
+    "membership_plan": "Mitgliedschaftsplan",
+    "meals_per_week": "Mahlzeiten pro Woche",
+    "select_plan": "Plan auswählen",
+    "send_invite": "Einladung senden",
+    "remove_employee": "Mitarbeiter entfernen",
+    "remove_employee_confirmation": "Sind Sie sicher, dass Sie {{employee}} aus der Mitgliedschaft entfernen möchten?",
+    "cancel": "Abbrechen",
+    "remove": "Entfernen",
+    "removing": "Entfernen..."
+  },
+  "payment": {
+    "checkout": "Zur Kasse",
+    "confirmPayment": "Zahlung bestätigen für",
+    "tapToPay": "JETZT TIPPEN ZUM BEZAHLEN"
   }
 }

@@ -193,7 +193,7 @@ export default function Menu() {
   if (loading) {
     return (
       <View className='flex-1 items-center justify-center bg-white'>
-        <Text className='text-gray-500'>Loading menu...</Text>
+        <Text className='text-gray-500'>{t('menu.loading')}</Text>
       </View>
     );
   }
@@ -222,7 +222,11 @@ export default function Menu() {
               isOpen ? 'text-green-600' : 'text-red-600'
             }`}
           >
-            {isOpen ? 'Open Now' : isWeekend() ? 'Closed (Weekend)' : 'Closed'}
+            {isOpen
+              ? `${t('common.open_now')}`
+              : isWeekend()
+              ? `${t('common.closed')} ${t('common.weekend')}`
+              : `${t('common.closed')}`}
             {!isWeekend() &&
               restaurant?.lunch_hours &&
               ` (${formatTime(restaurant.lunch_hours.from)} - ${formatTime(
@@ -235,7 +239,7 @@ export default function Menu() {
       {!isWeekend() && (
         <View className='px-4 pb-4'>
           <Text className='text-xl text-center text-[#6B4EFF] font-medium mt-4'>
-            LUNCH SPECIAL
+            {t('menu.lunchSpecial')}
           </Text>
           <Text className='text-lg text-center text-gray-900 mt-1'>
             {getTranslatedDay()}
@@ -272,14 +276,16 @@ export default function Menu() {
             }`}
           >
             {isOpen
-              ? 'Select a meal to order'
+              ? `${t('common.select_meal')}`
               : isWeekend()
-              ? 'Orders unavailable on weekends'
+              ? `${t('common.orders')} ${t('common.unavailable')} ${t(
+                  'common.on'
+                )} ${t('common.weekends')}`
               : restaurant?.lunch_hours
-              ? `Orders available ${formatTime(
+              ? `${t('common.orders')} ${t('common.available')} ${formatTime(
                   restaurant.lunch_hours.from
                 )} - ${formatTime(restaurant.lunch_hours.to)}`
-              : 'Lunch hours not available'}
+              : `${t('common.lunch_hours_not_available')}`}
           </Text>
         </View>
       </View>
@@ -338,7 +344,7 @@ export default function Menu() {
                 <Ionicons name='close' size={24} color={Colors.text.primary} />
               </TouchableOpacity>
               <Text className='text-xl font-semibold text-gray-900'>
-                Checkout
+                {t('payment.checkout')}
               </Text>
               <View style={{ width: 40 }}>
                 <Text> </Text>
@@ -348,7 +354,7 @@ export default function Menu() {
             {/* Content */}
             <View className='p-6 flex-1'>
               <Text className='text-xl mb-2 text-gray-900'>
-                Confirm Payment for
+                {t('payment.confirmPayment')}
               </Text>
               <View className='bg-gray-50 p-4 rounded-lg mb-8'>
                 <Text className='text-lg font-medium text-gray-900'>
@@ -364,7 +370,7 @@ export default function Menu() {
                 <View className='w-full max-w-[300px] aspect-square relative'>
                   <View className='absolute inset-0 bg-[#6B4EFF] rounded-full justify-center items-center'>
                     <Text className='text-white text-xl mb-8'>
-                      <Text>TAP NOW TO PAY</Text>
+                      <Text>{t('payment.tapToPay')}</Text>
                     </Text>
                     <View className='border-2 border-white rounded-full p-6'>
                       <Ionicons name='wifi' size={48} color='white' />

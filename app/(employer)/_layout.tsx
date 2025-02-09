@@ -2,7 +2,7 @@ import { Tabs } from 'expo-router';
 import { MaterialIcons } from '@expo/vector-icons';
 import { View } from 'react-native';
 import Colors from '../../constants/Colors';
-
+import { useTranslation } from 'react-i18next';
 function TabBarIcon(props: {
   name: React.ComponentProps<typeof MaterialIcons>['name'];
   color: string;
@@ -18,6 +18,7 @@ function TabBarIcon(props: {
 }
 
 export default function TabLayout() {
+  const { t } = useTranslation();
   return (
     <View style={{ flex: 1 }}>
       <Tabs
@@ -50,7 +51,7 @@ export default function TabLayout() {
         <Tabs.Screen
           name='manage_employees'
           options={{
-            title: 'Employees',
+            title: t('common.employees'),
             tabBarIcon: ({ color, focused }) => (
               <TabBarIcon name='people' color={color} focused={focused} />
             ),

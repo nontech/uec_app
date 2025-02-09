@@ -225,14 +225,18 @@ export default function Dashboard() {
         <Card>
           <View className='space-y-4'>
             <View className='flex-row justify-between items-center pb-4 border-b border-gray-200'>
-              <Text className='text-gray-600 font-medium'>Company</Text>
+              <Text className='text-gray-600 font-medium'>
+                {t('common.company')}
+              </Text>
               <Text className='text-gray-900 font-semibold'>
                 {company?.name}
               </Text>
             </View>
             {membership && (
               <View className='flex-row justify-between items-center'>
-                <Text className='text-gray-600 font-medium'>Membership</Text>
+                <Text className='text-gray-600 font-medium'>
+                  {t('common.membership')}
+                </Text>
                 <View
                   className={`${
                     PLAN_COLORS[
@@ -241,7 +245,7 @@ export default function Dashboard() {
                   } px-3 py-1 rounded-full`}
                 >
                   <Text className='text-white font-medium'>
-                    Plan {membership.plan_type}
+                    {t('common.plan')} {membership.plan_type}
                   </Text>
                 </View>
               </View>
@@ -258,12 +262,12 @@ export default function Dashboard() {
             <CircularProgress
               value={weeklyMeals}
               maxValue={userDetails?.meals_per_week || 0}
-              text='This week'
-              size={160}
+              text={`${t('common.this')} ${t('common.week')}`}
             />
             <View className='mt-6 border border-[#3C3C3E] px-4 py-3 rounded-lg'>
               <Text className='text-[#3C3C3E] text-center'>
-                {weeklyMeals}  {t('common.of')} {userDetails?.meals_per_week} {t('dashboard.meals')} {t('common.available')}
+                {weeklyMeals} {t('common.of')} {userDetails?.meals_per_week}{' '}
+                {t('dashboard.meals')} {t('common.available')}
               </Text>
             </View>
           </View>

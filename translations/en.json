@@ -4,9 +4,15 @@
     "loading": "Loading...",
     "restaurants": "Restaurants",
     "companies": "Companies",
+    "company": "Company",
+    "active": "Active",
+    "tier": "Tier",
+    "invite": "Invite",
     "memberships": "Memberships",
+    "membership": "Membership",
     "adminPanel": "Admin Panel",
     "employer": "Employer",
+    "search": "Search",
     "employee": "Employee",
     "language": "Language",
     "english": "English",
@@ -22,7 +28,20 @@
     "actions": "Actions",
     "employees": "Employees",
     "available": "Available",
-    "of": "of"
+    "unavailable": "Unavailable",
+    "of": "of",
+    "on": "on",
+    "add": "Add",
+    "plan": "Plan",
+    "this": "This",
+    "week": "Week",
+    "closed": "Closed",
+    "weekend": "Weekend",
+    "weekends": "Weekends",
+    "orders": "Orders",
+    "select_meal": "Select a meal to order",
+    "lunch_hours_not_available": "Lunch hours not available",
+    "open_now": "Open Now"
   },
   "menu": {
     "lunchSpecial": "LUNCH SPECIAL",
@@ -66,5 +85,29 @@
     "mealsRemaining": "Meals Remaining",
     "thisWeek": "This week",
     "inMonth": "In {{month}}"
+  },
+  "descriptions": {
+    "premium_tier": "Premium tier with access to exclusive S-tier restaurants",
+    "advanced_tier": "Advanced tier with access to S and M-tier restaurants",
+    "complete_tier": "Complete tier with access to all restaurant tiers"
+  },
+  "form": {
+    "description": "Enter the details of the employee you want to invite.",
+    "firstName": "First Name",
+    "lastName": "Last Name",
+    "membership_plan": "Membership Plan",
+    "meals_per_week": "Meals per Week",
+    "select_plan": "Select a plan",
+    "send_invite": "Send Invitation",
+    "remove_employee": "Remove Employee",
+    "remove_employee_confirmation": "Are you sure you want to remove {{employee}} from the membership plan?",
+    "cancel": "Cancel",
+    "remove": "Remove",
+    "removing": "Removing..."
+  },
+  "payment": {
+    "checkout": "Checkout",
+    "confirmPayment": "Confirm Payment for",
+    "tapToPay": "TAP NOW TO PAY"
   }
 }
