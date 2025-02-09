@@ -13,12 +13,15 @@ import '../global.css';
 import React from 'react';
 import { initI18n } from '../lib/i18n';
 import { LanguageSwitcher } from '../components/LanguageSwitcher';
+import { useTranslation } from 'react-i18next';
+import { t } from 'i18next';
 
 const AuthCheck = () => {
   const { session, loading } = useAuth();
   const [userType, setUserType] = useState<string | null>(null);
   const [userName, setUserName] = useState<string | null>(null);
   const [userLoading, setUserLoading] = useState(true);
+  const { t } = useTranslation();
 
   useEffect(() => {
     if (!loading && session?.user) {
@@ -121,7 +124,7 @@ const CustomDrawerContent = ({
       )}
       <LanguageSwitcher />
       <DrawerItem
-        label='Sign Out'
+        label={t('common.signOut')}
         icon={({ size, color }) => (
           <MaterialIcons name='logout' size={size} color={color} />
         )}

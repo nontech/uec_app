@@ -1,8 +1,10 @@
 import { Stack } from 'expo-router';
 import { DrawerToggleButton } from '@react-navigation/drawer';
 import Colors from '../../../constants/Colors';
+import { useTranslation } from 'react-i18next';
 
 export default function RestaurantsLayout() {
+  const { t } = useTranslation();
   return (
     <Stack
       screenOptions={{
@@ -21,15 +23,15 @@ export default function RestaurantsLayout() {
       }}
     >
       <Stack.Screen
-        name="index"
+        name='index'
         options={{
           headerShown: false,
         }}
       />
       <Stack.Screen
-        name="[id]/menu"
+        name='[id]/menu'
         options={{
-          title: 'Menu',
+          title: `${t('common.menu')}`,
           headerBackTitle: 'Restaurants',
         }}
       />
