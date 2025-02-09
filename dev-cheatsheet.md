@@ -20,6 +20,27 @@
 - run `supabase functions serve` to start the functions
 
 
+# To build the app on android and ios
+- install eas-cli: `npm install -g eas-cli`
+- run `eas login` to login to eas
+- run `eas build:configure` to configure the build
+For production builds:
+- run `eas build --platform [android|ios]` to build the app for the specified platform
+For preview builds:
+- Configure preview build profile in eas.json
+    - in eas.json, under the build object, create a new profile with the following:
+       {
+            "build": {
+                "preview": {
+                "distribution": "internal"
+                }
+            }
+        }
+
+To download for android:
+- run `eas build --platform android --profile preview` to build the app for the specified platform
+
+
 
 
 
