@@ -25,6 +25,7 @@
 - run `eas login` to login to eas
 - run `eas build:configure` to configure the build
 For production builds:
+- Before building, run `npx expo prebuild --platform [android|ios]` to ensure the app is up to date
 - run `eas build --platform [android|ios]` to build the app for the specified platform
 For preview builds:
 - Configure preview build profile in eas.json
