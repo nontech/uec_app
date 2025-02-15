@@ -4,6 +4,8 @@
 !assets/node_modules/ # Don't ignore node_modules inside any assets directory
 node_modules/
 
+# Service Account
+service-account.json
 
 # Expo
 .expo/
