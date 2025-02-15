@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import {
   Alert,
-  StyleSheet,
   View,
   Text,
   TouchableOpacity,
@@ -10,6 +9,9 @@ import {
   KeyboardAvoidingView,
   Platform,
   SafeAreaView,
+  Linking as RNLinking,
+  Image,
+  Dimensions,
 } from 'react-native';
 import { supabase } from '../lib/supabase';
 import { Button, Input } from '@rneui/themed';
@@ -17,7 +19,6 @@ import { Database } from '../supabase/types';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useLocalSearchParams } from 'expo-router';
 import * as Linking from 'expo-linking';
-import Colors from '../constants/Colors';
 
 type Company = Database['public']['Tables']['companies']['Row'];
 
@@ -260,38 +261,335 @@ export default function Auth() {
     }
   }
 
-  const renderDropdown = (
-    visible: boolean,
-    onClose: () => void,
-    items: { label: string; value: string }[],
-    onSelect: (value: string, label: string) => void
-  ) => {
-    return (
-      <Modal visible={visible} transparent animationType="fade">
+  return (
+    <SafeAreaView className='flex-1 bg-white'>
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        className='flex-1'
+      >
+        <ScrollView className='flex-1' showsVerticalScrollIndicator={false}>
+          <View className='flex-1 bg-white'>
+            {/* Header Section with Illustration */}
+            <View className='px-6 pt-8 pb-6 bg-black w-full'>
+              <View className='max-w-[400px] mx-auto'>
+                <View className='w-full'>
+                  <View className='bg-white rounded-2xl py-4 px-6 shadow-lg'>
+                    <Image
+                      source={require('../assets/images/logo.png')}
+                      style={{
+                        width: '100%',
+                        height: 160,
+                        resizeMode: 'contain',
+                      }}
+                    />
+                  </View>
+                </View>
+
+                {/* Illustration */}
+                <View className='items-center justify-center mb-4'>
+                  <Image
+                    source={require('../assets/images/special-event.png')}
+                    style={{
+                      width: '100%',
+                      height: 160,
+                      resizeMode: 'contain',
+                    }}
+                  />
+                </View>
+
+                <Text className='text-lg text-gray-300 text-center mb-2 font-medium'>
+                  {isInvitedUser
+                    ? 'Complete Your Account Setup'
+                    : 'Welcome to Urban Eats Club'}
+                </Text>
+                <Text className='text-sm text-gray-400 text-center max-w-[280px] mx-auto leading-5'>
+                  Experience premium dining benefits with your team
+                </Text>
+              </View>
+            </View>
+
+            <View className='p-4 bg-white rounded-t-3xl -mt-4'>
+              <View className='flex flex-col items-center'>
+                {!isInvitedUser && (
+                  <View className='flex items-center'>
+                    <Input
+                      inputStyle={{
+                        color: '#1F2937',
+                        fontSize: 14,
+                        marginLeft: 4,
+                      }}
+                      leftIcon={{
+                        type: 'font-awesome',
+                        name: 'envelope',
+                        color: '#9CA3AF',
+                        size: 14,
+                      }}
+                      onChangeText={setEmail}
+                      value={email}
+                      placeholder='email@address.com'
+                      placeholderTextColor='#9CA3AF'
+                      autoCapitalize='none'
+                      containerStyle={{
+                        padding: 0,
+                        marginBottom: 0,
+                        width: 360,
+                      }}
+                      inputContainerStyle={{
+                        borderWidth: 0,
+                        borderBottomWidth: 1,
+                        borderBottomColor: '#E5E7EB',
+                        paddingHorizontal: 0,
+                        paddingVertical: 2,
+                        backgroundColor: 'transparent',
+                        minHeight: 38,
+                      }}
+                    />
+                  </View>
+                )}
+
+                <View className='mb-1 flex items-center'>
+                  <Input
+                    inputStyle={{
+                      color: '#1F2937',
+                      fontSize: 14,
+                      marginLeft: 4,
+                    }}
+                    leftIcon={{
+                      type: 'font-awesome',
+                      name: 'lock',
+                      color: '#9CA3AF',
+                      size: 14,
+                    }}
+                    onChangeText={setPassword}
+                    value={password}
+                    secureTextEntry={true}
+                    placeholder='Enter your password'
+                    placeholderTextColor='#9CA3AF'
+                    autoCapitalize='none'
+                    containerStyle={{
+                      padding: 0,
+                      marginBottom: 0,
+                      width: 360,
+                    }}
+                    inputContainerStyle={{
+                      borderWidth: 0,
+                      borderBottomWidth: 1,
+                      borderBottomColor: '#E5E7EB',
+                      paddingHorizontal: 0,
+                      paddingVertical: 2,
+                      backgroundColor: 'transparent',
+                      minHeight: 38,
+                    }}
+                  />
+                </View>
+
+                {(isSignUp || isInvitedUser) && (
+                  <View className='mb-1 flex items-center'>
+                    <Input
+                      label='Confirm Password'
+                      labelStyle={{
+                        color: '#374151',
+                        fontWeight: '500',
+                        marginBottom: 4,
+                        fontSize: 13,
+                      }}
+                      inputStyle={{
+                        color: '#1F2937',
+                        fontSize: 14,
+                        marginLeft: 4,
+                      }}
+                      leftIcon={{
+                        type: 'font-awesome',
+                        name: 'lock',
+                        color: '#9CA3AF',
+                        size: 14,
+                      }}
+                      onChangeText={setConfirmPassword}
+                      value={confirmPassword}
+                      secureTextEntry={true}
+                      placeholder='Confirm your password'
+                      placeholderTextColor='#9CA3AF'
+                      autoCapitalize='none'
+                      containerStyle={{
+                        padding: 0,
+                        marginBottom: 0,
+                        width: 360,
+                      }}
+                      inputContainerStyle={{
+                        borderWidth: 0,
+                        borderBottomWidth: 1,
+                        borderBottomColor: '#E5E7EB',
+                        paddingHorizontal: 0,
+                        paddingVertical: 6,
+                        backgroundColor: 'transparent',
+                        minHeight: 38,
+                      }}
+                    />
+                  </View>
+                )}
+
+                {isSignUp && !isInvitedUser && (
+                  <>
+                    <View className='mb-3 flex items-center w-[360px]'>
+                      <Text className='text-gray-700 font-medium mb-1 text-sm self-start'>
+                        User Type
+                      </Text>
+                      <TouchableOpacity
+                        className='flex-row items-center justify-between px-0 py-2 w-full border-b border-gray-200'
+                        onPress={() => setShowTypeDropdown(true)}
+                      >
+                        <Text className='text-gray-800 text-[14px]'>
+                          {userTypes.find((t) => t.value === userType)?.label ||
+                            'Select Type'}
+                        </Text>
+                        <MaterialIcons
+                          name='arrow-drop-down'
+                          size={18}
+                          color='#9CA3AF'
+                        />
+                      </TouchableOpacity>
+                    </View>
+
+                    <View className='mb-3 flex items-center w-[360px]'>
+                      <Text className='text-gray-700 font-medium mb-1 text-sm self-start'>
+                        Company
+                      </Text>
+                      <TouchableOpacity
+                        className='flex-row items-center justify-between px-0 py-2 w-full border-b border-gray-200'
+                        onPress={() => setShowCompanyDropdown(true)}
+                      >
+                        <Text className='text-gray-800 text-[14px]'>
+                          {selectedCompanyName || 'Select a company'}
+                        </Text>
+                        <MaterialIcons
+                          name='arrow-drop-down'
+                          size={18}
+                          color='#9CA3AF'
+                        />
+                      </TouchableOpacity>
+                    </View>
+                  </>
+                )}
+
+                <View className='mt-4 flex items-center w-[360px]'>
+                  <Button
+                    title={isInvitedUser ? 'Complete Setup' : 'Sign In'}
+                    disabled={loading}
+                    onPress={async () => {
+                      try {
+                        if (isInvitedUser) {
+                          await signUpWithEmail();
+                        } else {
+                          await signInWithEmail();
+                        }
+                      } catch (error) {
+                        console.error('Error in button press handler:', error);
+                        Alert.alert(
+                          'Error',
+                          error instanceof Error
+                            ? error.message
+                            : 'An unexpected error occurred'
+                        );
+                      }
+                    }}
+                    loading={loading}
+                    loadingProps={{ color: '#fff' }}
+                    buttonStyle={{
+                      backgroundColor: '#4F46E5',
+                      paddingVertical: 11,
+                      borderRadius: 8,
+                      shadowColor: '#4F46E5',
+                      shadowOffset: { width: 0, height: 1 },
+                      shadowOpacity: 0.12,
+                      shadowRadius: 3,
+                      elevation: 2,
+                    }}
+                    titleStyle={{
+                      color: '#fff',
+                      fontSize: 15,
+                      fontWeight: '500',
+                      letterSpacing: 0.3,
+                    }}
+                    containerStyle={{
+                      width: 360,
+                    }}
+                  />
+                </View>
+
+                {/* Contact Us Section with updated styling */}
+                <View className='mt-8 items-center w-[360px]'>
+                  <Text className='text-gray-500 text-center mb-2 text-sm'>
+                    Don't have an account?
+                  </Text>
+                  <TouchableOpacity
+                    onPress={() =>
+                      RNLinking.openURL('mailto:info@urbaneatsclub.com')
+                    }
+                    className='mt-1 bg-gray-100 px-3 py-2 rounded-lg hover:bg-gray-200 transition-colors w-full'
+                  >
+                    <Text className='text-gray-700 font-medium text-sm text-center'>
+                      Contact us at info@urbaneatsclub.com
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+            </View>
+          </View>
+        </ScrollView>
+      </KeyboardAvoidingView>
+
+      {/* Dropdowns */}
+      <Modal visible={showTypeDropdown} transparent animationType='fade'>
         <TouchableOpacity
-          style={styles.modalOverlay}
+          className='flex-1 bg-black/50 justify-center items-center'
           activeOpacity={1}
-          onPress={onClose}
+          onPress={() => setShowTypeDropdown(false)}
         >
-          <View style={styles.dropdownModal}>
+          <View className='bg-white rounded-2xl p-4 w-[85%] max-h-[50%]'>
             <ScrollView>
-              {items.length === 0 ? (
-                <View style={styles.dropdownItem}>
-                  <Text style={styles.dropdownItemText}>
-                    No items available
+              {userTypes.map((item, index) => (
+                <TouchableOpacity
+                  key={index}
+                  className='py-4 px-4 border-b border-gray-200'
+                  onPress={() => {
+                    setUserType(item.value as 'employee' | 'company_admin');
+                    setShowTypeDropdown(false);
+                  }}
+                >
+                  <Text className='text-black text-base'>{item.label}</Text>
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
+          </View>
+        </TouchableOpacity>
+      </Modal>
+
+      <Modal visible={showCompanyDropdown} transparent animationType='fade'>
+        <TouchableOpacity
+          className='flex-1 bg-black/50 justify-center items-center'
+          activeOpacity={1}
+          onPress={() => setShowCompanyDropdown(false)}
+        >
+          <View className='bg-white rounded-2xl p-4 w-[85%] max-h-[50%]'>
+            <ScrollView>
+              {companies.length === 0 ? (
+                <View className='py-4 px-4'>
+                  <Text className='text-black text-base'>
+                    No companies available
                   </Text>
                 </View>
               ) : (
-                items.map((item, index) => (
+                companies.map((company, index) => (
                   <TouchableOpacity
                     key={index}
-                    style={styles.dropdownItem}
+                    className='py-4 px-4 border-b border-gray-200'
                     onPress={() => {
-                      onSelect(item.value, item.label);
-                      onClose();
+                      setSelectedCompany(company.id);
+                      setSelectedCompanyName(company.name);
+                      setShowCompanyDropdown(false);
                     }}
                   >
-                    <Text style={styles.dropdownItemText}>{item.label}</Text>
+                    <Text className='text-black text-base'>{company.name}</Text>
                   </TouchableOpacity>
                 ))
               )}
@@ -299,311 +597,6 @@ export default function Auth() {
           </View>
         </TouchableOpacity>
       </Modal>
-    );
-  };
-
-  return (
-    <SafeAreaView style={styles.safeArea}>
-      <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        style={styles.keyboardView}
-      >
-        <ScrollView
-          contentContainerStyle={styles.scrollContainer}
-          showsVerticalScrollIndicator={false}
-        >
-          <View style={styles.container}>
-            <View style={styles.header}>
-              <Text style={styles.title}>Urban Eats Club</Text>
-              <Text style={styles.subtitle}>
-                {isInvitedUser ? 'Complete Your Account Setup' : 'Welcome Back'}
-              </Text>
-            </View>
-
-            {!isInvitedUser && (
-              <View style={[styles.inputWrapper, styles.mt20]}>
-                <Input
-                  label="Email"
-                  labelStyle={styles.inputLabel}
-                  inputStyle={styles.input}
-                  leftIcon={{
-                    type: 'font-awesome',
-                    name: 'envelope',
-                    color: Colors.text.primary,
-                    size: 18,
-                  }}
-                  onChangeText={setEmail}
-                  value={email}
-                  placeholder="email@address.com"
-                  placeholderTextColor={Colors.text.placeholder}
-                  autoCapitalize="none"
-                  containerStyle={styles.inputContainer}
-                  inputContainerStyle={styles.inputInnerContainer}
-                />
-              </View>
-            )}
-
-            <View
-              style={[
-                styles.inputWrapper,
-                isInvitedUser ? styles.mt20 : undefined,
-              ]}
-            >
-              <Input
-                label="Password"
-                labelStyle={styles.inputLabel}
-                inputStyle={styles.input}
-                leftIcon={{
-                  type: 'font-awesome',
-                  name: 'lock',
-                  color: Colors.text.primary,
-                  size: 20,
-                }}
-                onChangeText={setPassword}
-                value={password}
-                secureTextEntry={true}
-                placeholder="Enter your password"
-                placeholderTextColor={Colors.text.placeholder}
-                autoCapitalize="none"
-                containerStyle={styles.inputContainer}
-                inputContainerStyle={styles.inputInnerContainer}
-              />
-            </View>
-
-            {(isSignUp || isInvitedUser) && (
-              <View style={styles.inputWrapper}>
-                <Input
-                  label="Confirm Password"
-                  labelStyle={styles.inputLabel}
-                  inputStyle={styles.input}
-                  leftIcon={{
-                    type: 'font-awesome',
-                    name: 'lock',
-                    color: Colors.text.primary,
-                    size: 20,
-                  }}
-                  onChangeText={setConfirmPassword}
-                  value={confirmPassword}
-                  secureTextEntry={true}
-                  placeholder="Confirm your password"
-                  placeholderTextColor={Colors.text.placeholder}
-                  autoCapitalize="none"
-                  containerStyle={styles.inputContainer}
-                  inputContainerStyle={styles.inputInnerContainer}
-                />
-              </View>
-            )}
-
-            {isSignUp && !isInvitedUser && (
-              <>
-                <View style={[styles.inputWrapper, styles.pickerContainer]}>
-                  <Text style={styles.inputLabel}>User Type</Text>
-                  <TouchableOpacity
-                    style={styles.dropdownButton}
-                    onPress={() => setShowTypeDropdown(true)}
-                  >
-                    <Text style={styles.dropdownButtonText}>
-                      {userTypes.find((t) => t.value === userType)?.label ||
-                        'Select Type'}
-                    </Text>
-                    <MaterialIcons
-                      name="arrow-drop-down"
-                      size={24}
-                      color={Colors.text.primary}
-                    />
-                  </TouchableOpacity>
-                </View>
-
-                <View style={[styles.inputWrapper, styles.pickerContainer]}>
-                  <Text style={styles.inputLabel}>Company</Text>
-                  <TouchableOpacity
-                    style={styles.dropdownButton}
-                    onPress={() => setShowCompanyDropdown(true)}
-                  >
-                    <Text style={styles.dropdownButtonText}>
-                      {selectedCompanyName || 'Select a company'}
-                    </Text>
-                    <MaterialIcons
-                      name="arrow-drop-down"
-                      size={24}
-                      color={Colors.text.primary}
-                    />
-                  </TouchableOpacity>
-                </View>
-              </>
-            )}
-
-            <View style={[styles.inputWrapper, styles.mt20]}>
-              <Button
-                title={isInvitedUser ? 'Complete Setup' : 'Sign In'}
-                disabled={loading}
-                onPress={async () => {
-                  try {
-                    if (isInvitedUser) {
-                      await signUpWithEmail();
-                    } else {
-                      await signInWithEmail();
-                    }
-                  } catch (error) {
-                    console.error('Error in button press handler:', error);
-                    Alert.alert(
-                      'Error',
-                      error instanceof Error
-                        ? error.message
-                        : 'An unexpected error occurred'
-                    );
-                  }
-                }}
-                loading={loading}
-                loadingProps={{ color: '#fff' }}
-                buttonStyle={styles.primaryButton}
-                titleStyle={styles.buttonText}
-                containerStyle={styles.buttonContainer}
-              />
-            </View>
-          </View>
-        </ScrollView>
-      </KeyboardAvoidingView>
-
-      {renderDropdown(
-        showTypeDropdown,
-        () => setShowTypeDropdown(false),
-        userTypes,
-        (value) => setUserType(value as 'employee' | 'company_admin')
-      )}
-
-      {renderDropdown(
-        showCompanyDropdown,
-        () => setShowCompanyDropdown(false),
-        companies.map((c) => ({ label: c.name, value: c.id })),
-        (value, label) => {
-          setSelectedCompany(value);
-          setSelectedCompanyName(label);
-        }
-      )}
     </SafeAreaView>
   );
 }
-const styles = StyleSheet.create({
-  safeArea: {
-    flex: 1,
-    backgroundColor: Colors.background.primary,
-  },
-  keyboardView: {
-    flex: 1,
-  },
-  scrollContainer: {
-    flexGrow: 1,
-  },
-  container: {
-    flex: 1,
-    backgroundColor: Colors.background.primary,
-  },
-  header: {
-    padding: 40,
-    paddingTop: 60,
-    alignItems: 'center',
-    backgroundColor: Colors.background.secondary,
-    borderBottomLeftRadius: 30,
-    borderBottomRightRadius: 30,
-    marginBottom: 30,
-  },
-  title: {
-    fontSize: 32,
-    fontWeight: 'bold',
-    color: Colors.text.primary,
-    marginBottom: 12,
-  },
-  subtitle: {
-    fontSize: 18,
-    color: Colors.text.secondary,
-  },
-  inputWrapper: {
-    paddingHorizontal: 20,
-    marginBottom: 8,
-  },
-  inputContainer: {
-    paddingHorizontal: 0,
-  },
-  inputInnerContainer: {
-    borderWidth: 1,
-    borderColor: Colors.border.primary,
-    borderRadius: 12,
-    paddingHorizontal: 12,
-    backgroundColor: Colors.background.secondary,
-    height: 50,
-  },
-  inputLabel: {
-    color: Colors.text.primary,
-    fontSize: 16,
-    fontWeight: '600',
-    marginBottom: 8,
-  },
-  input: {
-    color: Colors.text.primary,
-    fontSize: 16,
-  },
-  pickerContainer: {
-    marginBottom: 16,
-  },
-  dropdownButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    borderWidth: 1,
-    borderColor: Colors.border.primary,
-    borderRadius: 12,
-    padding: 14,
-    backgroundColor: Colors.background.secondary,
-    height: 50,
-  },
-  dropdownButtonText: {
-    fontSize: 16,
-    color: Colors.text.primary,
-  },
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: Colors.overlay,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  dropdownModal: {
-    backgroundColor: Colors.background.secondary,
-    borderRadius: 16,
-    padding: 8,
-    width: '85%',
-    maxHeight: '50%',
-    elevation: 5,
-    shadowColor: Colors.shadow.color,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: Colors.shadow.opacity,
-    shadowRadius: 3.84,
-  },
-  dropdownItem: {
-    padding: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: Colors.border.secondary,
-  },
-  dropdownItemText: {
-    fontSize: 16,
-    color: Colors.text.primary,
-  },
-  buttonContainer: {
-    width: '100%',
-    marginVertical: 10,
-  },
-  primaryButton: {
-    backgroundColor: Colors.background.tertiary,
-    borderRadius: 12,
-    paddingVertical: 14,
-    marginHorizontal: 20,
-  },
-  buttonText: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#FFFFFF',
-  },
-  mt20: {
-    marginTop: 20,
-  },
-});
