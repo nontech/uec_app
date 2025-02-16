@@ -21,7 +21,7 @@ extensions.configure(com.facebook.react.ReactSettingsExtension) { ex ->
   }
 }
 
-rootProject.name = 'Urban Eats Club'
+rootProject.name = 'Urban Eats'
 
 dependencyResolutionManagement {
   versionCatalogs {
