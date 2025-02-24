@@ -7,6 +7,7 @@ DO $$
 BEGIN
     -- Create Company Admin for TechCorp
     INSERT INTO auth.users (
+        instance_id,
         id,
         email,
         raw_user_meta_data,
@@ -17,9 +18,15 @@ BEGIN
         created_at,
         updated_at,
         last_sign_in_at,
-        encrypted_password
+        encrypted_password,
+        confirmation_token,
+        recovery_sent_at,
+        recovery_token,
+        email_change,
+        email_change_token_new
     )
     VALUES (
+        '00000000-0000-0000-0000-000000000000',
         '55555555-6666-7777-8888-999999999999',
         'john@techcorp.de',
         '{"name": "John Doe"}',
@@ -30,11 +37,17 @@ BEGIN
         NOW(),
         NOW(),
         NOW(),
-        crypt('123456', gen_salt('bf'))
+        crypt('123456', gen_salt('bf')),
+        '',
+        NOW(),
+        '',
+        '',
+        ''
     ) ON CONFLICT (id) DO NOTHING;
 
     -- Create Employee for TechCorp
     INSERT INTO auth.users (
+        instance_id,
         id,
         email,
         raw_user_meta_data,
@@ -45,9 +58,15 @@ BEGIN
         created_at,
         updated_at,
         last_sign_in_at,
-        encrypted_password
+        encrypted_password,
+        confirmation_token,
+        recovery_sent_at,
+        recovery_token,
+        email_change,
+        email_change_token_new
     )
     VALUES (
+        '00000000-0000-0000-0000-000000000000',
         '66666666-7777-8888-9999-aaaaaaaaaaaa',
         'jane@techcorp.de',
         '{"name": "Jane Smith"}',
@@ -58,11 +77,17 @@ BEGIN
         NOW(),
         NOW(),
         NOW(),
-        crypt('123456', gen_salt('bf'))
+        crypt('123456', gen_salt('bf')),
+        '',
+        NOW(),
+        '',
+        '',
+        ''
     ) ON CONFLICT (id) DO NOTHING;
 
     -- Create Company Admin for MediaGroup
     INSERT INTO auth.users (
+        instance_id,
         id,
         email,
         raw_user_meta_data,
@@ -73,9 +98,15 @@ BEGIN
         created_at,
         updated_at,
         last_sign_in_at,
-        encrypted_password
+        encrypted_password,
+        confirmation_token,
+        recovery_sent_at,
+        recovery_token,
+        email_change,
+        email_change_token_new
     )
     VALUES (
+        '00000000-0000-0000-0000-000000000000',
         '77777777-8888-9999-aaaa-bbbbbbbbbbbb',
         'mike@mediagroup.de',
         '{"name": "Mike Johnson"}',
@@ -86,7 +117,12 @@ BEGIN
         NOW(),
         NOW(),
         NOW(),
-        crypt('123456', gen_salt('bf'))
+        crypt('123456', gen_salt('bf')),
+        '',
+        NOW(),
+        '',
+        '',
+        ''
     ) ON CONFLICT (id) DO NOTHING;
 END
 $$;
