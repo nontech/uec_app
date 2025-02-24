@@ -10,7 +10,10 @@
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.urbaneatsclub.uecapp"
+      "bundleIdentifier": "com.urbaneatsclub.uecapp",
+      "infoPlist": {
+        "NSUserTrackingUsageDescription": "This identifier will be used to identify you in our system."
+      }
     },
     "android": {
       "adaptiveIcon": {
@@ -39,7 +42,14 @@
           "resizeMode": "contain",
           "backgroundColor": "#ffffff"
         }
-      ]
+      ],
+      [
+        "expo-tracking-transparency",
+        {
+          "userTrackingPermission": "This identifier will be used to deliver personalized ads to you and improve your experience with our app."
+        }
+      ],
+      "./plugins/withTrackingTransparency"
     ],
     "experiments": {
       "typedRoutes": true
