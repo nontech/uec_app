@@ -15,7 +15,6 @@ import { initI18n } from '../lib/i18n';
 import { LanguageSwitcher } from '../components/LanguageSwitcher';
 import { useTranslation } from 'react-i18next';
 import { t } from 'i18next';
-import { TrackingPermission } from '../components/TrackingPermission';
 
 const AuthCheck = () => {
   const { session, loading } = useAuth();
@@ -222,11 +221,6 @@ export default function RootLayout() {
     <PaperProvider>
       <AuthProvider>
         <AuthCheck />
-        <TrackingPermission
-          onPermissionResult={(granted) => {
-            console.log('Tracking permission granted:', granted);
-          }}
-        />
       </AuthProvider>
     </PaperProvider>
   );

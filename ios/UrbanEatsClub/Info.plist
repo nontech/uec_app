@@ -87,7 +87,5 @@
     <string>Automatic</string>
     <key>UIViewControllerBasedStatusBarAppearance</key>
     <false/>
-    <key>NSUserTrackingUsageDescription</key>
-    <string>We only collect your name and email address to identify you in our system. This information is not used for advertising purposes.</string>
   </dict>
 </plist>
