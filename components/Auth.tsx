@@ -515,23 +515,6 @@ export default function Auth() {
                     }}
                   />
                 </View>
-
-                {/* Contact Us Section with updated styling */}
-                <View className='mt-8 items-center w-[360px]'>
-                  <Text className='text-gray-500 text-center mb-2 text-sm'>
-                    Don't have an account?
-                  </Text>
-                  <TouchableOpacity
-                    onPress={() =>
-                      RNLinking.openURL('mailto:info@urbaneatsclub.com')
-                    }
-                    className='mt-1 bg-gray-100 px-3 py-2 rounded-lg hover:bg-gray-200 transition-colors w-full'
-                  >
-                    <Text className='text-gray-700 font-medium text-sm text-center'>
-                      Contact us at info@urbaneatsclub.com
-                    </Text>
-                  </TouchableOpacity>
-                </View>
               </View>
             </View>
           </View>
