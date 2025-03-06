@@ -1,13 +1,5 @@
 import { corsHeaders } from '../_shared/cors.ts';
-// @ts-ignore: allow Deno types
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.39.3';
-
-// @ts-ignore: allow Deno types
-const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
-// @ts-ignore: allow Deno types
-const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-
-const supabase = createClient(supabaseUrl, supabaseServiceKey);
+import { createSupabaseAdmin } from '../_shared/supabaseAdmin.ts';
 
 console.log(`Function "invite-user" up and running!`);
 
@@ -19,6 +11,9 @@ Deno.serve(async (req) => {
   }
 
   try {
+    // Use the shared admin client instead of creating one directly
+    const supabase = createSupabaseAdmin();
+
     const {
       email,
       first_name,
