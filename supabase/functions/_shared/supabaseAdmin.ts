@@ -6,13 +6,6 @@
 // @ts-ignore
 import { createClient } from 'jsr:@supabase/supabase-js@2';
 
-// TypeScript declaration for Deno environment
-declare const Deno: {
-  env: {
-    get: (key: string) => string | undefined;
-  };
-};
-
 /**
  * Creates a Supabase admin client using the SERVICE_ROLE key
  * This client bypasses Row Level Security (RLS) policies

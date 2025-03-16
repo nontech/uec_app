@@ -6,7 +6,7 @@ CREATE TABLE revolut_credentials (
     access_token_expires_at timestamp with time zone,
     refresh_token text,
     refresh_token_expires_at timestamp with time zone,
-    client_assertion_expires_at timestamp with time zone NOT NULL,
+    client_assertion_expires_at timestamp with time zone,
     is_active boolean DEFAULT true,
     created_at timestamp with time zone DEFAULT now(),
     updated_at timestamp with time zone DEFAULT now(),
