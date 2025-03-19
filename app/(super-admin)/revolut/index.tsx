@@ -55,9 +55,30 @@ export default function RevolutCredentialsPage() {
     refresh_token: '',
   });
 
+  // state variables for accounts
   const [accounts, setAccounts] = useState<RevolutAccount[]>([]);
   const [isLoadingAccounts, setIsLoadingAccounts] = useState(false);
   const [accountsError, setAccountsError] = useState<string | null>(null);
+
+  // state variables for card details
+  const [cardId, setCardId] = useState('');
+  const [cardDetails, setCardDetails] = useState<any>(null);
+  const [isLoadingCard, setIsLoadingCard] = useState(false);
+  const [cardError, setCardError] = useState<string | null>(null);
+
+  // state variables for transactions
+  const [transactionParams, setTransactionParams] = useState({
+    accountId: '',
+    cardId: '',
+    from: '',
+    to: '',
+    count: '100',
+  });
+  const [transactions, setTransactions] = useState<any[]>([]);
+  const [isLoadingTransactions, setIsLoadingTransactions] = useState(false);
+  const [transactionsError, setTransactionsError] = useState<string | null>(
+    null
+  );
 
   useEffect(() => {
     const getUser = async () => {
@@ -166,6 +187,7 @@ export default function RevolutCredentialsPage() {
     return new Date(dateString).toLocaleString();
   };
 
+  // Fetch all accounts (do this only in Admin UI)
   const fetchAccounts = async () => {
     setIsLoadingAccounts(true);
     setAccountsError(null);
@@ -173,13 +195,89 @@ export default function RevolutCredentialsPage() {
     try {
       console.log('Fetching accounts');
       const accountsData = await revolutClient.getAccounts();
-      console.log('Accounts data:', accountsData);
       setAccounts(accountsData);
     } catch (error: any) {
       console.error('Error fetching accounts:', error);
       setAccountsError(error.message);
     } finally {
       setIsLoadingAccounts(false);
+    }
+  };
+
+  // Fetch a card details
+  const fetchCardDetails = async () => {
+    if (!cardId.trim()) {
+      setCardError('Please enter a card ID');
+      return;
+    }
+
+    setIsLoadingCard(true);
+    setCardError(null);
+    setCardDetails(null);
+
+    try {
+      console.log('Fetching card details for:', cardId);
+      const cardData = await revolutClient.getCardDetails(cardId);
+      setCardDetails(cardData);
+    } catch (error: any) {
+      console.error('Error fetching card details:', error);
+      setCardError(error.message);
+    } finally {
+      setIsLoadingCard(false);
+    }
+  };
+
+  // Fetch transactions
+  const fetchTransactions = async () => {
+    setIsLoadingTransactions(true);
+    setTransactionsError(null);
+    setTransactions([]);
+
+    try {
+      // Prepare query parameters
+      const queryParams: any = {};
+
+      if (transactionParams.accountId) {
+        queryParams.account = transactionParams.accountId;
+      }
+
+      if (transactionParams.from) {
+        queryParams.from = transactionParams.from;
+      }
+
+      if (transactionParams.to) {
+        queryParams.to = transactionParams.to;
+      }
+
+      if (transactionParams.count) {
+        queryParams.count = parseInt(transactionParams.count);
+      }
+
+      console.log('Fetching transactions with params:', queryParams);
+
+      // Call the API to fetch transactions
+      const transactionsData = await revolutClient.callApi(
+        'transactions?' + new URLSearchParams(queryParams).toString()
+      );
+
+      // If card ID is specified, filter transactions client-side
+      let filteredTransactions = transactionsData;
+
+      if (transactionParams.cardId) {
+        filteredTransactions = transactionsData.filter((transaction: any) => {
+          // Check all legs of the transaction for matching card ID
+          return transaction.legs.some(
+            (leg: any) => leg.card && leg.card.id === transactionParams.cardId
+          );
+        });
+      }
+
+      setTransactions(filteredTransactions);
+    } catch (error: any) {
+      console.error('Error fetching transactions:', error);
+      setTransactionsError(error.message);
+    } finally {
+      setIsLoadingTransactions(false);
     }
   };
 
@@ -292,7 +390,239 @@ export default function RevolutCredentialsPage() {
               <div className='mt-2 text-red-500'>Error: {accountsError}</div>
             )}
 
-            {accounts.length > 0 && (
+            {/* Card details section */}
+            <div className='mt-4'>
+              <div className='flex gap-2 items-end'>
+                <div className='flex-grow'>
+                  <label className='block text-sm font-medium text-gray-700 mb-1'>
+                    Card ID
+                  </label>
+                  <input
+                    type='text'
+                    value={cardId}
+                    onChange={(e) => setCardId(e.target.value)}
+                    placeholder='Enter card ID'
+                    className='px-3 py-2 border border-gray-300 rounded w-full'
+                  />
+                </div>
+                <button
+                  onClick={fetchCardDetails}
+                  disabled={isLoadingCard}
+                  className='px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:bg-blue-400'
+                >
+                  {isLoadingCard ? 'Loading...' : 'Get Card Details'}
+                </button>
+              </div>
+
+              {cardError && (
+                <div className='mt-2 text-red-500'>Error: {cardError}</div>
+              )}
+            </div>
+
+            {/* Add new section for transactions */}
+            <div className='mt-6 pt-6 border-t border-gray-200'>
+              <h3 className='text-xl font-semibold mb-4'>Transaction Search</h3>
+
+              <div className='grid grid-cols-1 md:grid-cols-2 gap-4 mb-4'>
+                <div>
+                  <label className='block text-sm font-medium text-gray-700 mb-1'>
+                    Account ID (optional)
+                  </label>
+                  <input
+                    type='text'
+                    value={transactionParams.accountId}
+                    onChange={(e) =>
+                      setTransactionParams((prev) => ({
+                        ...prev,
+                        accountId: e.target.value,
+                      }))
+                    }
+                    placeholder='Filter by account ID'
+                    className='px-3 py-2 border border-gray-300 rounded w-full'
+                  />
+                </div>
+
+                <div>
+                  <label className='block text-sm font-medium text-gray-700 mb-1'>
+                    Card ID (optional)
+                  </label>
+                  <input
+                    type='text'
+                    value={transactionParams.cardId}
+                    onChange={(e) =>
+                      setTransactionParams((prev) => ({
+                        ...prev,
+                        cardId: e.target.value,
+                      }))
+                    }
+                    placeholder='Filter by card ID'
+                    className='px-3 py-2 border border-gray-300 rounded w-full'
+                  />
+                </div>
+
+                <div>
+                  <label className='block text-sm font-medium text-gray-700 mb-1'>
+                    From Date (optional)
+                  </label>
+                  <input
+                    type='datetime-local'
+                    value={transactionParams.from}
+                    onChange={(e) =>
+                      setTransactionParams((prev) => ({
+                        ...prev,
+                        from: e.target.value,
+                      }))
+                    }
+                    className='px-3 py-2 border border-gray-300 rounded w-full'
+                  />
+                </div>
+
+                <div>
+                  <label className='block text-sm font-medium text-gray-700 mb-1'>
+                    To Date (optional)
+                  </label>
+                  <input
+                    type='datetime-local'
+                    value={transactionParams.to}
+                    onChange={(e) =>
+                      setTransactionParams((prev) => ({
+                        ...prev,
+                        to: e.target.value,
+                      }))
+                    }
+                    className='px-3 py-2 border border-gray-300 rounded w-full'
+                  />
+                </div>
+
+                <div>
+                  <label className='block text-sm font-medium text-gray-700 mb-1'>
+                    Count (max 1000)
+                  </label>
+                  <input
+                    type='number'
+                    value={transactionParams.count}
+                    onChange={(e) =>
+                      setTransactionParams((prev) => ({
+                        ...prev,
+                        count: e.target.value,
+                      }))
+                    }
+                    min='1'
+                    max='1000'
+                    className='px-3 py-2 border border-gray-300 rounded w-full'
+                  />
+                </div>
+              </div>
+
+              <button
+                onClick={fetchTransactions}
+                disabled={isLoadingTransactions}
+                className='px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:bg-blue-400'
+              >
+                {isLoadingTransactions ? 'Loading...' : 'Get Transactions'}
+              </button>
+
+              {transactionsError && (
+                <div className='mt-2 text-red-500'>
+                  Error: {transactionsError}
+                </div>
+              )}
+            </div>
+
+            {/* Display card details, account details, or transactions based on what was fetched */}
+            {cardDetails && !transactions.length && (
+              <div className='mt-4'>
+                <h3 className='text-xl font-semibold mb-2'>Card Details</h3>
+                <div className='bg-gray-50 rounded p-4 max-h-96 overflow-auto'>
+                  <table className='min-w-full divide-y divide-gray-200'>
+                    <thead className='bg-gray-100'>
+                      <tr>
+                        <th className='px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider'>
+                          Property
+                        </th>
+                        <th className='px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider'>
+                          Value
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody className='bg-white divide-y divide-gray-200'>
+                      {Object.entries(cardDetails).map(([key, value]) => (
+                        <tr key={key}>
+                          <td className='px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900'>
+                            {key}
+                          </td>
+                          <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-500'>
+                            {typeof value === 'object'
+                              ? JSON.stringify(value)
+                              : String(value)}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            )}
+
+            {transactions.length > 0 && (
+              <div className='mt-4'>
+                <h3 className='text-xl font-semibold mb-2'>
+                  Transactions ({transactions.length})
+                </h3>
+                <div className='bg-gray-50 rounded p-4 max-h-96 overflow-auto'>
+                  <table className='min-w-full divide-y divide-gray-200'>
+                    <thead className='bg-gray-100'>
+                      <tr>
+                        <th className='px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider'>
+                          ID
+                        </th>
+                        <th className='px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider'>
+                          Type
+                        </th>
+                        <th className='px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider'>
+                          Amount
+                        </th>
+                        <th className='px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider'>
+                          Currency
+                        </th>
+                        <th className='px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider'>
+                          State
+                        </th>
+                        <th className='px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider'>
+                          Created At
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody className='bg-white divide-y divide-gray-200'>
+                      {transactions.map((transaction) => (
+                        <tr key={transaction.id}>
+                          <td className='px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900'>
+                            {transaction.id}
+                          </td>
+                          <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-500'>
+                            {transaction.type}
+                          </td>
+                          <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-500'>
+                            {transaction.legs?.[0]?.amount}
+                          </td>
+                          <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-500'>
+                            {transaction.legs?.[0]?.currency}
+                          </td>
+                          <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-500'>
+                            {transaction.state}
+                          </td>
+                          <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-500'>
+                            {new Date(transaction.created_at).toLocaleString()}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            )}
+
+            {accounts.length > 0 && !cardDetails && !transactions.length && (
               <div className='mt-4'>
                 <h3 className='text-xl font-semibold mb-2'>Accounts</h3>
                 <div className='bg-gray-50 rounded p-4 max-h-96 overflow-auto'>

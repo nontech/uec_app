@@ -10,7 +10,7 @@ export const revolutClient = {
     try {
       console.log(`Calling Edge Function for ${endpoint}`);
 
-      // Use the invite-user function to send invitation
+      // Use the revolut-api edge function to call the Revolut API
       const { data: responseData, error } = await supabase.functions.invoke(
         'revolut-api',
         {
@@ -37,5 +37,21 @@ export const revolutClient = {
   async getAccounts() {
     console.log('Getting Revolut accounts');
     return this.callApi('accounts');
+  },
+
+  async getAccount(accountId: string) {
+    console.log('Getting Revolut account', accountId);
+    return this.callApi(`accounts/${accountId}`);
+  },
+
+  async getCardDetails(cardId: string) {
+    console.log('Getting Revolut card details', cardId);
+    return this.callApi(`cards/${cardId}`);
+  },
+
+  async getTransactions(queryParams = {}) {
+    console.log('Getting Revolut transactions with params:', queryParams);
+    const queryString = new URLSearchParams(queryParams).toString();
+    return this.callApi(`transactions${queryString ? '?' + queryString : ''}`);
   },
 };
