@@ -390,8 +390,8 @@ export default function RevolutCredentialsPage() {
               <div className='mt-2 text-red-500'>Error: {accountsError}</div>
             )}
 
-            {/* Card details section */}
-            <div className='mt-4'>
+            {/* Card details section - Untoggle it when we have individual cards. We don't have API response for sandbox cards*/}
+            {/* <div className='mt-4'>
               <div className='flex gap-2 items-end'>
                 <div className='flex-grow'>
                   <label className='block text-sm font-medium text-gray-700 mb-1'>
@@ -417,7 +417,7 @@ export default function RevolutCredentialsPage() {
               {cardError && (
                 <div className='mt-2 text-red-500'>Error: {cardError}</div>
               )}
-            </div>
+            </div> */}
 
             {/* Add new section for transactions */}
             <div className='mt-6 pt-6 border-t border-gray-200'>
@@ -630,6 +630,9 @@ export default function RevolutCredentialsPage() {
                     <thead className='bg-gray-100'>
                       <tr>
                         <th className='px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider'>
+                          ID
+                        </th>
+                        <th className='px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider'>
                           Name
                         </th>
                         <th className='px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider'>
@@ -646,6 +649,9 @@ export default function RevolutCredentialsPage() {
                     <tbody className='bg-white divide-y divide-gray-200'>
                       {accounts.map((account) => (
                         <tr key={account.id}>
+                          <td className='px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900'>
+                            {account.id}
+                          </td>
                           <td className='px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900'>
                             {account.name}
                           </td>
