@@ -28,6 +28,12 @@ export default function AdminDashboard() {
       route: '/users',
       icon: '👤',
     },
+    {
+      title: 'Revolut API',
+      description: 'Manage Revolut API credentials and tokens',
+      route: '/revolut',
+      icon: '🔑',
+    },
   ];
 
   return (

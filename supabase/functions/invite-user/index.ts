@@ -1,17 +1,20 @@
+/* To invoke locally:
+
+  1. Run `supabase start` (see: https://supabase.com/docs/reference/cli/supabase-start)
+  2. Make an HTTP request:
+
+  curl -i --location --request POST 'http://127.0.0.1:44321/functions/v1/invite-user' \
+    --header 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0' \
+    --header 'Content-Type: application/json' \
+    --data '{"name":"Functions"}'
+
+*/
+
 import { corsHeaders } from '../_shared/cors.ts';
-// @ts-ignore: allow Deno types
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.39.3';
-
-// @ts-ignore: allow Deno types
-const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
-// @ts-ignore: allow Deno types
-const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-
-const supabase = createClient(supabaseUrl, supabaseServiceKey);
+import { createSupabaseAdmin } from '../_shared/supabaseAdmin.ts';
 
 console.log(`Function "invite-user" up and running!`);
 
-// @ts-ignore: allow Deno types
 Deno.serve(async (req) => {
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
@@ -19,6 +22,9 @@ Deno.serve(async (req) => {
   }
 
   try {
+    // Use the shared admin client instead of creating one directly
+    const supabase = createSupabaseAdmin();
+
     const {
       email,
       first_name,
@@ -111,15 +117,3 @@ Deno.serve(async (req) => {
     );
   }
 });
-
-/* To invoke locally:
-
-  1. Run `supabase start` (see: https://supabase.com/docs/reference/cli/supabase-start)
-  2. Make an HTTP request:
-
-  curl -i --location --request POST 'http://127.0.0.1:44321/functions/v1/invite-user' \
-    --header 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0' \
-    --header 'Content-Type: application/json' \
-    --data '{"name":"Functions"}'
-
-*/
