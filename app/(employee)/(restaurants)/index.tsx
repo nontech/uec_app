@@ -19,14 +19,6 @@ type Restaurant = Database['public']['Tables']['restaurants']['Row'] & {
   }[];
 };
 
-type UserWithCompany = Database['public']['Tables']['app_users']['Row'] & {
-  companies?: {
-    memberships: {
-      plan_type: 'S' | 'M' | 'L';
-    }[];
-  };
-};
-
 const PLACEHOLDER_IMAGE =
   'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4';
 
@@ -205,7 +197,13 @@ export default function RestaurantsHome() {
       />
       <View className='px-1'>
         <View className='flex-row items-center justify-between mb-1'>
-          <Text className='text-xl font-bold text-gray-900'>{item.name}</Text>
+          <Text
+            className='text-xl font-bold text-gray-900'
+            numberOfLines={1}
+            ellipsizeMode='tail'
+          >
+            {item.name}
+          </Text>
           <View className='bg-gray-100 px-3 py-1 rounded-full'>
             <Text className='text-gray-700 text-sm' numberOfLines={1}>
               {item.cuisine_type}

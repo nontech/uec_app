@@ -1,17 +1,18 @@
-import { View, Text, ScrollView } from 'react-native';
+import { View, Text, ScrollView, Pressable } from 'react-native';
 import { useEffect, useState } from 'react';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../lib/AuthContext';
 import { Database } from '../../supabase/types';
 import { Svg, Circle } from 'react-native-svg';
 import Colors from '../../constants/Colors';
+import { MaterialIcons } from '@expo/vector-icons';
+import { useTranslation } from 'react-i18next';
 
 const PLAN_COLORS = {
   S: 'bg-[#7C3AED]',
   M: 'bg-[#2563EB]',
   L: 'bg-[#059669]',
 };
-import { useTranslation } from 'react-i18next';
 
 type AppUser = Database['public']['Tables']['app_users']['Row'];
 type Company = Database['public']['Tables']['companies']['Row'];
@@ -255,7 +256,7 @@ export default function Dashboard() {
 
         {/* Meals Progress Card */}
         <Card>
-          <Text className='text-white text-xl font-semibold mb-6'>
+          <Text className='text-gray-900 text-xl font-semibold mb-6'>
             Meals Remaining
           </Text>
           <View className='items-center'>
@@ -271,6 +272,76 @@ export default function Dashboard() {
               </Text>
             </View>
           </View>
+        </Card>
+
+        {/* Actions Card */}
+        <Card>
+          <Text className='text-gray-900 text-xl font-semibold mb-6'>
+            Quick Actions
+          </Text>
+
+          {/* AI Meal Planning Button */}
+          <Pressable
+            className='flex-row items-center bg-[#F5F3FF] p-4 rounded-xl mb-3 border border-[#DDD6FE]'
+            onPress={() => {
+              console.log('AI Meal Planning pressed');
+            }}
+          >
+            <View className='w-10 h-10 bg-[#7C3AED] rounded-lg items-center justify-center mr-4'>
+              <MaterialIcons name='restaurant' size={20} color='#ffffff' />
+            </View>
+            <View className='flex-1'>
+              <Text className='text-gray-900 font-semibold text-lg'>
+                Allow AI to plan your meals
+              </Text>
+              <Text className='text-gray-600 text-sm mt-1'>
+                Get personalized meal recommendations
+              </Text>
+            </View>
+            <MaterialIcons name='chevron-right' size={24} color='#7C3AED' />
+          </Pressable>
+
+          {/* Transfer Lunch Button */}
+          <Pressable
+            className='flex-row items-center bg-[#EFF6FF] p-4 rounded-xl mb-3 border border-[#BFDBFE]'
+            onPress={() => {
+              console.log('Transfer Lunch pressed');
+            }}
+          >
+            <View className='w-10 h-10 bg-[#2563EB] rounded-lg items-center justify-center mr-4'>
+              <MaterialIcons name='swap-horiz' size={20} color='#ffffff' />
+            </View>
+            <View className='flex-1'>
+              <Text className='text-gray-900 font-semibold text-lg'>
+                Transfer a lunch to a colleague
+              </Text>
+              <Text className='text-gray-600 text-sm mt-1'>
+                Share your meal with team members
+              </Text>
+            </View>
+            <MaterialIcons name='chevron-right' size={24} color='#2563EB' />
+          </Pressable>
+
+          {/* Create Private Group Button */}
+          <Pressable
+            className='flex-row items-center bg-[#ECFDF5] p-4 rounded-xl border border-[#A7F3D0]'
+            onPress={() => {
+              console.log('Create Group pressed');
+            }}
+          >
+            <View className='w-10 h-10 bg-[#059669] rounded-lg items-center justify-center mr-4'>
+              <MaterialIcons name='group-add' size={20} color='#ffffff' />
+            </View>
+            <View className='flex-1'>
+              <Text className='text-gray-900 font-semibold text-lg'>
+                Create your own private group
+              </Text>
+              <Text className='text-gray-600 text-sm mt-1'>
+                Organize lunch with friends
+              </Text>
+            </View>
+            <MaterialIcons name='chevron-right' size={24} color='#059669' />
+          </Pressable>
         </Card>
       </View>
     </ScrollView>
